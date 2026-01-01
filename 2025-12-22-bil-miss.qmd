@@ -92,7 +92,6 @@ source(file = here("R","f_ggplot2.R")) # custom ggplot2 theme
 # Trend generali e territoriali 
 I cambiamenti della società e gli impatti per il sistema di welfare
 
-## Def. cartelle
 ```{r}
 # Directories ----
 dir_data_in <- here::here("data_in", "istat_demo_2002_2024")
@@ -785,7 +784,7 @@ s_m_plot
 
 # ____
 
-## Dati Benessere e sostenibilita' 
+## Trend Benessere e sostenibilita' 
 
 I dati di seguito vengono da [IstatData - BES (Benessere Equo e Sostenibile)](https://esploradati.istat.it/databrowser/#/it/dw/categories/IT1,Z0930TER,1.0/BES_T/IT1,DF_BES_TERRIT_0T,1.0), che, a sua volta, attinge a varie fonti Istat e non-Istat.
 
@@ -794,7 +793,6 @@ I dati di seguito vengono da [IstatData - BES (Benessere Equo e Sostenibile)](ht
 dir_data_in2 <- here::here("data_in", "bes_2003_2023")
 dir_data_out2 <- here::here("data_out","bes_2003_2023")
 ```
-
 
 ## Dati di input (ISTAT BES)
 ```{r}
@@ -1848,14 +1846,7 @@ patr_cult_plot
 
 # ____
 
-
-## 4. Persone e istituzioni
-
-CAPITALE SOCIALE: Tessuto sociale vitale con un terzo settore numeroso e ben rappresentato
-
-
-### Ricerca e innovazione
- 
+### 4. Ricerca e innovazione
 
 ```{r}
 #| label: brev_data
@@ -1927,21 +1918,24 @@ writexl::write_xlsx(x = brev_data, path = here(dir_data_out2, "brev.xlsx"))
 
 ```
 
-### IA e automazione  🟨
 
- 
+
 # ____
 
+# Possibili sezioni da sviluppare 
 
-## 5. Geolocalizzazione della fragilità 🟨
+## 5. Persone e istituzioni
+
+CAPITALE SOCIALE: Tessuto sociale vitale con un terzo settore numeroso e ben rappresentato
+
+## 6. IA e automazione 
+
+## 7. Geolocalizzazione della fragilità 
 
 [Se servono si potrebbero ricostruire mappe con indicatori di fragilità socio-economica a livello comunale per Parma e provincia]
 
 
 
-# ____
-
-## Render docx version
 
 ```{r}
 #| label: render_docx

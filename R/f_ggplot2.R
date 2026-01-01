@@ -24,10 +24,10 @@
 
 # FONDAMENTALE per Quarto ["Libre Frankin" diventa "librefranklin"] ----
 library(showtext)
-# font_add("librefranklin", 
-#          regular = "~/Library/Fonts/LibreFranklin-Regular.ttf",
-#          bold = "~/Library/Fonts/LibreFranklin-Bold.ttf")
-font_add_google("Libre Franklin", "librefranklin")
+font_add("librefranklin",
+         regular = "~/Library/Fonts/LibreFranklin-Regular.ttf",
+         bold = "~/Library/Fonts/LibreFranklin-Bold.ttf")
+# font_add_google("Libre Franklin", "librefranklin")  # Commented out due to timeout issues
 showtext_auto()
 
 # Crea un tema personalizzato con dimensioni relative ---- 

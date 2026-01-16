@@ -11,7 +11,7 @@ Progetto creato a Dicembre 2025
 
 ## Workflow minimale
 
-Qui invece che da `docs/` GH Pages pubblica direttamente da root, dove c'è solo il file `QMD`index.html`, che viene poi salvato in versione `2025_bil-missione.docx` su OneDrive.
+Qui invece che da `docs/` GH Pages pubblica direttamente da root, dove c'è solo il file `index.qmd`, che viene 1) pubblicato come `html` e 2) anche salvato in versione `2025_bil-missione.docx` su OneDrive.
 
 ```bash
 # Esegue index.qmd in HTML + DOCX e copia su OneDrive

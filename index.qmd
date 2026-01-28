@@ -1,5 +1,6 @@
 ---
 title: "Input per bilancio di missione"
+author: Fondazione Cariparma - Osservatorio dei dati sociali
 date: last-modified
 date-format: "DD-MMMM-YYYY"
 lang: it
@@ -31,7 +32,7 @@ execute:
   error: false
   output: false
 
-bibliography: bilancio_miss.bib
+bibliography: CRP_bil_miss.bib
 suppress-bibliography: false
 ---
 
@@ -80,108 +81,102 @@ grn_lg <- "#8eb9b1"
 ylw_sc <- "#b27d2c"
 ylw_md <- "#d9a44a"
 ylw_lg <- "#f0c166"
+
+maschi <- "#6B8FAD"
+femmine <- "#C47A87"                                                           
 ```
 
 
 ```{r}
 # ------- R utilities and functions  
 #source(file = here("R","f_recap_values.R")) # # f_recap_values(df, c("col1","col2"))
+#source(file = here("R","f_ggplot2.R")) # custom ggplot2 theme
 source(file = here("R","f_ft_formatting.R")) # %>% f_ft_properties()
-
-source(file = here("R","f_ggplot2.R")) # custom ggplot2 theme
 ```
 
 # Importazione dati
 
++ **Shapefile x mappe**  
+[@istatConfiniUnitaAmministrative2025a]
 ```{r}
-#| label: fonti_bil_miss
+#| label: import_shapefiles
 
-# Import dati ----
-# Puliti in `data_in/RER_statistica/convert_RER_2tidy.R`
+# Import comuni PARMA shapefile (istat, 2025) - Parma ----
+ER_PR_comuni_sf <- readRDS(here("data_in", "ER_shp", "ER_PR_comuni_sf.rds")) |> 
+  select(PRO_COM_T, COMUNE, Shape_Leng, Shape_Area, geometry)
+# Importa tabella LINK x assegnare COMUNI A DISTRETTI ----
+comuni_distretti_parma <- read_excel(here("data_in", "ER_shp", "comuni_distretti_parma.xlsx"))
+
+```
+
++ **Dati popolazione residente 2025**  
+I dati sulla popolazione residente vengono da 2 fonti: Istat [[@istatDemoDemografiaCifre2025]] e RE-R Statistica [@re-rstatisticaPopolazioneResidenteSesso2024].
+
+```{r}
+#| label: import_pop_resid_2025
+
+# Import dati popolazione residente x sesso/eta in province RER ----
+# ----- Puliti in `data_in/RER_statistica/convert_RER_2tidy.R` (A)
 resident_prov_eta5_sex <- readRDS(here("data_in", "pop_resid_2025", "RER_statistica", "resident_prov_eta5_sex.rds")) |>
   rename(territorio = provincia) |> 
   mutate(genere =  factor(genere, levels = c("Maschi", "Femmine", "Totale")))
 
-# Import dati stranieri ----
-# Puliti in `data_in/istat_demo_stran_2025/convert_istat_pop_2tidy.R`
-resid_stran_eta5_sex_PR <- readRDS("~/Github/bilancio_missione/data_in/pop_resid_2025/istat_demo_stran_2025/resid_stran_eta5_sex_PR.rds") |> 
+# Import dati stranieri PR ----
+# Puliti in `data_in/istat_demo_stran_2025/convert_istat_pop_2tidy.R` (B)
+resid_stran_eta5_sex_PR <- readRDS(here("data_in", "pop_resid_2025", "istat_demo_stran_2025", "resid_stran_eta5_sex_PR.rds")) |>
   mutate(genere =  factor(genere, levels = c("Maschi", "Femmine", "Totale")))
-# Puliti in `data_in/istat_demo_stran_2025/convert_istat_pop_2tidy.R`
+
+# Import dati stranieri ER ----
+# Puliti in `data_in/istat_demo_stran_2025/convert_istat_pop_2tidy.R` (B)
 resid_stran_eta5_sex_ER <- readRDS("~/Github/bilancio_missione/data_in/pop_resid_2025/istat_demo_stran_2025/resid_stran_eta5_sex_ER.rds")
 
-# per distretti ----
-# 1) Importa tabella link distretti-comuni
-comuni_distretti_parma <- read_excel(here("data_in", "ER_shp", "comuni_distretti_parma.xlsx"))
-
-# 2) Import comuni PARMA shapefile (istat, 2025) - Parma ----
-ER_PR_comuni_sf <- readRDS(here("data_in", "ER_shp", "ER_PR_comuni_sf.rds")) |> 
-  select(PRO_COM_T, COMUNE, Shape_Leng, Shape_Area, geometry)
-
-# 1) Import dati pop residente x sesso/eta in distretti ER ----
+# Import dati pop residente x sesso/eta in distretti ER ----
 resident_distr_eta_sex <- readRDS(here("data_in", "pop_resid_2025", "RER_statistica", "resident_distr_eta_sex.rds")) 
-
-# fragilità demografica ----
-# % Popolazione residente di 65 anni e oltre in famiglie unipersonali al 31.12.2023
-
-fragil_raw <- read_excel("data_in/fragil/Dati-Fragilita-2023-Indicatori-elementari-comunali-e-provinciali.xlsx", skip= 1)
-
 ```
 
++ **Dati TREND demografici ISTAT 2002-2024**  
+[@istatDemoDemografiaCifre2025]
+
 ```{r}
- # --- Load dataset ISTAT TREND DEMOGRAFICI ----
+#| label: import_istat_trend_demo
 
-# Directories ----
-dir_data_in <- here::here("data_in", "istat_demo_2002_2024")
-dir_data_out <- here::here("data_out","istat_demo_2002_2024")
- 
-indicatori_di_struttura <- readRDS(fs::path(dir_data_in,  "indicatori_di_struttura.rds"))
-
-speranza_di_vita_65 <- readRDS(fs::path(dir_data_in, "speranza_di_vita_65.rds"))
-
-crescita_naturale <- readRDS(fs::path(dir_data_in, "crescita_naturale.rds"))
-
-saldo_migratorio <- readRDS(fs::path(dir_data_in, "saldo_migratorio_totale.rds"))
+# --- Load dataset ISTAT TREND DEMOGRAFICI ----
+indicatori_di_struttura <- readRDS(here("data_in", "istat_demo_2002_2024", "indicatori_di_struttura.rds"))
+#speranza_di_vita_65 <- readRDS(here("data_in", "istat_demo_2002_2024", "speranza_di_vita_65.rds"))
+crescita_naturale <- readRDS(here("data_in", "istat_demo_2002_2024", "crescita_naturale.rds"))
+saldo_migratorio <- readRDS(here("data_in", "istat_demo_2002_2024", "saldo_migratorio_totale.rds"))
 
 # Esplora indicatori disponibili
 # tabyl(indicatori_di_struttura$indicatore)
 ```
 
++ **Dati fragilità demografica RE-R Statistica**  
+[@re-rstatisticaPotenzialeFragilitaDemografica2025]
+```{r}
+#| label: fonti_bil_miss
 
-<!-- ## Dati di input (ISTAT BES)
-I dati di seguito vengono da [IstatData - BES (Benessere Equo e Sostenibile)](https://esploradati.istat.it/databrowser/#/it/dw/categories/IT1,Z0930TER,1.0/BES_T/IT1,DF_BES_TERRIT_0T,1.0), che, a sua volta, attinge a varie fonti Istat e non-Istat. -->
-<!--
+# Import dati fragilità demografica ----
+# % Popolazione residente di 65 anni e oltre in famiglie unipersonali al 31.12.2023
+fragil_raw <- read_excel("data_in/fragil/Dati-Fragilita-2023-Indicatori-elementari-comunali-e-provinciali.xlsx", skip= 1)
+```
+
+
++ **Dati ISTAT BES (Benessere Equo e Sostenibile)**  
+[@istatBesTerritoriEmilia2025a]
+
+<!-- 
+## Dati di input (ISTAT BES)
 + Ultimo Report regionali BesT  https://www.istat.it/wp-content/uploads/2025/12/BesT2025_Emilia-Romagna.pdf
-
-Riscaricato in formato molto piu facile da gestire 
-read_excel("data_in/bes_2003_2023/Indicatori_per_provincia_sesso_ed.2025.xlsx" )
- -->
- 
-
++ Riscaricato in formato molto piu facile da gestire read_excel("data_in/bes_2003_2023/Indicatori_per_provincia_sesso_ed.2025.xlsx" )
+-->
 
 ```{r}
 # Directories ----
 bes_data_in <- here::here("data_in", "bes_2003_2023")
 bes_data_out <- here::here("data_out","bes_2003_2023")
- 
-# # --- Load dataset TREND DEMOGRAFICI ----
-# amb_df <- readRDS(fs::path(bes_data_in,  "amb_df.rds"))
-# ben_econ_df <- readRDS(fs::path(bes_data_in, "ben_econ_df.rds"))
-# ist_formaz_df <- readRDS(fs::path(bes_data_in, "ist_formaz_df.rds"))
-# lav_df <- readRDS(fs::path(bes_data_in, "lav_df.rds"))
-# patr_cult_df <- readRDS(fs::path(bes_data_in, "patr_cult_df.rds"))
-# qual_serv_df <- readRDS(fs::path(bes_data_in, "qual_serv_df.rds"))
-# rel_pol_df <- readRDS(fs::path(bes_data_in, "rel_pol_df.rds"))
-# ric_innov_df <- readRDS(fs::path(bes_data_in, "ric_innov_df.rds"))
-# sal_df <- readRDS(fs::path(bes_data_in, "sal_df.rds"))
-# sic_df <- readRDS(fs::path(bes_data_in, "sic_df.rds"))
-# 
-# # Esplora indicatori disponibili
-# # tabyl(indicatori_di_struttura$indicatore)
-
 # Import full BES dataset per provincia e sesso ----
-all_bes <- read_excel("data_in/bes_2003_2023/Indicatori_per_provincia_sesso_ed.2025.xlsx" , sheet = "Indicatori_per_provincia_sesso") |> 
-  janitor::clean_names() 
-  
+all_bes <- read_excel(here("data_in", "bes_2003_2023", "Indicatori_per_provincia_sesso_ed.2025.xlsx") , sheet = "Indicatori_per_provincia_sesso") |>
+  janitor::clean_names()
 ```
 
 
@@ -212,7 +207,7 @@ pop_parma_2025 <- resident_prov_eta5_sex |>
 # popolazione residente ER 2025
 pop_ER_2025 <- resident_prov_eta5_sex |>
   dplyr::filter(territorio == "Emilia-Romagna" & genere == "Totale" & fascia_eta == "Tutte_eta") |>
-dplyr::pull(residenti)
+  dplyr::pull(residenti)
 ```
 
 
@@ -225,7 +220,7 @@ dplyr::pull(residenti)
 # popolazione straniera residente Parma 2025
 pop_stran_parma_2025 <- resid_stran_eta5_sex_PR |>
   dplyr::filter(territorio == "Parma" & genere == "Totale" ) |>
-    # non c'è la fascia "Tutte_eta" perciò sommo tutte le età
+  # non c'è la fascia "Tutte_eta" perciò sommo tutte le età
   dplyr::summarise(
     totale_residenti_stranieri = sum(residenti)
   ) |> 
@@ -359,7 +354,7 @@ piramid_pop_PR <- piramid_pop_PR_data |>
     expand = expansion(mult = 0.025)
   ) +
   scale_fill_manual(
-    values = c("Maschi" = blu_lg, "Femmine" = burg_lg)
+    values = c("Maschi" = maschi, "Femmine" = femmine)
   ) +
   theme_minimal(base_size = 13) +
   theme(
@@ -437,7 +432,7 @@ piramid_pop_stran_PR <- piramid_pop_stran_PR_data  |>
     expand = expansion(mult = 0.025)
   ) +
   scale_fill_manual(
-    values = c("Maschi" = blu_lg, "Femmine" = burg_lg)
+    values = c("Maschi" = maschi, "Femmine" = femmine)
   ) +
   theme_minimal(base_size = 13) +
   theme(
@@ -489,7 +484,7 @@ piramids_PR_both <- piramid_pop_PR + piramid_pop_stran_PR +
 piramids_PR_both
 
 # Save combined plot (manually)
- 
+
 ```
 
 ## Popolazione per 4 distretti
@@ -517,14 +512,13 @@ unique(ER_PR_comuni_distr_sf$Distretto)
 
 # 4) Make sf union per distretto ----
 ER_PR_distretti_sf <- ER_PR_comuni_distr_sf %>%
-    group_by(Distretto) %>%
-    summarise(
-      n_comuni = n(),
-      comuni = paste(COMUNE, collapse = ", "),
-      geometry = st_union(geometry),
-      .groups = "drop"
-    ) 
-
+  group_by(Distretto) %>%
+  summarise(
+    n_comuni = n(),
+    comuni = paste(COMUNE, collapse = ", "),
+    geometry = st_union(geometry),
+    .groups = "drop"
+  ) 
 ```
 
 
@@ -558,7 +552,7 @@ resident_distr_eta_sex <- resident_distr_eta_sex |>
       prov == "R" & str_detect(distretto_prov, "Lugo")~  "Ravenna",
       TRUE ~ NA_character_)) |>  
   # filtra dati popolazione per distretti Parma ----
-  dplyr::filter(prov == "PR")
+dplyr::filter(prov == "PR")
 
 names(resident_distr_eta_sex)
 names(ER_PR_distretti_sf)
@@ -620,9 +614,10 @@ saveRDS(object =  resident_distr_eta_sex_sf, file = here("data_out", "pop_resid_
 # as XLSX
 writexl::write_xlsx(x = resident_distr_eta_sex_sf, path = here("data_out", "pop_resid_2025", "resident_distr_eta_sex_sf.xlsx"))
 # as shapefile
+fs::dir_create(here("data_out", "pop_resid_2025", "resident_distr_eta_sex_sf_shp"))
+
 sf::write_sf( resident_distr_eta_sex_sf,  here("data_out", "pop_resid_2025", "resident_distr_eta_sex_sf_shp",  "resident_distr_eta_sex_sf.shp"))
 ```
-
 
 ### [Tbl] Popolazione residente per distretti di Parma
 
@@ -649,7 +644,7 @@ tbl_pop_distr_2025 <- resident_distr_eta_sex |>
   fontsize(size = 9, part = "footer") |>
   italic(part = "footer") |>
   color(color = grey_sc, part = "footer") 
- 
+
 tbl_pop_distr_2025
 
 # save as Rds
@@ -680,7 +675,7 @@ map_distretti_parma_pop <- resident_distr_eta_sex_sf |>
   filter(genere == "Totale" & fascia_eta == "Tutte_eta") |>
   ggplot() +
   geom_sf(aes(fill = residenti), color = "white", linewidth = rel(0.2)) +
-  geom_sf_label(aes(label = distretto), size = 3, alpha = 0.7) +  # Etichette con sfondo
+  geom_sf_label(aes(label = str_wrap(distretto, width = 20)), size = 3, alpha = 0.7) +  # Etichette con sfondo
   scale_fill_viridis_c(
     option = "cividis", begin = 0.5, end = 0.9,
     direction = -1,
@@ -726,8 +721,8 @@ map_distretti_parma_pop_anz <- resident_distr_eta_sex_sf |>
   filter(genere == "Totale" & fascia_eta == "60  e oltre") |>
   ggplot() +
   geom_sf(aes(fill = residenti), color = "white", linewidth = rel(0.2)) +
-    geom_sf_label(aes(label = distretto), size = 3, alpha = 0.7) +  # Etichette con sfondo
-scale_fill_viridis_c(
+  geom_sf_label(aes(label = str_wrap(distretto, width= 20)), size = 3, alpha = 0.7) +  # Etichette con sfondo
+  scale_fill_viridis_c(
     option = "rocket",
     direction = -1,
     na.value = "grey90",
@@ -767,7 +762,6 @@ fonte_nome <- "Confini dei Comuni"
 fonte2_anno_agg <- "RE-R Statistica (2025)"
 fonte2_nome <- "Popolazione residente"
 
-
 # Plot mappa distretti Parma con popolazione residente 2025 ----
 map_distretti_parma_pop_anz_per <- resident_distr_eta_sex_sf |> 
   filter(genere == "Totale" & fascia_eta %in% c("60  e oltre", "Tutte_eta")) |>
@@ -779,13 +773,14 @@ map_distretti_parma_pop_anz_per <- resident_distr_eta_sex_sf |>
   ) |>
   ggplot() +
   geom_sf(aes(fill = perc_60_plus), color = "white", linewidth = rel(0.2)) +
-  geom_sf_label(aes(label = distretto), size = 3, alpha = 0.7) +  # Etichette con sfondo
+  geom_sf_label(aes(label = str_wrap(distretto, width= 20)), size = 3, alpha = 0.7) +  # Etichette con sfondo
   scale_fill_viridis_c(
     option = "cividis", begin = 0.5, end = 0.9,
     direction = -1,
     na.value = "grey90",
-    name = "Perc. residenti 60+",
-    labels = scales::label_number(big.mark = ".", decimal.mark = ",")
+    name = "% residenti >60",
+    breaks = seq(0, 40, by = 5),
+    labels = scales::label_number(suffix = "%", decimal.mark = ",")
   ) +
   labs(
     title    = "Popolazione residente per distretto sanitario (60 anni e oltre in %)",
@@ -826,8 +821,8 @@ map_distretti_parma_pop_gio <- resident_distr_eta_sex_sf |>
   filter(genere == "Totale" & fascia_eta == "0-13") |>
   ggplot() +
   geom_sf(aes(fill = residenti), color = "white", linewidth = rel(0.2)) +
-    geom_sf_label(aes(label = distretto), size = 3, alpha = 0.7) +  # Etichette con sfondo
-scale_fill_viridis_c(
+  geom_sf_label(aes(label = str_wrap(distretto, width= 20)), size = 3, alpha = 0.7) +  # Etichette con sfondo
+  scale_fill_viridis_c(
     option = "cividis", begin = 0.5, end = 0.9,
     direction = -1,
     na.value = "grey90",
@@ -878,13 +873,14 @@ map_distretti_parma_pop_gio_per <- resident_distr_eta_sex_sf |>
   ) |>
   ggplot() +
   geom_sf(aes(fill = perc_0_13), color = "white", linewidth = rel(0.2)) +
-  geom_sf_label(aes(label = distretto), size = 3, alpha = 0.7) +  # Etichette con sfondo
+  geom_sf_label(aes(label = str_wrap(distretto, width= 20)), size = 3, alpha = 0.7) +  # Etichette con sfondo
   scale_fill_viridis_c(
     option = "cividis", begin = 0.5, end = 0.9,
     direction = -1,
     na.value = "grey90",
-    name = "Perc. residenti <14",
-    labels = scales::label_number(big.mark = ".", decimal.mark = ",")
+    name = "% residenti <14",
+    breaks = seq(0, 20, by = 2),
+    labels = scales::label_number(suffix = "%", decimal.mark = ",")
   ) +
   labs(
     title    = "Popolazione residente per distretto sanitario (0-13 anni in %)",
@@ -902,8 +898,8 @@ map_distretti_parma_pop_gio_per <- resident_distr_eta_sex_sf |>
     axis.ticks = element_blank(),
     panel.grid = element_blank()
   )
-map_distretti_parma_pop_gio_per
 
+map_distretti_parma_pop_gio_per
 ```
 
 ### Mappa popolazione per distetto e fasce d'età (%)
@@ -916,7 +912,6 @@ map_distretti_parma_pop_gio_per
 map_distretti_parma_pop_anz_gio_per_patch <-
   (map_distretti_parma_pop_anz_per + labs(title = NULL, subtitle = NULL, caption = NULL)) +
   (map_distretti_parma_pop_gio_per + labs(title = NULL, subtitle = NULL, caption = NULL)) +
-  plot_layout(guides = "collect") +  # This collects and merges legends
   plot_annotation(
     title = "Popolazione residente per distretto sanitario: età 0-13 e 60+ (in %)",
     subtitle = "(Confini = unione di comuni di pertinenza)",
@@ -936,7 +931,7 @@ map_distretti_parma_pop_anz_gio_per_patch
 
 ### Mappa over 65 soli per comune
 
-Uno degli indicatori "spia" di potentziale fragilità sociale è la `percentuale di popolazione residente di 65+ anni in familglie unipersonali` (**RE-R Statistica, 2025**, con dati al 31.12.2023).
+Uno degli indicatori "spia" di potenziale fragilità sociale è la `percentuale di popolazione residente di 65+ anni in familglie unipersonali` (**RE-R Statistica, 2025**, con dati al 31.12.2023).
 
 ```{r}
 # # % Popolazione residente di 65 anni e oltre in famiglie unipersonali al 31.12.2023
@@ -962,6 +957,7 @@ saveRDS(object =  over65_unip_sf, file = here("data_out", "fragil", "over65_unip
 # as XLSX
 writexl::write_xlsx(x = over65_unip_sf |> st_drop_geometry(), path = here("data_out", "fragil", "over65_unip_sf.xlsx"))
 # as shapefile
+fs::dir_create(here("data_out", "fragil", "over65_unip_sf_shp"))
 sf::write_sf( over65_unip_sf,  here("data_out", "fragil", "over65_unip_sf_shp",  "over65_unip_sf.shp"))
 ```
 
@@ -985,10 +981,11 @@ over65_unip_map <- over65_unip_sf |>
   ) +
   # Add layer for distretti borders
   geom_sf(data = ER_PR_distretti_sf, fill = NA, color = blu_sc, linewidth = rel(0.5)) +
-    labs(
-    title    = "% Popolazione residente di 65 anni e oltre in famiglie unipersonali",
-    subtitle = "Indicatore per Comune (Anno 2023)",
-    caption  = glue::glue("Fonte: Regione Emilia-Romagna - Statistica (2025)"),
+  # ADd labs
+  labs(
+    title    = "Popolazione residente di 65 anni e oltre in famiglie unipersonali  (Anno 2023)",
+    subtitle = "Indicatore in % per comune",
+    caption  = str_wrap("Fonte: Regione Emilia-Romagna - La potenziale fragilità demografica, sociale ed economica nei comuni della regione Emilia-Romagna (2023)", width = 80),
     x = "",    y = "") +
   theme_minimal() +
   theme(
@@ -1009,8 +1006,7 @@ over65_unip_map
 ## Trend demografici a confronto
 <!-- ## Dati di input (ISTAT trend dem) -->
 
-In generale, l’analisi degli indicatori demografici 2002-2025, mostra come Parma abbia un profilo demografico distintivo rispetto alla media regionale e nazionale, con alcune implicazioni interessanti per la programmazione dei servizi sociali. In particolare, si evidenzia più contenuto il trend di invecchiamento e una dinamica migratoria più vivace che contribuisce a bilanciare il deficit di natalità generalizzato.
-
+In generale, l’analisi degli indicatori demografici 2002-2025 come il profilo demografico di Parma si distingue per certi indicatori sia dalla media regionale che nazionale. In particolare, si evidenzia un trend di invecchiamento più contenuto e una dinamica migratoria più vivace che contribuisce a bilanciare il deficit di natalità generalizzato.
 
 ### Età media
 
@@ -1062,9 +1058,9 @@ e_m_data <- indicatori_di_struttura |>
 
 # ------- Save data and plot objects
 # as RDS
-saveRDS(object =  e_m_data, file = here(dir_data_out, "e_m_data.rds"))
+saveRDS(object =  e_m_data, file = here("data_out", "istat_demo_2002_2024", "e_m_data.rds"))
 # as XLSX
-writexl::write_xlsx(x = e_m_data, path = here(dir_data_out, "e_m_data.xlsx"))
+writexl::write_xlsx(x = e_m_data, path = here("data_out", "istat_demo_2002_2024", "e_m_data.xlsx"))
 # as PNG (manuale)
 ```
 
@@ -1072,7 +1068,7 @@ writexl::write_xlsx(x = e_m_data, path = here(dir_data_out, "e_m_data.xlsx"))
 ```{r}
 #| label: e_m_plot
 #| output: true
- 
+
 # Plot: e_m_plot [= Età Media]  ----
 e_m_plot <- e_m_data |>
   ggplot(aes(
@@ -1092,7 +1088,7 @@ e_m_plot <- e_m_data |>
     expand = expansion(mult = c(0.02, 0.02))) +
   scale_color_manual(
     values = c(
-      "Parma" = burg_md,
+      "Parma" = ylw_md,
       "Emilia-Romagna" = grn_md,
       "ITALIA" = blu_md)) +
   theme_minimal(base_size = 13) +
@@ -1168,15 +1164,15 @@ i_v_data <- indicatori_di_struttura |>
 
 # ------- Save data and plot objects
 # as RDS
-saveRDS(object =  i_v_data, file = here(dir_data_out, "i_v_data.rds"))
+saveRDS(object =  i_v_data, file = here("data_out", "istat_demo_2002_2024", "i_v_data.rds"))
 # as XLSX
-writexl::write_xlsx(x = i_v_data, path = here(dir_data_out, "i_v_data.xlsx"))
+writexl::write_xlsx(x = i_v_data, path = here("data_out", "istat_demo_2002_2024", "i_v_data.xlsx"))
 ```
 
 ```{r}
 #| label: i_v_plot
 #| output: true
- 
+
 # Plot: i_v_plot [= Età Media]  ----
 i_v_plot <- i_v_data |>
   ggplot(aes(
@@ -1196,7 +1192,7 @@ i_v_plot <- i_v_data |>
     expand = expansion(mult = c(0.02, 0.02))) +
   scale_color_manual(
     values = c(
-      "Parma" = burg_md,
+      "Parma" = ylw_md,
       "Emilia-Romagna" = grn_md,
       "ITALIA" = blu_md)) +
   theme_minimal(base_size = 13) +
@@ -1272,15 +1268,15 @@ i_d_a_data <- indicatori_di_struttura |>
 
 # ------- Save data and plot objects
 # as RDS
-saveRDS(object =  i_d_a_data, file = here(dir_data_out, "i_d_a_data.rds"))
+saveRDS(object =  i_d_a_data, file = here("data_out", "istat_demo_2002_2024", "i_d_a_data.rds"))
 # as XLSX
-writexl::write_xlsx(x = i_d_a_data, path = here(dir_data_out, "i_d_a_data.xlsx"))
+writexl::write_xlsx(x = i_d_a_data, path = here("data_out", "istat_demo_2002_2024", "i_d_a_data.xlsx"))
 ```
 
 ```{r}
 #| label: i_d_a_plot
 #| output: true
- 
+
 # Plot: i_d_a_plot [= Età Media]  ----
 i_d_a_plot <- i_d_a_data |>
   ggplot(aes(
@@ -1300,7 +1296,7 @@ i_d_a_plot <- i_d_a_data |>
     expand = expansion(mult = c(0.02, 0.02))) +
   scale_color_manual(
     values = c(
-      "Parma" = burg_md,
+      "Parma" = ylw_md,
       "Emilia-Romagna" = grn_md,
       "ITALIA" = blu_md)) +
   theme_minimal(base_size = 13) +
@@ -1377,15 +1373,15 @@ i_d_s_data <- indicatori_di_struttura |>
 
 # ------- Save data and plot objects
 # as RDS
-saveRDS(object =  i_d_s_data, file = here(dir_data_out, "i_d_s_data.rds"))
+saveRDS(object =  i_d_s_data, file = here("data_out", "istat_demo_2002_2024", "i_d_s_data.rds"))
 # as XLSX
-writexl::write_xlsx(x = i_d_s_data, path = here(dir_data_out, "i_d_s_data.xlsx"))
+writexl::write_xlsx(x = i_d_s_data, path = here("data_out", "istat_demo_2002_2024", "i_d_s_data.xlsx"))
 ```
 
 ```{r}
 #| label: i_d_s_plot
 #| output: true
- 
+
 # Plot: i_d_s_plot [= Età Media]  ----
 i_d_s_plot <- i_d_s_data |>
   ggplot(aes(
@@ -1405,7 +1401,7 @@ i_d_s_plot <- i_d_s_data |>
     expand = expansion(mult = c(0.02, 0.02))) +
   scale_color_manual(
     values = c(
-      "Parma" = burg_md,
+      "Parma" = ylw_md,
       "Emilia-Romagna" = grn_md,
       "ITALIA" = blu_md)) +
   theme_minimal(base_size = 13) +
@@ -1465,7 +1461,7 @@ c_n_plot <- c_n_data |>
   ) +
   scale_color_manual(
     values = c(
-      "Parma" = burg_md,
+      "Parma" = ylw_md,
       "Emilia-Romagna" = grn_md,
       "ITALIA" = blu_md
     )
@@ -1509,9 +1505,9 @@ c_n_plot
 
 # ------- Save data and plot objects
 # as RDS
-saveRDS(object =  c_n_data, file = here(dir_data_out, "c_n_data.rds"))
+saveRDS(object =  c_n_data, file = here("data_out", "istat_demo_2002_2024", "c_n_data.rds"))
 # as XLSX
-writexl::write_xlsx(x = c_n_data, path = here(dir_data_out, "c_n_data.xlsx"))
+writexl::write_xlsx(x = c_n_data, path = here("data_out", "istat_demo_2002_2024", "c_n_data.xlsx"))
 
 ```
 
@@ -1543,15 +1539,15 @@ s_m_data <- saldo_migratorio |>
 
 # ------- Save data and plot objects
 # as RDS
-saveRDS(object =  s_m_data, file = here(dir_data_out, "s_m_data.rds"))
+saveRDS(object =  s_m_data, file = here("data_out", "istat_demo_2002_2024", "s_m_data.rds"))
 # as XLSX
-writexl::write_xlsx(x = s_m_data, path = here(dir_data_out, "s_m_data.xlsx"))
+writexl::write_xlsx(x = s_m_data, path = here("data_out", "istat_demo_2002_2024", "s_m_data.xlsx"))
 ```
 
 ```{r}
 #| label: s_m_plot
 #| output: true
- 
+
 # Plot: i_d_s_plot [= Età Media]  ----
 s_m_plot <- s_m_data |>
   ggplot(aes(
@@ -1566,7 +1562,7 @@ s_m_plot <- s_m_data |>
     expand = expansion(mult = c(0.02, 0.02))) +
   scale_color_manual(
     values = c(
-      "Parma" = burg_md,
+      "Parma" = ylw_md,
       "Emilia-Romagna" = grn_md,
       "ITALIA" = blu_md)  ) +
   theme_minimal(base_size = 13) +
@@ -1603,7 +1599,6 @@ s_m_plot
 
 ### Mobilità dei laureati
 
-**Mobilità dei laureati italiani (25-39 anni)** = Tasso di migratorietà specifico dei laureati italiani di 25-39 anni (differenza tra iscritti e cancellati per trasferimento di residenza/popolazione residente *1000). Sia il numeratore che il denominatore si riferiscono ai cittadini italiani di 25-39 anni con titolo di studio terziario (laurea, AFAM, dottorato). I valori per l'Italia comprendono solo i movimenti da/per l'estero, poiché il saldo migratorio interno a livello nazionale è pari a zero; la disaggregazione territoriale comprende anche i movimenti interni.
 
 ```{r}
 #| label: bes_mob_lau_data
@@ -1641,14 +1636,14 @@ bes_mob_lau_plot <- bes_mob_lau  |>
     territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna", "Italia")),
     valore_num = as.numeric(gsub(",", ".", valore))
   ) |>
-   ggplot(aes(x = anno, y = valore_num, fill = territorio)) +
+  ggplot(aes(x = anno, y = valore_num, fill = territorio)) +
   geom_col(position = position_dodge2(width = 0.9, preserve = "single", padding = 0),
            width = 0.9,
            color = "white",
            linewidth = 0.5) +
   scale_fill_manual(
     values = c(
-      "Parma" = burg_lg,
+      "Parma" = ylw_lg,
       "Emilia-Romagna" = grn_lg,
       "Italia" = blu_lg )) +
   scale_x_continuous(
@@ -1658,14 +1653,14 @@ bes_mob_lau_plot <- bes_mob_lau  |>
     labels = scales::label_number(big.mark = ".", decimal.mark = ",", suffix = "‰"), 
     breaks = scales::breaks_extended(n = 10),
     expand= expansion(mult = c(0.25,0.25))
-    ) +
+  ) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
     panel.grid.minor = element_blank(),
     axis.text.x = element_text(angle = 0, hjust = 1, size = rel(1)),
     axis.text.y = element_text(size = rel(1)),
-    axis.title = element_text(size = rel(1), face = "bold"),
+    axis.title = element_text(size = rel(0.9), face = "bold"),
     plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
@@ -1673,14 +1668,20 @@ bes_mob_lau_plot <- bes_mob_lau  |>
     legend.position = "bottom",
     panel.spacing = unit(1, "lines")) +
   labs(
-    title = "Mobilità (differenza tra iscritti e cancellati) per trasferimento \ndi residenza dei laureati italiani (25-39 anni)",
+    title = "Mobilità (Iscritti - Cancellati) per trasferimento \ndi residenza dei laureati italiani (25-39 anni)",
     subtitle = "Confronto territoriale",
     caption = "Fonte: Istat, BES (Benessere Equo e Sostenibile), 2025",
     x = "",
-    y = "Saldo su popolazione residente X 1000")
+    y = "Saldo su residenti X 1000")
 
 bes_mob_lau_plot
 ```
+
+::: {.callout-note}
+
+**Mobilità dei laureati italiani (25-39 anni)** = Tasso di migratorietà specifico dei laureati italiani di 25-39 anni (differenza tra iscritti e cancellati per trasferimento di residenza/popolazione residente *1000). Sia il numeratore che il denominatore si riferiscono ai cittadini italiani di 25-39 anni con titolo di studio terziario (laurea, AFAM, dottorato). I valori per l'Italia comprendono solo i movimenti da/per l'estero, poiché il saldo migratorio interno a livello nazionale è pari a zero; la disaggregazione territoriale comprende anche i movimenti interni.
+:::
+
 
 \newpage
 
@@ -1689,16 +1690,30 @@ bes_mob_lau_plot
 # 2° PRIORITÀ: Rafforzare istituzioni e persone 
 
 > "La Fondazione si pone l'obiettivo strategico di lavorare per il rafforzamento di entrambe i livelli, persone e istituzioni"come crescita, formazione innovazione, e come messa in rete del proprio contributo. [DPP 2025]"
- 
+
 
 ## Benessere economico delle famiglie
 
-Da diversi anni, Istat ha sviluppato un approccio multidimensionale per misurare il **“Benessere equo e sostenibile” (Bes)**, che consente di tracciare alcune fondamentali dimensioni del benessere, ma anche potenziali fonti di disuguaglianza confrantate per diverse aggregazioni territoriali.  [@istatBesTerritoriEmilia2025]
+Da diversi anni, Istat ha sviluppato un approccio multidimensionale per misurare il **“Benessere equo e sostenibile” (Bes)**, che consente di tracciare alcune fondamentali dimensioni del benessere, ma anche potenziali fonti di disuguaglianza, osservate per diverse aggregazioni territoriali.  [[@istatBesTerritoriEmilia2025a]]
+
 <!-- https://www.istat.it/statistiche-per-temi/focus/benessere-e-sostenibilita/la-misurazione-del-benessere-bes 
 DAl 2013, 12 indicatrori sono entrati a far parte del del processo di programmazione economica-finanziaria del Paese, attraverso l'allegato del Dpfp (Documento di programmazione e di finanza pubblica). --> 
 
 
 ### Reddito medio (da lavoro e pensione)
+
+Dal punto di vista del `reddito medio disponibile pro capite` (calcolato al netto di imposte e contributi), negli anni recenti Parma si è confermata al di sopra della media regionale e nazionale.  
+
+
+
+::: {.callout-note}
+Il **Reddito medio disponibile pro capite (€)** è un _aggregato di contabilità nazionale_ che rappresenta il reddito medio annuo di cui una persona può disporre, al netto di imposte e contributi, tenendo conto anche di pensioni e trasferimenti pubblici.
+
++ NB: anche se viene chiamato "reddito disponibile _lordo_ pro capite" nei documenti Istat, in realta' è già al netto delle imposte e dei contributi sociali obbligatori, quindi non è lordo in senso fiscale comune, ma nel senso della contabilita' nazionale.
+
++ In termini comparativi internazionali, il reddito disponibile pro capite è espresso in unità di potere d'acquisto (Purchasing Power Standard - PPS), che consente di eliminare le differenze di prezzo tra i paesi e di confrontare il potere d'acquisto effettivo dei redditi delle famiglie (+/- comparabile con  **Adjusted gross disposable income of households per capita in PPS** - [Eurostat](https://ec.europa.eu/eurostat/databrowser/view/tec00113/default/table?lang=en)).
+:::
+
 ```{r}
 #| label: redd_data
 
@@ -1716,7 +1731,9 @@ bes_reddito <- all_bes |>
       "Retribuzione media annua dei lavoratori dipendenti",
       "Importo medio annuo pro-capite dei redditi pensionistici"
     ))
-  ) 
+  ) |> 
+  # make col v numeric
+  mutate(across(c(v2021, v2022, v2023), ~ as.numeric(str_replace(.x, ",", "."))))                
 
 # ------- Save data 
 # as RDS
@@ -1755,7 +1772,7 @@ reddito_barplot <- bes_reddito_long |>
   facet_wrap(~ indicatore, ncol = 1, scales = "fixed") +
   scale_fill_manual(
     values = c(
-      "Parma" = burg_lg,
+      "Parma" = ylw_lg,
       "Italia" = blu_lg,
       "Emilia-Romagna" = grn_lg
     )
@@ -1791,15 +1808,6 @@ reddito_barplot
 ### [Tbl] Reddito medio disponibile pro capite
 
 <!-- Qs tabella è copiata a mano da [IstatData](https://esploradati.istat.it/databrowser/#/it/dw/categories/IT1,Z0930TER,1.0/BES_T/IT1,DF_BES_TERRIT_0T,1.0) -->
-
-**Reddito medio disponibile pro capite (€)** = si tratta di un _aggregato di contabilità nazionale_ che rappresenta il reddito medio annuo di cui una persona può disporre, al netto di imposte e contributi, tenendo conto anche di pensioni e trasferimenti pubblici.
-
-+ NB: anche se viene chiamato "reddito disponibile _lordo_ pro capite" nei documenti Istat, in realta' è già al netto delle imposte e dei contributi sociali obbligatori, quindi non è lordo in senso fiscale comune, ma nel senso della contabilita' nazionale.
-
-+ In termini comparativi internazionali, il reddito disponibile pro capite è espresso in unità di potere d'acquisto (Purchasing Power Standard - PPS), che consente di eliminare le differenze di prezzo tra i paesi e di confrontare il potere d'acquisto effettivo dei redditi delle famiglie.
-
-+ (+/- comparabile con) **Adjusted gross disposable income of households per capita in PPS** - [Eurostat](https://ec.europa.eu/eurostat/databrowser/view/tec00113/default/table?lang=en)
-
 
 ```{r}
 #| label: bes_reddito_tbl
@@ -1847,7 +1855,7 @@ saveRDS(object =  bes_reddito_tbl, file = here(bes_data_out, "bes_reddito_tbl.rd
 flextable::save_as_docx(bes_reddito_tbl, path = here(bes_data_out, "bes_reddito_tbl.docx"))
 ```
 
- 
+
 ```{r}
 #| label: bes_redd_m_f_data
 
@@ -1858,11 +1866,10 @@ bes_redd_m_f <- all_bes |>
   filter(sesso %in% c("Maschi", "Femmine"))  |> 
   # in ordine per grafico
   mutate(
-    territorio = factor(territorio, levels = c("Parma",  "Italia"))
-  )  |>
+    territorio = factor(territorio, levels = c("Parma",  "Italia")),
+    v2023 = as.numeric(str_replace(v2023, ",", "."))) |> 
   select(indicatore, territorio, sesso, v2023) |> 
   arrange(territorio, sesso)
-
 
 # ------- Save data 
 # as RDS
@@ -1870,17 +1877,17 @@ saveRDS(object = bes_redd_m_f, file = here(bes_data_out, "bes_redd_m_f.rds"))
 # as XLSX
 writexl::write_xlsx(x = bes_redd_m_f, path = here(bes_data_out, "bes_redd_m_f.xlsx"))
 ```
- 
-### Maschi e Femmine 
 
-Occorre rilevare che, anche a Parma, come in Italia, permane un divario retributivo di genere significativo (questo è un dato complessivo, che andrebbe chiaramente approfondito).
+#### Maschi e Femmine 
+
+Occorre però rilevare che, anche a Parma, come in Italia, permane un divario retributivo di genere significativo (questo è un dato complessivo, che andrebbe chiaramente approfondito).
 ```{r}
 #| label: bes_reddito_m_f_table
 #| output: true
 
 bes_reddito_m_f_tbl <- bes_redd_m_f |>
   flextable() |>
-  colformat_double(
+  colformat_num(
     j = c("v2023"),
     big.mark = ".",
     decimal.mark = ",",
@@ -1901,8 +1908,8 @@ bes_reddito_m_f_tbl <- bes_redd_m_f |>
   italic(part = "footer") |>
   color(color = grey_sc, part = "footer") |>
   # Merge col with same Indicatore
-    flextable::merge_v( j = "indicatore", part = "body") |> 
-flextable::merge_v( j = "territorio", part = "body") 
+  flextable::merge_v( j = "indicatore", part = "body") |> 
+  flextable::merge_v( j = "territorio", part = "body") 
 
 bes_reddito_m_f_tbl
 
@@ -1911,20 +1918,20 @@ saveRDS(object =  bes_reddito_m_f_tbl, file = here(bes_data_out, "bes_reddito_m_
 # save as word docx
 flextable::save_as_docx(bes_reddito_m_f_tbl, path = here(bes_data_out, "bes_reddito_m_f_tbl.docx"))
 ```
- 
- 
+
+
 ### Occupazione
 
 Il tasso di occupazione a Parma (20-64 anni) si mantiene stabilmente intorno il 75% dal 2018, superando sia la media regionale che nazionale. Il tasso giovanile (15-29 anni) mostra un trend lievemente migliorativo ma resta inferiore al 45%.  
 
-Anche a Parma, che supera sistematicamente l'Italia nei tassi di occupazione, si riscontra un divario di genere marcato (circa 20 punti percentuali per adulti, 18 per giovani, nel 2024) che rispecchia l'andamento nazionale.  
+Anche a Parma, che supera sistematicamente l'Italia nei tassi di occupazione, si riscontra un divario marcato tra i sessi (circa 20 punti percentuali per adulti, 18 per giovani, nel 2024) che rispecchia la situazione nazionale.  
 ```{r}
 #| label: occup_data
 
 bes_lav <- all_bes |> 
   filter(dominio == "Lavoro e conciliazione dei tempi di vita") |>
   filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia")) 
- 
+
 tabyl(bes_lav$indicatore)
 
 # Indicatori di occupazione
@@ -1955,7 +1962,6 @@ writexl::write_xlsx(x = bes_occup, path = here(bes_data_out, "bes_occup.xlsx"))
 
 ```
 
-#### tutti
 ```{r}
 #| label: bes_occup_plot
 #| output: true
@@ -1970,7 +1976,7 @@ bes_occup_plot <- bes_occup  |>
   geom_point(size = 2.5) +
   scale_color_manual(
     values = c(
-      "Parma" = burg_lg,
+      "Parma" = ylw_lg,
       "Emilia-Romagna" = grn_lg,
       "Italia" = blu_lg
     )
@@ -1981,10 +1987,10 @@ bes_occup_plot <- bes_occup  |>
   ) +
   scale_y_continuous(
     labels = scales::label_percent(scale = 1, decimal.mark = ","),
-    limits = c(25, 100),
-    breaks = seq(25, 100, by = 10)
+    limits = c(20, 80),
+    breaks = seq(20, 80, by = 10)
   ) +
-    facet_wrap(~ indicatore, ncol = 1) +
+  facet_wrap(~ indicatore, ncol = 1) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -2010,7 +2016,7 @@ bes_occup_plot <- bes_occup  |>
 bes_occup_plot
 ```
 
-#### maschi e femmine (2024)
+#### Maschi e femmine (2024)
 
 ```{r}
 #| label: bes_occup_mf_plot
@@ -2029,13 +2035,13 @@ bes_occup_mf_plot <- bes_occup  |>
   geom_col(position = "dodge", width = 0.7) +
   scale_fill_manual(
     values = c(
-      "Maschi" = "#4A90E2",
-      "Femmine" = "#E24A90")) +
+      "Maschi" = maschi,
+      "Femmine" = femmine)) +
   scale_y_continuous(
     labels = scales::label_percent(scale = 1, decimal.mark = ","),
     limits = c(0, 100),
     breaks = seq(0, 100, by = 20)) +
-    facet_wrap(~ indicatore, ncol = 1) +
+  facet_wrap(~ indicatore, ncol = 1) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -2061,15 +2067,20 @@ bes_occup_mf_plot
 
 ### Disoccupazione e mancata partecipazione al lavoro
 
-Il **tasso di mancata partecipazione al lavoro** misura il _Rapporto tra la somma di disoccupati e inattivi "disponibili" (persone che non hanno cercato lavoro nelle ultime 4 settimane ma sono disponibili a lavorare), e la somma di forze lavoro (insieme di occupati e disoccupati) e inattivi "disponibili", riferito alla popolazione tra 15 e 74 anni._ Questo dato (che segnala difficoltà nel coinvolgimento della popolazione nel mercato del lavoro) è decisamente meglio a Parma (e regione) rispetto alla media nazionale, pur mantenendo lo svantaggio per la fascia più giovane. 
- 
+In base al **tasso di mancata partecipazione al lavoro**, Parma (ed Emilia-Romagna) registrano performance significamente migliori dela media nazionale, pur mantenendo lo svantaggio per la fascia più giovane, e un divario sfavorevole per le donne. 
+
+::: {.callout-note}
+Il **tasso di mancata partecipazione al lavoro** misura il _Rapporto tra la somma di disoccupati e inattivi "disponibili" (persone che non hanno cercato lavoro nelle ultime 4 settimane ma sono disponibili a lavorare), e la somma di forze lavoro (insieme di occupati e disoccupati) e inattivi "disponibili", riferito alla popolazione tra 15 e 74 anni._ Questo dato cattura le difficoltà nel coinvolgimento della popolazione nel mercato del lavoro. 
+:::
+
+
 ```{r}
 #| label: bes_disoccup_data
 
 # Indicatori di DISoccupazione
 bes_disoccup <- bes_lav |>
   dplyr::filter(indicatore%in% c("Tasso di mancata partecipazione al lavoro",
-                               "Tasso di mancata partecipazione al lavoro giovanile (15-29 anni)")) |>
+                                 "Tasso di mancata partecipazione al lavoro giovanile (15-29 anni)")) |>
   # Select only useful for plot
   select( territorio, indicatore, sesso, unita_misura, v2018, v2019, v2020, v2021, v2022, v2023, v2024)  |> 
   # transform to long format
@@ -2101,15 +2112,13 @@ writexl::write_xlsx(x = bes_disoccup, path = here(bes_data_out, "bes_disoccup.xl
 ```
 
 
-#### tutti
-
 ```{r}
 #| label: bes_disoccup_plot
 #| output: true
 
 # Plot: faceted line with points ----
 bes_disoccup_plot <- bes_disoccup |>
-    dplyr::filter(sesso == "Totale") |>
+  dplyr::filter(sesso == "Totale") |>
   mutate(valore_num = as.numeric(gsub(",", ".", valore))) |>
   tidyr::complete(anno, territorio, indicatore) |>
   ggplot(aes(x = anno, y = valore_num, color = territorio, group = territorio)) +
@@ -2117,7 +2126,7 @@ bes_disoccup_plot <- bes_disoccup |>
   geom_point(size = 2.5) +
   scale_color_manual(
     values = c(
-      "Parma" = burg_lg,
+      "Parma" = ylw_lg,
       "Emilia-Romagna" = grn_lg,
       "Italia" = blu_lg
     )
@@ -2156,7 +2165,7 @@ bes_disoccup_plot <- bes_disoccup |>
 bes_disoccup_plot
 ```
 
-#### maschi e femmine (2024)
+#### Maschi e femmine (al 2024)
 ```{r}
 #| label: bes_disoccup_m_f_plot
 #| output: true
@@ -2173,14 +2182,14 @@ bes_disoccup_mf_plot <- bes_disoccup  |>
   geom_col(position = "dodge", width = 0.7) +
   scale_fill_manual(
     values = c(
-      "Maschi" = "#4A90E2",
-      "Femmine" = "#E24A90")) +
+      "Maschi" = maschi,
+      "Femmine" = femmine)) +
   scale_y_continuous(
     labels = scales::label_percent(scale = 1, decimal.mark = ","),
     breaks = scales::breaks_pretty(n = 5),
     expand = expansion(mult = c(0, 0.1))
   ) +
-    facet_wrap(~ indicatore, ncol = 1) +
+  facet_wrap(~ indicatore, ncol = 1) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -2188,7 +2197,7 @@ bes_disoccup_mf_plot <- bes_disoccup  |>
     axis.text.x = element_text(angle = 0, hjust = 1, size = rel(1)),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(size = rel(1.2), face = "bold", margin = margin(b = 10)),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
@@ -2196,7 +2205,7 @@ bes_disoccup_mf_plot <- bes_disoccup  |>
     panel.spacing = unit(1, "lines")
   ) +
   labs(
-    title = "Tassi di mancata partecipazione al lavoro per genere - Anno 2024",
+    title =  "Mancata partecipazione al lavoro per genere - Anno 2024" ,
     subtitle = "Confronto territoriale",
     caption = "Fonte: Istat, BES (Benessere Equo e Sostenibile), 2025",
     x = "",
@@ -2209,7 +2218,8 @@ bes_disoccup_mf_plot
 ### Formazione e NEET
 
 Parma mostra tassi NEET costantemente inferiori alla media nazionale (10,9% vs 15,2% nel 2024), abbastanza in linea con la regione. Per i laureati, Parma ha registrato un calo (da 32,4% nel 2018 a 30,8% nel 2024), posizionandosi ora sotto la media regionale (36,4%) ma in linea con quella nazionale (30,9%).  
-      
+
+Resta piuttosto alta la partecipazione a formazione continua sul territorio -- superata solo nel 2024 dalla media regionale.       
 <!-- [Dati un po' incompleti, sarebbe bello approfondire da fonte primaria: _Rilevazione sulle Forze di lavoro_] -->
 ```{r}
 #| label: bes_neet_data
@@ -2221,7 +2231,7 @@ bes_neet <- all_bes |>
   filter(indicatore %in% c("Giovani che non lavorano e non studiano (NEET)",
                            "Laureati e altri titoli terziari (25-39 anni)"#,
                            # "Persone con almeno il diploma (25-64 anni)"
-                           ))  |> 
+  ))  |> 
   mutate(
     indicatore = dplyr::case_when(
       indicatore == "Giovani che non lavorano e non studiano (NEET)" ~ "NEET (15-29 anni)",
@@ -2264,7 +2274,7 @@ bes_neet_plot <- bes_neet  |>
   geom_point(size = 2.5) +
   scale_color_manual(
     values = c(
-      "Parma" = burg_lg,
+      "Parma" = ylw_lg,
       "Emilia-Romagna" = grn_lg,
       "Italia" = blu_lg)) +
   scale_x_continuous(
@@ -2302,9 +2312,6 @@ bes_neet_plot <- bes_neet  |>
 bes_neet_plot
 ```
 
-### Formazione continua 
-
-<!-- [Dati un po' incompleti, sarebbe bello approfondire da fonte primaria: _Rilevazione sulle Forze di lavoro_] -->
 
 ```{r}
 #| label: bes_formaz_data
@@ -2342,7 +2349,7 @@ bes_formaz_plot <- bes_formaz  |>
   geom_point(size = 2.5) +
   scale_color_manual(
     values = c(
-      "Parma" = burg_lg,
+      "Parma" = ylw_lg,
       "Emilia-Romagna" = grn_lg,
       "Italia" = blu_lg
     )
@@ -2378,7 +2385,7 @@ bes_formaz_plot <- bes_formaz  |>
 
 bes_formaz_plot
 ```
- 
+
 # ____
 
 # 3° PRIORITÀ: Accompagnare le trasformazioni del territorio
@@ -2391,7 +2398,7 @@ bes_formaz_plot
 
 # NON uso xche incompleti e fuori scopo 
 bes_serv_san <- all_bes |>
-    dplyr::filter(indicatore%in% c("Emigrazione ospedaliera in altra regione",
+  dplyr::filter(indicatore%in% c("Emigrazione ospedaliera in altra regione",
                                  "Medici specialisti",
                                  "Posti letto per specialità ad elevata assistenza")) |>
   dplyr::filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia")) 
@@ -2402,18 +2409,23 @@ bes_serv_san |>
 
 ## Qualità dei servizi e ambiente
 
+[QUI HO MESSO SOLO LE TABELLE PERCHE' SONO DATI UN PO' DISPARATI: SI POTREBBE FARSI AIUTARE E FARE DELLE INFOGRAFICHE UN PO' PIÙ INTERESSANTI...]{style="color: red;"}    
+
+
 ```{r}
 #| label: bes_servizi_data
 
 bes_servizi <-  all_bes |>
-  dplyr::filter(dominio%in% c("Qualità dei servizi", "Ambiente", "Paesaggio e patrimonio culturale"
-  )) |> 
+  dplyr::filter(dominio%in% c("Qualità dei servizi", "Ambiente", 
+                              "Paesaggio e patrimonio culturale",
+                              "Innovazione, ricerca e creatività")) |> 
   dplyr::filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia")) |> 
   mutate(territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna", "Italia"))) |>
   select(-codice, -sesso,-dominio, -nota, -(starts_with("w"))) |> 
   filter(indicatore %in% c(
     # Qualità dei servizi ---
     "Copertura della rete fissa di accesso ultra veloce a internet",
+    "Comuni con servizi per le famiglie interamente online",
     "Raccolta differenziata dei rifiuti urbani",
     "Irregolarità del servizio elettrico",
     "Posti-km offerti dal Tpl",
@@ -2426,9 +2438,11 @@ bes_servizi <-  all_bes |>
     "Concentrazione media annua di PM10",
     "Concentrazione media annua di PM2.5",
     "Energia elettrica da fonti rinnovabili")) |> 
+  
   mutate( indicatore = factor(indicatore, levels = c(
     # Qualità dei servizi ---
     "Copertura della rete fissa di accesso ultra veloce a internet",
+    "Comuni con servizi per le famiglie interamente online",
     "Raccolta differenziata dei rifiuti urbani",
     "Irregolarità del servizio elettrico",
     "Posti-km offerti dal Tpl",
@@ -2448,9 +2462,9 @@ bes_servizi <-  all_bes |>
 tabyl(bes_servizi$indicatore)
 ```
 
-### 🟨 [Tbl] Servizi sul territorio 
+### [Tbl] Servizi sul territorio 
 
-Nella qualità dei servizi si evidenziano performance migliori a Parma rispetto alla media regionale per quasi tutti gli indicatori considerati, in particolare nella disponibilità di verde urbano. Sui posti-km offerti dal trasporto pubblico locale, Parma è sopra la regione, ma resta al di sotto della media nazionale.
+Nella qualità dei servizi sul territorio, si evidenziano performance migliori a Parma rispetto alla media regionale per quasi tutti gli indicatori considerati, in particolare nella **disponibilità di verde urbano**. Sui **posti-km offerti dal trasporto pubblico locale**, Parma è al di sopra della regione, ma resta al di sotto della media nazionale.
 
 ```{r}
 #| label: bes_servizi_tbl
@@ -2461,6 +2475,7 @@ bes_servizi_tbl <- bes_servizi |>
   filter(indicatore %in%  c(
     # Qualità dei servizi ---
     "Copertura della rete fissa di accesso ultra veloce a internet",
+    "Comuni con servizi per le famiglie interamente online",
     "Raccolta differenziata dei rifiuti urbani",
     "Irregolarità del servizio elettrico",
     "Posti-km offerti dal Tpl",
@@ -2493,11 +2508,16 @@ bes_servizi_tbl <- bes_servizi |>
   color(color = grey_sc, part = "footer") 
 
 bes_servizi_tbl
+
+# save as RDS
+saveRDS(object =  bes_servizi, file = here("data_out","bes_2003_2023", "bes_servizi_tbl.rds"))
+# save as docx
+flextable::save_as_docx(bes_servizi_tbl, path = here("data_out","bes_2003_2023", "bes_servizi_tbl.docx"))
 ```
 
 ### [Tbl] Ambiente 
 
-Nel dominio ambiente si evidenzia una certa disomogeneità tra Parma e l'Emilia-Romagna (come nella dispersione idrica in cui la media regionale sarebbe più virtuosa) o nella concentrazione di polveri sottili (pur molto al di sotto della media nazionale). Parma mostra performance migliori della media regionale per quel che concerne l'impremeabilizzazione del suolo e la produzione di rifiuti urbani. 
+Nell'ambito ambientale, si evidenzia una certa disomogeneità tra Parma e l'Emilia-Romagna -- come nella **dispersione idrica** in cui la media regionale sembra molto più virtuosa, o nella **concentrazione di polveri sottili** (pur molto al di sotto della media nazionale). Parma mostra performance migliori della media regionale per quel che concerne l'**impermeabilizzazione del suolo** e la **produzione di rifiuti urbani**. 
 
 ```{r}
 #| label: bes_ambiente_tbl
@@ -2506,19 +2526,19 @@ Nel dominio ambiente si evidenzia una certa disomogeneità tra Parma e l'Emilia-
 bes_ambiente_tbl <- bes_servizi |>
   select(-fonte, -(v2004:v2017), -v2024) |>
   filter(indicatore %in%  c(
-          "Rifiuti urbani prodotti",
-      # Inquinamento --- 
-      "Dispersione da rete idrica comunale",
-      "Impermeabilizzazione del suolo da copertura artificiale",
-      "Concentrazione media annua di PM10",
-      "Concentrazione media annua di PM2.5",
+    "Rifiuti urbani prodotti",
+    # Inquinamento --- 
+    "Dispersione da rete idrica comunale",
+    "Impermeabilizzazione del suolo da copertura artificiale",
+    "Concentrazione media annua di PM10",
+    "Concentrazione media annua di PM2.5",
     "Energia elettrica da fonti rinnovabili" ))|> 
   relocate (unita_misura, .after = indicatore) |>
   arrange( indicatore, territorio) |> 
   flextable() |> 
   flextable::merge_v( j = "indicatore", target = c("indicatore", "unita_misura"), part = "body") |> 
   bg (i = ~ territorio == "Parma", j = 3:9, bg = ylw_lg )  |> 
-    # ALign years column to the right
+  # ALign years column to the right
   flextable::align(j = c("v2018", "v2019", "v2020", "v2021", "v2022", "v2023"), align = "right", part = "body") |>
   # Headers
   set_header_labels(  
@@ -2538,8 +2558,13 @@ bes_ambiente_tbl <- bes_servizi |>
   fontsize(size = 9, part = "footer") |>
   italic(part = "footer") |>
   color(color = grey_sc, part = "footer") 
-  
+
 bes_ambiente_tbl
+
+# save as RDS
+saveRDS(object =  bes_servizi, file = here("data_out","bes_2003_2023", "bes_ambiente_tbl.rds"))
+# save as docx
+flextable::save_as_docx(bes_ambiente_tbl, path = here("data_out","bes_2003_2023", "bes_ambiente_tbl.docx"))
 ```
 
 \newpage
@@ -2548,36 +2573,70 @@ bes_ambiente_tbl
 
 # AMBITO INTERVENTO: Valorizzare l'innovazione 
 
-### 🟧 Propensione alla brevettazione
+<!-- + REGIONI RIS https://emiliaromagnainnodata.art-er.it/indicatori-r-e-i/ -->
+<!-- + PARMA E ER https://digitale.regione.emilia-romagna.it/notizie/2025/maggio/a-spasso-con-desier-le-performance-di-innovazione-digitale-del-comune-di-parma -->
+<!--   + https://docs.google.com/spreadsheets/d/1G1F2ByRsXnmN0nXHHF9wgL-LHzVhtuvcKYzC8tJI19Q/edit?gid=0#gid=0 -->
+<!-- + https://ireser.it/wp-content/uploads/2025/11/OSS_PR_2025_DEF2.pdf -->
+
+
+### Propensione alla brevettazione
+
+Secondo dati dell’Ufficio Europeo Brevetti ( _European Patent Office_, o EPO), al 2024, l'Italia è il 6° paese dell'EU per brevetti presentati (4,853 su 68,392) e l'11° nel ranking globale, principalmente nei comparti: **Trasporti**, seguito da **Handling** e **Altre macchine speciali**. [@eurostatPatentApplicationsEPO2024]
+
+Tra le regioni italiane, Lombardia, Emilia-Romagna e Veneto restano quelle più attive, contribuendo a oltre il 60% delle domande totali dall’Italia. La Lombardia si conferma
+leader per numero assoluto di brevetti presentate (1.468 domande, 30,2% del totale nazionale), pur con un calo del 9,7%, seguita dall’Emilia-Romagna (922, pari al 19,0% del totale italiano), che evidenzia una contrazione più contenuta (-3,8%). Se però prendiamo in
+considerazione il numero di brevetti in rapporto alla popolazione residente, l’Emilia-Romagna si conferma anche nel 2024 come prima regione in Italia per domande di brevetto depositate
+pro-capite, con 207 domande. [@art-erBrevettiDellEuropeanPatent2025]
+
+
+
+[GRAFICO COPIATO: SI PUÒ RIFARE SE LO TENIAMO...]{style="color: red;"}   
+
+
+::: {layout-ncol=2}
+
+![1)](data_in/eurostat_brevetti/brevetti.png)
+![2)](data_in/eurostat_brevetti/brevetti_pop.png)
+
+:::
+
 
 ```{r}
-#| label: brev_data
+#| label: bes_brev
 #| eval: false
 
 # Propensione alla brevettazione
 
-brev_data <- ric_innov_df |>
-  dplyr::filter(indicatore%in% c("Propensione alla brevettazione" )) |> 
+bes_brev <- all_bes |>
+  dplyr::filter(dominio %in% c("Innovazione, ricerca e creatività")) |>
+  dplyr::filter(indicatore %in% c("Propensione alla brevettazione" 
+  )) |> 
   dplyr::filter(territorio %in% c("Parma", "Emilia-Romagna" , "Italia")) |>
   dplyr::mutate (territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna" , "Italia")))
 ```
 
 ```{r}
-#| label: brev_plot
+#| label: bes_brev_plot
 #| eval: false
 #| output: false
 
 # Plot: histogram ----
-brev_plot <- brev_data  |>
+bes_brev_plot <- bes_brev  |>
+  select(-fonte, -(v2004:v2017), -v2023, -v2024, -unita_misura) |>
+  tidyr::pivot_longer(
+    cols = starts_with("v"),
+    names_to = "anno",
+    values_to = "valore",
+    names_prefix = "v") |>
+  mutate(anno = as.integer(anno)) |>
+  mutate(valore_num = as.numeric(gsub(",", ".", valore))) |>
   tidyr::complete(anno, territorio, indicatore) |>
-  ggplot(aes(x = anno, y = valore, fill = territorio)) +
-  geom_col(position = position_dodge2(width = 0.9, preserve = "single", padding = 0),
-           width = 0.9,
-           color = "white",
-           linewidth = 0.5) +
-  scale_fill_manual(
+  ggplot(aes(x = anno, y = valore_num, color = territorio)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 2) +
+  scale_color_manual(
     values = c(
-      "Parma" = burg_lg,
+      "Parma" = ylw_lg,
       "Emilia-Romagna" = grn_lg,
       "Italia" = blu_lg,
       "Nord-est" = grey_md1)) +
@@ -2607,23 +2666,29 @@ brev_plot <- brev_data  |>
     x = "",
     y = "N. di domande di brevetto per milione di abitanti")
 
-brev_plot
+bes_brev_plot
 ```
 
- 
+
+### Indicatori DESIER di innovazione digitale
+
+<!-- https://digitale.regione.emilia-romagna.it/notizie/2025/maggio/a-spasso-con-desier-le-performance-di-innovazione-digitale-del-comune-di-parma -->
+
+L'**indice DESIER** (_Digital Economy and Society Index for European Regions_) misura le performance digitali delle regioni europee, e consente di declinare l'indice DESI sull’innovazione digitale anche nei territori dell’Emilia-Romagna [@re-ragendadigitaledellemilia-romagnaSpassoConDESIER2025]. Questo strumento (realizzato realizzato nell’ambito delle attività di ADER, Agenda Digitale dell’Emilia-Romagna) consente l'analisi di 4 dimensioni di sviluppo principali che, a loro volta, combinano molti indicatori:
+
++ `Capitale Umano` - aspetti connessi alle competenze digitali, la presenza di specialisti del settore digitale, la presenza
+e l’utilizzo di app, di alcuni servizi online, e social della Pubblica Amministrazione.
++ `Connettività` - grado di copertura Internet con rete fissa e mobile e il relativo grado di utilizzo nel territorio.
++ `Integrazione delle tecnologie digitali` - presenza sul territorio di imprese del mondo ICT, imprese innovative, start-up e finanziamenti provenienti dalla Smart Specialisation Strategy Regionale, con particolare riferimento alla digitalizzazione
+del mondo produttivo.
++ `Servizi pubblici digitali` - vari aspetti connessi all’esistenza di open data e la possibilità di interagire online con la PA locale, o al grado di utilizzo delle Piattaforme abilitanti da parte dei cittadini e delle imprese (es. SPID, e servizi della sanità digitale online).
+
+Questi indici mostrano una situazione abbastanza disomogenea tra Parma capoluogo (che si attesta tra i territori più avanzati della regione) e la provincia di Parma (che si posiziona in linea o al di sotto della media regionale).
+
+[GRAFICO COPIATO: SI PUÒ RIFARE SE LO TENIAMO...]{style="color: red;"}   
+
+![](data_in/desier/desier_parma_PR_ER.png)
 
 
-# ____
-
-# Possibili sezioni da sviluppare 
-
-## Terzo settore
-
-CAPITALE SOCIALE: Tessuto sociale vitale con un terzo settore numeroso e ben rappresentato
-
-## IA e automazione 
-
-## Geolocalizzazione della fragilità 
-
-[Se servono si potrebbero ricostruire mappe con indicatori di fragilità socio-economica a livello comunale per Parma e provincia]
+# Fonti
 

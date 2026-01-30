@@ -2674,7 +2674,7 @@ bes_brev_plot
 
 <!-- https://digitale.regione.emilia-romagna.it/notizie/2025/maggio/a-spasso-con-desier-le-performance-di-innovazione-digitale-del-comune-di-parma -->
 
-L'**indice DESIER** (_Digital Economy and Society Index for European Regions_) misura le performance digitali delle regioni europee, e consente di declinare l'indice DESI sull’innovazione digitale anche nei territori dell’Emilia-Romagna [@re-ragendadigitaledellemilia-romagnaSpassoConDESIER2025]. Questo strumento (realizzato realizzato nell’ambito delle attività di ADER, Agenda Digitale dell’Emilia-Romagna) consente l'analisi di 4 dimensioni di sviluppo principali che, a loro volta, combinano molti indicatori:
+L'**indice DESIER** (_Digital Economy and Society Index for European Regions_) misura le performance digitali delle regioni europee, e consente di declinare l'indice DESI sull’innovazione digitale anche nei territori dell’Emilia-Romagna [@re-ragendadigitaledellemilia-romagnaSpassoConDESIER2025]. Questo strumento (realizzato nell’ambito delle attività di ADER, Agenda Digitale dell’Emilia-Romagna) consente l'analisi di 4 dimensioni di sviluppo principali che, a loro volta, combinano molti indicatori:
 
 + `Capitale Umano` - aspetti connessi alle competenze digitali, la presenza di specialisti del settore digitale, la presenza
 e l’utilizzo di app, di alcuni servizi online, e social della Pubblica Amministrazione.

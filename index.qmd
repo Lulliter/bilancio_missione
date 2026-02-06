@@ -83,7 +83,11 @@ ylw_md <- "#d9a44a"
 ylw_lg <- "#f0c166"
 
 maschi <- "#6B8FAD"
-femmine <- "#C47A87"                                                           
+femmine <- "#C47A87"
+
+grave <- "#834ba0"
+moderata <- "#ce78b3"
+ 
 ```
 
 
@@ -179,6 +183,15 @@ all_bes <- read_excel(here("data_in", "bes_2003_2023", "Indicatori_per_provincia
   janitor::clean_names()
 ```
 
++ **Dati Ehis Anziani non autosufficienti**  
+[@istatEhisAnzianiNonAutosufficienti2025a]
+
+```{r}
+# Corrisponde a EHIS_limit_tavola3_2_3 pulito e salvato
+# ----- "Persone di 65+ anni con difficoltà nelle attività di **cura della persona**, regione e ripartizione geografica"
+
+ADL_reg <- readRDS(here::here("data_in","istat_EHIS_2019","ADL_reg_perc_clean.rds"))
+```
 
 # 1° PRIORITÀ: Ridurre le disuguaglianze 
 
@@ -1003,10 +1016,115 @@ over65_unip_map
 # Save plot (manually)
 ```
 
+
+### Persone over 65 non autosufficienti
+
+Questo dato dall’indagine europea sulla salute (EHIS), attualmente in corso di aggiornamento, mostra la significativa percentuale di popolazione anziana (65+) che presenta difficoltà nelle attività di cura della persona ( _ADL, Activities of Daily Living_ ), sia essa moderata o grave.
+
+[@istatCondizioniDiSalute2022]
+```{r}
+#| label: adl_reg_data
+
+
+# ------- Arguments for plot
+TITLE <- "Popolazione anziana non autosufficiente "
+SUBTIT <- "% di popolazione 65+ con difficoltà nelle attività di cura della persona (ADL)"
+CAP <- "Fonte: ISTAT - EHIS (European Health Interview Survey) 2022, su dati 2019"
+
+# ------- Prepare data
+adl_reg_data <- ADL_reg |>
+  dplyr::filter(territorio %in% c("Emilia-Romagna", "Italia")) |>
+  tidyr::pivot_longer(
+    cols = c(moderata, grave),  # removed nessuna       
+    names_to = "difficolta",
+    values_to = "percentuale"
+  ) |>
+  dplyr::mutate(
+    difficolta = factor(
+      difficolta,
+      levels = c(#"nessuna", 
+                 "moderata", "grave"),
+      labels = c(#"Nessuna", 
+                 "Moderata", "Grave")
+    ),
+    territorio = factor(territorio, levels = c("Italia", "Emilia-Romagna"))
+  )
+
+# ------- Save data objects
+# as RDS
+saveRDS(object = adl_reg_data, file = here("data_out", "istat_EHIS_2019", "adl_reg_data.rds"))
+# as XLSX
+writexl::write_xlsx(x = adl_reg_data, path = here("data_out", "istat_EHIS_2019", "adl_reg_data.xlsx"))
+```
+
+
+```{r}
+#| label: adl_reg_plot
+#| output: true
+
+# Plot: adl_reg_plot ----
+adl_reg_plot <- adl_reg_data |>
+  filter(difficolta != "nessuna") |> 
+  ggplot(aes(x = territorio, y = percentuale, fill = difficolta)) +
+  geom_col(position = "dodge", width = 0.7) +
+  geom_text(
+    aes(label = scales::number(percentuale, accuracy = 0.1, suffix = "%", decimal.mark = ",")),
+    position = position_dodge(width = 0.7),
+    vjust = -0.5,
+    size = 3
+  ) +
+  scale_fill_manual(
+    values = c(
+      "Moderata" = moderata,
+      "Grave" = grave
+    )
+  ) +
+  scale_y_continuous(
+    labels = scales::label_percent(scale = 1, decimal.mark = ","),
+    limits = c(0, 25),
+    expand = expansion(mult = c(0, 0.1))
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(size = rel(1)),
+    axis.text.y = element_text(size = rel(0.85)),
+    axis.title = element_text(size = rel(1), face = "bold"),
+    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.subtitle = element_text(size = rel(1)),
+    strip.text = element_text(size = rel(1.1), face = "bold"),
+    legend.text = element_text(size = rel(0.9)),
+    legend.title = element_text(size = rel(0.9), face = "bold"),
+    legend.position = "bottom"
+  ) +
+  labs(
+    title = TITLE,
+    subtitle = SUBTIT,
+    caption = CAP,
+    x = "",
+    y = "",
+    fill = "Difficoltà"
+  )
+
+adl_reg_plot
+```
+
+
 ## Trend demografici a confronto
 <!-- ## Dati di input (ISTAT trend dem) -->
 
 In generale, l’analisi degli indicatori demografici 2002-2025 come il profilo demografico di Parma si distingue per certi indicatori sia dalla media regionale che nazionale. In particolare, si evidenzia un trend di invecchiamento più contenuto e una dinamica migratoria più vivace che contribuisce a bilanciare il deficit di natalità generalizzato.
+
+### 🟨 Pop Residente 
+
+```{r}
+
+```
+
+```{r}
+
+```
 
 ### Età media
 

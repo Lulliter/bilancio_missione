@@ -1116,14 +1116,285 @@ adl_reg_plot
 
 In generale, l’analisi degli indicatori demografici 2002-2025 come il profilo demografico di Parma si distingue per certi indicatori sia dalla media regionale che nazionale. In particolare, si evidenzia un trend di invecchiamento più contenuto e una dinamica migratoria più vivace che contribuisce a bilanciare il deficit di natalità generalizzato.
 
-### 🟨 Pop Residente 
+### Pop Residente 
 
 ```{r}
+#| label: pop_res_trend
+
+pop_res_2001_2018 <- read_excel(here("data_in","pop_resid_2025","IT1,22_315_DF_DCIS_POPORESBIL1_1,1.0.xlsx"), 
+                                sheet = "2001_2018",
+                                col_types = c("text", "text","numeric", "numeric", 
+                                              "numeric","numeric", "numeric",
+                                              "numeric","numeric", "numeric", "numeric",
+                                              "numeric", "numeric", "numeric",
+                                              "numeric", "numeric", "numeric",
+                                              "numeric", "numeric", "numeric",
+                                              "numeric"), na = "..") |> 
+  select(-'2019')
+
+pop_res_2019_2024 <- read_excel(here("data_in","pop_resid_2025","IT1,22_315_DF_DCIS_POPORESBIL1_1,1.0.xlsx"), sheet = "2019_2024")
+ 
+# Large to long format
+pop_res_2001_2018_l <- pop_res_2001_2018 |> 
+  pivot_longer(cols = starts_with("20"), names_to = "anno", values_to = "numero") |> 
+  mutate(anno = as.numeric(anno)) |>  
+  janitor::clean_names() |>
+  # Indicatore nome diverso da uniformare 
+  mutate(indicatore = case_when(str_detect(indicatore, "gennaio") ~ "Popolazione al 1 gennaio",
+                               TRUE ~ indicatore)) |> 
+  mutate(indicatore = case_when(str_detect(indicatore, "dicembre") ~ "Popolazione al 31 dicembre",
+                               TRUE ~ indicatore))
+ 
+pop_res_2019_2024_l <- pop_res_2019_2024 |>
+  pivot_longer(cols = starts_with("20"), names_to = "anno", values_to = "numero") |> 
+  mutate(anno = as.numeric(anno)) |>   
+  janitor::clean_names() |>
+  # Indicatore nome diverso da uniformare 
+  mutate(indicatore = case_when(str_detect(indicatore, "gennaio") ~ "Popolazione al 1 gennaio",
+                               TRUE ~ indicatore)) |> 
+  mutate(indicatore = case_when(str_detect(indicatore, "dicembre") ~ "Popolazione al 31 dicembre",
+                               TRUE ~ indicatore))
+
+# bind rows
+pop_res_2001_2024_l <- bind_rows(pop_res_2001_2018_l, pop_res_2019_2024_l)
+
+# somma per anno e territorio di immigrati ed emigrati
+tot_imm <-  pop_res_2001_2024_l |> 
+  filter(str_detect(indicatore, "Immigr")) |> 
+  group_by(territorio, anno) |> 
+  summarise(numero = sum(numero, na.rm = TRUE), .groups = "keep") |> 
+  mutate(indicatore = "Immigrati")
+ 
+tot_emi <- pop_res_2001_2024_l |> 
+  filter(str_detect(indicatore, "Emigr")) |> 
+  group_by(territorio, anno) |> 
+  summarise(numero = sum(numero, na.rm = TRUE), .groups = "keep") |> 
+  mutate(indicatore = "Emigrati")
+
+pop_2001_2024 <- bind_rows(pop_res_2001_2024_l,tot_imm, tot_emi)  |> 
+  filter(indicatore %in% c("Popolazione al 1 gennaio", "Immigrati", "Emigrati"))  
+
+tabyl(pop_res_2001_2024_l$indicatore)
+tabyl(pop_2001_2024$indicatore)
+
+
+# Crea % immigrazione ed emigrazione
+pop_2001_2024_pct <- pop_2001_2024 |>
+  pivot_wider(names_from = indicatore, values_from = numero) |> 
+  group_by(territorio, anno) |> 
+  summarise(
+    pop_residente = `Popolazione al 1 gennaio`,
+    immigrati = Immigrati,
+    emigrati = Emigrati,
+    .groups = "keep"
+  ) |> 
+  mutate(
+    pct_immigrati = immigrati / pop_residente * 100,
+    pct_emigrati = emigrati / pop_residente * 100
+  )
+
+# BAck to long form
+pop_2001_2024_pct_long <- pop_2001_2024_pct |> 
+  select(territorio, anno, 
+         pop_residente,
+         pct_immigrati, pct_emigrati) |> 
+  pivot_longer(cols =  -c(territorio, anno), names_to = "indicatore", values_to = "valore") |> 
+  mutate(indicatore = case_when(
+    indicatore == "pop_residente" ~ "Popolazione al 1 gennaio",
+    indicatore == "pct_immigrati" ~ "Immigrati %",
+    indicatore == "pct_emigrati" ~ "Emigrati %",
+    TRUE ~ indicatore)) |> 
+  mutate(
+    scala = case_when(
+      indicatore == "Popolazione al 1 gennaio" ~ "Valori assoluti",
+      TRUE ~ "Perc. su residenti"
+    )
+  )
 
 ```
 
+#### Pop res trend
 ```{r}
+#| label: pop_res_trend_plot
+#| output: false
 
+pop_res_trend_plot <- pop_2001_2024_pct_long |>
+  filter(anno > 2001) |>
+  mutate(territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna", "Italia"), labels=c("Parma", "Emilia-Romagna", "Italia"))) |>
+  filter(indicatore %in% c("Popolazione al 1 gennaio")) |>#, "Immigrati %", "Emigrati %")) |>
+  #  filter(indicatore %in% c( "Immigrati %", "Emigrati %")) |>
+  ggplot(aes(x = anno, y = valore, color = indicatore, group = indicatore)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1) +
+  scale_x_continuous(
+    breaks = seq(2002, 2024, by = 2),
+    expand = expansion(mult = c(0.02, 0.02))
+  ) +
+  scale_y_continuous(
+    labels = function(x) {
+      if (max(x, na.rm = TRUE) > 1000) {
+        scales::label_comma(big.mark = ".")(x)
+      } else {
+        scales::label_percent(scale = 1, decimal.mark = ",")(x)
+      }
+    },
+    expand = expansion(mult = c(0.05, 0.1))
+  ) +
+  # DEcide color by indicator
+  scale_color_manual(
+    values = c("Popolazione al 1 gennaio" = grey_sc,
+      "Immigrati %" = grn_sc,
+      "Emigrati %" = burg_sc) ) +
+  facet_wrap(~ territorio, ncol = 3) +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = rel(0.85)),
+    axis.text.y = element_text(size = rel(0.85)),
+    axis.title = element_text(size = rel(1), face = "bold"),
+    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    strip.text.x = element_text(size = rel(1.125), face = "bold"), # Facet territ
+    strip.text.y = element_text(size = rel(1) , face = "bold"), # Facet indicatore 
+    legend.text = element_text(size = rel(0.9)),
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    panel.spacing = unit(1, "lines")
+  ) +
+  labs(
+    title = "Popolazione residente",
+    subtitle = "Confronto territoriale",
+    caption = "Fonte: Istat, Censimento permanente della popolazione",
+    x = "",
+    y = ""
+  )
+
+pop_res_trend_plot
+```
+
+#### Migr trend
+```{r}
+#| label: pop_migr_trend_plot
+#| output: false
+
+pop_migr_trend_plot <- pop_2001_2024_pct_long |>
+  filter(anno > 2001) |>
+  mutate(territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna", "Italia"), labels=c("Parma", "Emilia-Romagna", "Italia"))) |>
+  # filter(indicatore %in% c("Popolazione al 1 gennaio")) |>#, "Immigrati %", "Emigrati %")) |>
+   filter(indicatore %in% c( "Immigrati %", "Emigrati %")) |>
+  ggplot(aes(x = anno, y = valore, color = indicatore, group = indicatore)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.5) +
+  scale_x_continuous(
+    breaks = seq(2002, 2024, by = 2),
+    expand = expansion(mult = c(0.02, 0.02))
+  ) +
+  scale_y_continuous(
+    labels = function(x) {
+      if (max(x, na.rm = TRUE) > 1000) {
+        scales::label_comma(big.mark = ".")(x)
+      } else {
+        scales::label_percent(scale = 1, decimal.mark = ",")(x)
+      }
+    },
+    expand = expansion(mult = c(0.05, 0.1))
+  ) +  
+  # DEcide color by indicator
+  scale_color_manual(
+    values = c("Popolazione al 1 gennaio" = grey_md1,
+      "Immigrati %" = grn_md,
+      "Emigrati %" = burg_md) ) +
+  facet_wrap(~ territorio, ncol = 3) +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = rel(0.85)),
+    axis.text.y = element_text(size = rel(0.85)),
+    axis.title = element_text(size = rel(1), face = "bold"),
+    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    strip.text.x = element_text(size = rel(1.125), face = "bold"), # Facet territ
+    strip.text.y = element_text(size = rel(1) , face = "bold"), # Facet indicatore 
+    legend.text = element_text(size = rel(0.9)),
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    panel.spacing = unit(1, "lines")
+  ) +
+  labs(
+    title = "Flussi migratori",
+    subtitle = "Confronto territoriale",
+    caption = "Fonte: Istat, Censimento permanente della popolazione",
+    x = "",
+    y = ""
+  )
+
+pop_migr_trend_plot
+``` 
+
+#### Res + migr trend 
+```{r}
+#| label: pop_res_migr_trend_plot
+#| output: true
+
+pop_res_migr_trend_plot <- pop_2001_2024_pct_long |>
+  filter(anno > 2001) |>
+  filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia")) |>
+  mutate(territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna", "Italia"), labels=c("Parma", "Emilia-Romagna", "Italia"))) |>
+  # filter(indicatore %in% c("Popolazione al 1 gennaio")) |>#, "Immigrati %", "Emigrati %")) |>
+   # filter(indicatore %in% c( "Immigrati %", "Emigrati %")) |>
+  ggplot(aes(x = anno, y = valore, color = indicatore, group = indicatore)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.5) +
+  scale_x_continuous(
+    breaks = seq(2002, 2024, by = 2),
+    expand = expansion(mult = c(0.02, 0.02))
+  ) +
+  scale_y_continuous(
+    labels = function(x) {
+      if (max(x, na.rm = TRUE) > 1000) {
+        scales::label_comma(big.mark = ".")(x)
+      } else {
+        scales::label_percent(scale = 1, decimal.mark = ",")(x)
+      }
+    },
+    expand = expansion(mult = c(0.05, 0.1))
+  ) +
+    # DEcide color by indicator
+  scale_color_manual(
+    values = c("Popolazione al 1 gennaio" = grey_md1,
+      "Immigrati %" = grn_md,
+      "Emigrati %" = burg_md) ) +
+  # Qui separo per 2 variabili 
+  facet_grid(scala ~ territorio , scales = "free_y") +
+  theme_minimal(base_size = 13) +
+  theme(
+    # panel.border= element_rect(color = "grey70", fill = NA, linewidth = rel(0.5)),
+    panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = rel(0.85)),
+    axis.text.y = element_text(size = rel(0.85)),
+    axis.title = element_text(size = rel(1), face = "bold"),
+    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    strip.text.x = element_text(size = rel(1.125), face = "bold"), # Facet territ
+    strip.text.y = element_text(size = rel(1) , face = "bold"), # Facet indicatore 
+    legend.text = element_text(size = rel(0.9) ),
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    panel.spacing = unit(1, "lines")
+  ) +
+  labs(
+    title = "Popolazione residente e flussi migratori",
+    subtitle = "Confronto territoriale",
+    caption = "Fonte: Istat, Censimento permanente della popolazione",
+    x = "",
+    y = ""
+  )
+
+pop_res_migr_trend_plot
+
+# Save data as RDS and XLSX
+saveRDS(object = pop_2001_2024_pct_long, file = here("data_out",  "pop_resid_2025", "pop_2001_2024_pct_long.rds"))
+writexl::write_xlsx(x = pop_2001_2024_pct_long, path = here("data_out",  "pop_resid_2025", "pop_2001_2024_pct_long.xlsx"))
 ```
 
 ### Età media
@@ -2687,6 +2958,62 @@ flextable::save_as_docx(bes_ambiente_tbl, path = here("data_out","bes_2003_2023"
 
 \newpage
 
+
+## Musei, monumenti e biblioteche 
+
+```{r}
+#| label: musei_conc_data
+
+tipo <- c("museo", "galleria e/o collezione", "biblioteca", 
+          "parco archeologico", "sito archeologico", "monumento")
+territorio  <- c("Parma-Comune", "Parma-Prov" ,"Emilia-Romagna", "Italia")
+gestione <- c("Pubblica", "Privata", "Mista")
+proprieta <- c("ministero", "comune", "università", "fondazione", "associazione")
+fonte_dato <- c("Istat, Musei, gallerie e biblioteche", "Regione E-R", "Altro")
+fonte_anno <- c(2022, 2023, 2024, 2025)
+
+musei_conc <- tribble(
+  ~territorio,    ~indicatore,          ~categoria,                                  ~valore, ~unita, ~fonte_dato,                            ~fonte_anno, ~note,
+
+ 
+ # Densità
+  "Parma-Prov",   "densita",            "musei ogni 100 km²",                          1.9,   "ratio","Istat, Musei, gallerie e biblioteche", 2022,        NA_character_,
+  "Italia",       "densita",            "musei ogni 100 km²",                          1.5,   "ratio","Istat, Musei, gallerie e biblioteche", 2022,        "media nazionale",
+  "Parma-Prov",   "densita",            "musei per 10.000 abitanti",                   2.7,   "ratio","Istat, Musei, gallerie e biblioteche", 2022,        NA_character_,
+  "Italia",       "densita",            "musei per 10.000 abitanti",                   0.7,   "ratio","Istat, Musei, gallerie e biblioteche", 2022,        "media nazionale"
+ 
+)
+```
+
+```{r}
+#| label: musei_n_data
+
+musei_n <- tribble(
+  ~territorio,    ~indicatore,          ~categoria,                           ~valore,   ~unita,  ~fonte_dato,                            ~fonte_anno, ~note,
+  # Tipo istituzione
+  "Parma-Comune", "tipo_istituzione",   "museo, galleria e/o raccolta",       16,          "n",   "Istat, Musei, gallerie e biblioteche", 2022,       NA_character_,
+  "Parma-Comune", "tipo_istituzione",   "monumento o complesso monumentale",  3,           "n",    "Istat, Musei, gallerie e biblioteche", 2022,        NA_character_,
+  "Parma-Comune", "tipo_istituzione",   "biblioteche",                        NA_integer_, "n",    NA_character_,                          2022,        NA_character_,
+
+  "Parma-Prov",   "tipo_istituzione",   "museo, galleria e/o raccolta",       65,          "n",   "Istat, Musei, gallerie e biblioteche", 2022,       "incluso capoluogo",
+  "Parma-Prov",   "tipo_istituzione",   "monumento o complesso monumentale",  NA_integer_, "n",    NA_character_,                          2022,       NA_character_,
+  "Parma-Prov",   "tipo_istituzione",   "biblioteche",                        NA_integer_, "n",    NA_character_,                          2022,       NA_character_,
+  
+  # Gestione
+  "Parma-Prov",   "gestione",           "Pubblica",                           49,          "pct",  "Istat, Musei, gallerie e biblioteche", 2022,        NA_character_,
+  "Parma-Prov",   "gestione",           "Privata",                            51,          "pct",  "Istat, Musei, gallerie e biblioteche", 2022,        NA_character_,
+
+  # Proprietà
+  "Parma-Prov",   "proprieta",          "ministero",                          2,           "n",    "Istat, Musei, gallerie e biblioteche", 2022,        NA_character_,
+  "Parma-Prov",   "proprieta",          "comune",                             24,           "n",   "Istat, Musei, gallerie e biblioteche", 2022,        NA_character_,
+  "Parma-Prov",   "proprieta",          "università",                         5,           "n",    "Istat, Musei, gallerie e biblioteche", 2022,        "università pubbliche",
+  "Parma-Prov",   "proprieta",          "associazione",                       11,           "n",   "Istat, Musei, gallerie e biblioteche", 2022,        "riconosciute e non, enti ecclesiastici ecc.",
+  "Parma-Prov",   "proprieta",          "fondazione",                         9,           "n",    "Istat, Musei, gallerie e biblioteche", 2022,        "bancarie o di altra origine",
+  "Parma-Prov",   "proprieta",          "altro",                              14,           "n",   "Istat, Musei, gallerie e biblioteche", 2022,        NA_character_
+
+)
+```
+
 # ____
 
 # AMBITO INTERVENTO: Valorizzare l'innovazione 
@@ -2707,16 +3034,6 @@ considerazione il numero di brevetti in rapporto alla popolazione residente, l�
 pro-capite, con 207 domande. [@art-erBrevettiDellEuropeanPatent2025]
 
 
-
-[GRAFICO COPIATO: SI PUÒ RIFARE SE LO TENIAMO...]{style="color: red;"}   
-
-
-::: {layout-ncol=2}
-
-![1)](data_in/eurostat_brevetti/brevetti.png)
-![2)](data_in/eurostat_brevetti/brevetti_pop.png)
-
-:::
 
 
 ```{r}
@@ -2788,6 +3105,136 @@ bes_brev_plot
 ```
 
 
+
+
+<!-- [GRAFICO COPIATO: SI PUÒ RIFARE SE LO TENIAMO...]{style="color: red;"}    -->
+
+<!-- ::: {layout-ncol=2} -->
+
+<!-- ![1)](data_in/eurostat_brevetti/brevetti.png) -->
+<!-- ![2)](data_in/eurostat_brevetti/brevetti_pop.png) -->
+
+<!-- ::: -->
+
+```{r}
+#| label: epo_data
+
+# Dati 1 - quota % sul totale nazionale
+brevetti_quota <- tibble(
+  regione = c("Lombardia", "Emilia-Romagna", "Veneto", "Piemonte",
+              "Toscana", "Lazio", "Trentino-Alto Adige",
+              "Friuli Venezia Giulia", "Marche", "Liguria"),
+  quota_pct = c(30.25, 19.00, 13.41, 10.51, 6.51,
+                5.42, 2.91, 2.25, 2.04, 1.85)
+)
+
+
+
+# dati 2 - domande presentate per mln di abitanti
+brevetti_procapite <- tibble(
+  regione = c("Emilia-Romagna", "Lombardia", "Veneto",
+              "Trentino-Alto Adige", "Piemonte",
+              "Friuli Venezia Giulia", "Toscana", "ITALIA",
+              "Marche", "Liguria", "Abruzzo"),
+  domande_mln = c(207.1, 146.6, 134.2, 130.2, 120.0,
+                  91.2, 86.3, 82.3, 66.8, 59.6, 46.5)
+)
+```
+
+
+```{r}
+#| label: epo_plot
+#| output: true
+
+
+epo_brev_quota_plot <- brevetti_quota |>
+  mutate(
+    regione = fct_reorder(regione, quota_pct),
+    highlight = regione == "Emilia-Romagna"
+  ) |>
+  ggplot(aes(x = regione, y = quota_pct, fill = highlight)) +
+  geom_col(width = 0.7) +
+  geom_text(aes(label = paste0(format(quota_pct, decimal.mark = ","), "%")),
+            hjust = -0.1, size = 3) +
+  scale_fill_manual(values = c("TRUE" = grn_lg, "FALSE" = grey_md1),
+                    guide = "none") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  coord_flip() +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = rel(0.85)),
+     strip.text.x=element_text(size = rel(0.8), face = "bold"),
+    plot.title = element_text(size = rel(1), face = "bold", margin = margin(b = 5)),
+    plot.subtitle = element_text(size = rel(0.9))
+  ) +
+  labs(
+    title = "Quota % sul totale nazionale",
+    x = NULL, y = NULL
+  )
+
+
+epo_brev_proc_plot <- brevetti_procapite |>
+  mutate(
+    regione = fct_reorder(regione, domande_mln),
+    highlight = case_when(
+      regione == "Emilia-Romagna" ~ "ER",
+      regione == "ITALIA" ~ "Italia",
+      TRUE ~ "other"
+    )
+  ) |>
+  ggplot(aes(x = regione, y = domande_mln, fill = highlight)) +
+  geom_col(width = 0.7) +
+  geom_text(aes(label = format(domande_mln, decimal.mark = ",")),
+            hjust = -0.1, size = 3) +
+  scale_fill_manual(values = c("ER" = grn_lg, "Italia" = blu_lg, "other" = grey_md1),
+                    guide = "none") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  coord_flip() +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = rel(0.85)),
+ strip.text.x=element_text(size = rel(0.8), face = "bold"),
+    plot.title = element_text(size = rel(1), face = "bold", margin = margin(b = 5)),
+    plot.subtitle = element_text(size = rel(0.9))
+  ) +
+  labs(
+    title = "Domande per milione di abitanti",
+    x = NULL, y = NULL
+  )
+
+# Combine with patchwork
+epo_combined_plot <- epo_brev_quota_plot + epo_brev_proc_plot +
+  plot_annotation(
+    title = "Domande di brevetto presentate all'European Patent Office nel 2024",
+    caption = "Fonte: Eurostat, Patent statistics, 2026",
+    theme = theme(
+      plot.title = element_text(size = 16, face = "bold", margin = margin(b = 10)),
+      plot.caption = element_text(size = 10, hjust = 0)
+    )
+  )
+
+epo_combined_plot
+
+# Save data as RDS
+saveRDS(object = brevetti_quota, file = here("data_out", "eurostat_brevetti", "brevetti_quota.rds"))
+saveRDS(object = brevetti_procapite, file = here("data_out", "eurostat_brevetti", "brevetti_procapite.rds"))
+
+# Save data as xlsx
+writexl::write_xlsx(brevetti_quota, path = here("data_out", "eurostat_brevetti", "brevetti_quota.xlsx"))
+writexl::write_xlsx(brevetti_procapite, path = here("data_out", "eurostat_brevetti", "brevetti_procapite.xlsx"))
+```
+
+
+
+
 ### Indicatori DESIER di innovazione digitale
 
 <!-- https://digitale.regione.emilia-romagna.it/notizie/2025/maggio/a-spasso-con-desier-le-performance-di-innovazione-digitale-del-comune-di-parma -->
@@ -2803,9 +3250,80 @@ del mondo produttivo.
 
 Questi indici mostrano una situazione abbastanza disomogenea tra Parma capoluogo (che si attesta tra i territori più avanzati della regione) e la provincia di Parma (che si posiziona in linea o al di sotto della media regionale).
 
-[GRAFICO COPIATO: SI PUÒ RIFARE SE LO TENIAMO...]{style="color: red;"}   
+<!-- [GRAFICO COPIATO: SI PUÒ RIFARE SE LO TENIAMO...]{style="color: red;"}    -->
 
-![](data_in/desier/desier_parma_PR_ER.png)
+<!-- ![](data_in/desier/desier_parma_PR_ER.png) -->
+
+```{r}
+
+desier <- tibble(
+  territorio = rep(c("Parma", "PR", "ER"), each = 4),
+  dimensione = rep(c("CONNETTIVITÀ", "INTEGRAZIONE DELLE TECNOLOGIE DIGITALI",
+                      "CAPITALE UMANO", "SERVIZI PUBBLICI DIGITALI"), 3),
+  valore = c(
+    17.10, 10.22, 11.96, 10.41,  # Parma (tot 49.69)
+    11.47,  5.34,  6.40,  6.09,  # PR (tot 29.30)
+    12.48,  5.96,  6.86,  6.54   # ER (tot 31.83)
+  )
+)
+```
+
+
+```{r}
+#| label: desier_barplot
+#| output: true
+
+desier_plot <- desier |>
+  mutate(territorio = factor(territorio, levels = c("Parma", "PR", "ER"),
+                             labels = c("Parma (città)", "Provincia di Parma", "Emilia-Romagna"))) |>
+  ggplot(aes(x = dimensione, y = valore, fill = territorio)) +
+  geom_col(position = "dodge", width = 0.7) +
+  geom_text(
+    aes(label = format(valore, decimal.mark = ",")),
+    position = position_dodge(width = 0.7),
+    vjust = -0.5, size = 3
+  ) +
+  scale_x_discrete(labels = \(x) str_wrap(x, width = 15)) +
+  scale_fill_manual(
+    values = c(
+      "Parma (città)" = ylw_md,
+      "Provincia di Parma" = ylw_lg,
+      "Emilia-Romagna" = grn_lg
+    )
+  ) +
+  scale_y_continuous(
+    expand = expansion(mult = c(0, 0.1))
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 0, hjust = 0.5, size = rel(0.9)),
+    axis.text.y = element_text(size = rel(1)),
+    axis.title = element_text(size = rel(1), face = "bold"),
+    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    legend.text = element_text(size = rel(0.9)),
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    panel.spacing = unit(1, "lines")
+  ) +
+  labs(
+    title = "Indice DESIER declinato per 4 dimensioni di sviluppo",
+    subtitle = "Confronto territoriale (media ponderata di indicatori a livello di comune, normalizzati)",
+    caption = "Fonte: Regione Emilia-Romagna, Report DESIER 2025",
+    x = "",
+    y = ""
+  )
+
+desier_plot
+
+# Save data as RDS 
+saveRDS(desier, file = here("data_out", "desier", "desier.rds"))
+# Save data as xlsx 
+writexl::write_xlsx(desier, path = here("data_out", "desier", "desier.xlsx"))
+ 
+```
+
 
 
 # Fonti

@@ -1,0 +1,262 @@
+---
+title: "Aggiornamento musei, monumenti, biblioteche"
+author: Fondazione Cariparma - Osservatorio dei dati sociali
+date: last-modified
+date-format: "DD-MMMM-YYYY"
+lang: it
+
+format:
+  html:
+    theme: flatly #spacelab
+    # css: utils/style.css
+    code-fold: true # redundant bc echo false 
+    toc-depth: 3
+    toc_float: true
+    toc-location: left
+    toc-title: Indice
+    embed-resources: true # external dependencies embedded (Not in ..._files/)
+  docx:
+    toc: false
+    toc-depth: 3
+    toc-title: "Indice"
+    highlight-style: tango #github
+    embed-resources: true
+    page-width: 9
+    fig-width: 8  # per usare tutta la larghezza della pagina!!!
+    fig-height: 6
+    dpi: 300
+execute:
+  eval: true
+  echo: false # x mostrare codice anche in file docx
+  warning: false
+  error: false
+  output: false
+
+bibliography: CRP_bil_miss.bib
+suppress-bibliography: false
+---
+
+
+```{r}
+# Packgs and functions ----
+library(here)
+library(fs)
+library(readxl)
+library(janitor)
+library(skimr)
+library(glue)
+
+library(dplyr)
+library(tidyr)
+library(forcats)
+library(stringr)
+library(purrr)
+library(flextable)
+library(sf)
+library(ggplot2)
+library(ggiraph)
+library(camcorder)
+library(patchwork) # for combining ggplots
+# p1 + p2                    # Affiancati
+# p1 / p2                    # Uno sopra l'altro
+# p1 | p2                    # Affiancati (equivalente a +)
+# (p1 + p2) / p3             # Layout complesso
+# p1 + p2 + plot_layout(ncol = 2)  # Specificare colonne
+
+# Colors ----
+grey_extra_sc <- "#4F4F4F"
+grey_sc <- "#808080"
+grey_md1 <- "#A9A9A9"
+grey_md2 <- "#D3D3D3"
+grey_extrlight <- "#FDFBF7"
+burg_sc <- "#5C2129"
+burg_md <- "#873C4A"
+burg_lg <- "#B85E6A"
+blu_sc <- "#033c55"
+blu_md <- "#005d82"
+blu_lg <- "#5582a7"
+grn_sc <- "#246864"
+grn_md <- "#539d90"
+grn_lg <- "#8eb9b1"
+ylw_sc <- "#b27d2c"
+ylw_md <- "#d9a44a"
+ylw_lg <- "#f0c166"
+
+maschi <- "#6B8FAD"
+femmine <- "#C47A87"
+
+grave <- "#834ba0"
+moderata <- "#ce78b3"
+ 
+```
+
+
+```{r}
+# ------- R utilities and functions  
+#source(file = here("R","f_recap_values.R")) # # f_recap_values(df, c("col1","col2"))
+#source(file = here("R","f_ggplot2.R")) # custom ggplot2 theme
+source(file = here("R","f_ft_formatting.R")) # %>% f_ft_properties()
+```
+
+
+# Musei, monumenti e biblioteche 
+
+<!-- MUSEI https://bbcc.regione.emilia-romagna.it/pater/search.do?type=m&option(OGTD)=strict&value(OGTD)=Musei&fakesearch=Musei -->
+
+<!-- TATRI STORICI https://bbcc.regione.emilia-romagna.it/pater/search.do?type=m&option(OGTD)=strict&value(OGTD)=Teatri+storici&Teatri+storici -->
+
+```{r}
+#| label: musei_conc_data
+
+ 
+
+musei_conc <- tribble(
+  ~territorio,    ~indicatore,          ~categoria,                                  ~valore, ~unita, ~fonte_dato,                            ~fonte_anno, ~note,
+
+ 
+ # Densità
+  "Parma-Provincia",   "densita",            "musei ogni 100 km²",                          1.9,   "ratio","Istat, Musei, gallerie e biblioteche", 2022,        NA_character_,
+  "Italia",       "densita",            "musei ogni 100 km²",                          1.5,   "ratio","Istat, Musei, gallerie e biblioteche", 2022,        "media nazionale",
+  "Parma-Provincia",   "densita",            "musei per 10.000 abitanti",                   2.7,   "ratio","Istat, Musei, gallerie e biblioteche", 2022,        NA_character_,
+  "Italia",       "densita",            "musei per 10.000 abitanti",                   0.7,   "ratio","Istat, Musei, gallerie e biblioteche", 2022,        "media nazionale"
+ 
+)
+```
+
+```{r}
+#| label: musei_n_data
+
+musei_n <- tribble (
+~anno,  ~territorio,     ~categoria,          ~tipo,                            ~numero,   ~perc_pubblica, ~n_per_100km2, ~op_consultate, ~personale,  ~note,
+# Parma comune
+2022,  "Parma (capoluogo)",   "tipo_istituzione",   "istituzioni museali (in generale)",  19,             NA,            NA,    NA_integer_, NA_integer_,   NA_character_,
+2022,  "Parma (capoluogo)",   "tipo_istituzione",   "museo, galleria e/o raccolta",       16,             NA,            NA,    NA_integer_, NA_integer_,   NA_character_,
+2022,  "Parma (capoluogo)",   "tipo_istituzione",   "monumento o complesso monumentale",  3,              NA,            NA,    NA_integer_, NA_integer_,   NA_character_,
+2022,  "Parma (capoluogo)",  "tipo_istituzione",   "area /parco archeologico",            NA_integer_,    NA,           NA,    NA_integer_, NA_integer_,   NA_character_,
+2022,  "Parma (capoluogo)",   "tipo_istituzione",   "biblioteche",                        NA_integer_,    NA,            NA,    NA_integer_, NA_integer_,   NA_character_,  
+               
+# Parma provincia               
+2022,  "Parma",     "tipo_istituzione",   "istituzioni museali (in generale)",  65,             49,            1.9,   NA_integer_, NA_integer_,   NA_character_,
+2022,  "Parma",     "tipo_istituzione",   "museo, galleria e/o raccolta",       NA_integer_,    NA,            NA,    NA_integer_, NA_integer_,   NA_character_,
+2022,  "Parma",     "tipo_istituzione",   "monumento o complesso monumentale",  NA_integer_,    NA,            NA,    NA_integer_, NA_integer_,   NA_character_,
+2022,  "Parma",     "tipo_istituzione",   "area /parco archeologico",           NA_integer_,    NA,           NA,    NA_integer_, NA_integer_,   NA_character_,
+2022,  "Parma",     "tipo_istituzione",   "biblioteche",                        NA_integer_,    NA,            NA,    NA_integer_, NA_integer_,   NA_character_,
+
+# REgione                
+2022,  "Emilia-Romagna", "tipo_istituzione",   "istituzioni museali (in generale)",   456,    NA,    NA,    NA_integer_, NA_integer_,   NA_character_,
+2022,  "Emilia-Romagna",  "tipo_istituzione",   "museo, galleria e/o raccolta",       376,    NA,    NA,    NA_integer_, NA_integer_,   NA_character_,
+2022,  "Emilia-Romagna",  "tipo_istituzione",   "monumento o complesso monumentale",  68,    NA,     NA,    NA_integer_, NA_integer_,   NA_character_,
+2022,  "Emilia-Romagna",  "tipo_istituzione",   "area /parco archeologico",           12,    NA,     NA,    NA_integer_, NA_integer_,   NA_character_,
+2022,  "Emilia-Romagna",  "tipo_istituzione",   "biblioteche",                        NA_integer_,    NA,           NA,    NA_integer_, NA_integer_,   NA_character_,
+
+# ----- 2024 -------------- Parma comune                
+2024,  "Parma (capoluogo)",   "tipo_istituzione",   "istituzioni museali (in generale)",  NA_integer_,    NA,             NA,   NA_integer_, NA_integer_,    NA_character_,
+2024,  "Parma (capoluogo)",   "tipo_istituzione",   "museo, galleria e/o raccolta",       23,            NA,             NA,   NA_integer_, NA_integer_,          "fonte: PAT-ER", 
+2024,  "Parma (capoluogo)",   "tipo_istituzione",   "monumento o complesso monumentale",  NA_integer_,    NA,             NA,   NA_integer_, NA_integer_,    NA_character_,
+2024,  "Parma (capoluogo)",  "tipo_istituzione",    "area /parco archeologico",           2,             NA,           NA,    NA_integer_, NA_integer_,   "fonte: PAT-ER", 
+2024,  "Parma (capoluogo)",   "tipo_istituzione",   "biblioteche",                        19,             NA,             NA,   NA_integer_, NA_integer_,    "fonte: Sistema Bibliotecario Parmense", 
+2024,  "Parma (capoluogo)",  "tipo_istituzione",    "teatri storici",                     4,             NA,           NA,    NA_integer_, NA_integer_,   "fonte: PAT-ER", 
+              
+# ----- 2024 -------------- Parma provincia               
+2024,  "Parma",     "tipo_istituzione",   "istituzioni museali (in generale)",  NA_integer_,    NA,             NA,   NA_integer_, NA_integer_,    NA_character_,
+2024,  "Parma",     "tipo_istituzione",   "museo, galleria e/o raccolta",       77,            NA,             NA,   NA_integer_, NA_integer_,     "fonte: PAT-ER",
+2024,  "Parma",     "tipo_istituzione",   "monumento o complesso monumentale",  NA_integer_,    NA,             NA,   NA_integer_, NA_integer_,    NA_character_,
+2024,  "Parma",     "tipo_istituzione",   "area /parco archeologico",           7          ,    NA,           NA,    NA_integer_, NA_integer_,     "fonte: PAT-ER",
+2024,  "Parma",     "tipo_istituzione",   "biblioteche del Min Cultura",        1,              NA,             NA,   3530       ,     10,         NA_character_,
+2024,  "Parma",     "tipo_istituzione",   "biblioteche",                        106,            NA,             NA,   NA_integer_, NA_integer_,    "fonte: Sistema Bibliotecario Parmense, Incl: Pubbliche, Scolastiche, Specializzate",
+2024,  "Parma",  "tipo_istituzione",    "teatri storici",                     11,             NA,           NA,    NA_integer_, NA_integer_,   "fonte: PAT-ER", 
+               
+# ----- 2024 -------------- REgione                
+2024,  "Emilia-Romagna",  "tipo_istituzione",   "istituzioni museali (in generale)", NA_integer_,    NA,             NA,   NA_integer_, NA_integer_,    NA_character_,
+2024,  "Emilia-Romagna",  "tipo_istituzione",   "museo, galleria e/o raccolta",      546,            61,             NA,   NA_integer_, NA_integer_,    "fonte: PAT-ER",
+2024,  "Emilia-Romagna",  "tipo_istituzione",   "monumento o complesso monumentale", NA_integer_,    NA,             NA,   NA_integer_, NA_integer_,    NA_character_,
+2024,  "Emilia-Romagna",  "tipo_istituzione",   "area /parco archeologico",          401        ,    NA,           NA,    NA_integer_, NA_integer_,   "fonte: PAT-ER",
+2024,  "Emilia-Romagna",  "tipo_istituzione",   "biblioteche del Min Cultura",        2,              NA,             NA,   10059,            33,        NA_character_,
+2024,  "Emilia-Romagna",  "tipo_istituzione",   "biblioteche",                       1056,           42.2,           NA,   NA_integer_,  NA_integer_,   "Incl: Conservazione, Itineranti, Nazionali, Pubbliche, Scolastiche, Specializzate",
+2024,  "Emilia-Romagna",  "tipo_istituzione",    "teatri storici",                     117,             NA,           NA,    NA_integer_, NA_integer_,   "fonte: PAT-ER", 
+
+)
+ 
+
+tabyl(musei_n$tipo)
+```
+
+
+```{r}
+#| label: musei_n_tbl
+#| output: true
+
+musei_n_prep <- musei_n |>
+  filter(anno == "2024" & tipo != "biblioteche del Min Cultura" & !is.na(numero)) |>
+  mutate(anno = as.character(anno)) |>
+  mutate(territorio = factor(territorio, levels = c("Parma (capoluogo)", "Parma", "Emilia-Romagna"))) |>
+  mutate(tipo = factor(tipo, levels = c(                                                                              
+    "museo, galleria e/o raccolta",                                                                                
+    "area /parco archeologico",                                                                                    
+    "teatri storici",                                                                                              
+    "biblioteche"                                                                                                  
+    ))) |>  
+  select(-anno, -categoria, -n_per_100km2, -op_consultate, -personale, -note) |>
+  arrange( tipo, territorio) |>
+  relocate (territorio , .after = tipo )
+
+musei_n_ft <- musei_n_prep |>
+  flextable() |>
+  set_header_labels(
+    territorio = "Territorio",
+    anno = "Anno",
+    categoria = "Categoria",
+    tipo = "Tipo di istituzione",
+    numero = "Numero totale",
+    perc_pubblica = "% di istituzioni a gestione pubblica",
+    n_per_100km2 = "Numero per 100 km²",
+    op_consultate = "Opere consultabili",
+    personale = "Personale addetto",
+    note = "Note"
+  ) |>
+  add_header_lines(values = "Musei, gallerie, monumenti e biblioteche al 2024/2025 \n(confronto territori) ", top = TRUE) |>
+  bold(part = "header", i = 1) |>
+  fontsize(size = 14, part = "header", i = 1) |>
+  align(align = "center", part = "header", i = 1) |>
+  add_footer_lines("Fonte: Istat, Regione Emilia-Romagna, Sistema Bibliotecario Parmense (vari anni)") |>
+  fontsize(size = 9, part = "footer") |>
+  italic(part = "footer") |>
+  color(color = grey_sc, part = "footer") |> 
+  flextable::merge_v( j = "tipo", target = c("tipo"), part = "body") |> 
+  bg(i = ~ territorio == "Parma", j = 2:4, bg = ylw_lg)
+
+musei_n_ft
+
+# 
+```
+
+Secondo i dati "Pat-ER" (Patrimonio culturale dell'Emilia-Romagna), aggiornati al 2024/25, l'Emilia-Romagna conta 546 **musei, gallerie e collezioni**, di cui il 61% gestiti dal settore pubblico. Di questi, 77 si trovano in provincia di Parma -- la seconda per numerosità. Cfr. sintesi in infografica [https://bbcc.regione.emilia-romagna.it/musei-in-emilia-romagna/](https://bbcc.regione.emilia-romagna.it/musei-in-emilia-romagna/).   
+
+A questi si aggiungono: 401 **siti e monumenti archeologici**, di cui 7 nella provincia di Parma; 131 **castelli visitabili** in regione, di cui 22 nella provincia di Parma; più moltissimi altri luoghi d'interesse (stabilimenti termali, archeologia industriale, cimiteri monumentali, ecc.). [@regioneemiliaromagnaPatrimonioCulturaleDellEmiliaRomagna2026]
+
+La provincia di Parma si distingue anche per l'altissima disponiilità di **verde urbano** -- circa 88 m^2/abitante, molto sopra la media italiana di 34 m^2/abitante -- @istatBesTerritoriEmilia2025a. Qui si trovano anche 9 dei 103 **parchi e giardini storici** della Regione.  
+
+In base ai dati del servizio bibliotecario regionali [@sistemabibliotecarioparmenseOPACCatalogoBiblioteche2026], l'Emilia romagna conta 1,056 **biblioteche** (comunali, provinciali, statali, universitarie, ecclesiastiche e di enti privati), di cui il 41% in capo a enti locali. 
+
+All'interno del polo bibliotecario di Parma, si contano un totale di **106** biblioteche, di cui: 
+
++ 12 Biblioteche dell'Università degli Studi di Parma  
++ 6 Biblioteche statali  
++ 39 Biblioteche della Provincia di Parma  
++ 20 Biblioteche comunali di Parma  
++ 3 Biblioteche di Casa della Musica  
++ 9 Biblioteche scolastiche  
++ 14 Biblioteche convenzionate   
+
+<!-- 19 comunali, 106 provinciali e 1 statale. [@art-erBibliotecheDellaRegione2025] -->
+<!-- BIBLIOTECHE https://patrimonioculturale.regione.emilia-romagna.it/biblioteche/sistemi-bibliotecari-cataloghi-e-servizi -->
+
+::: {.callout-note}
+### Nota
+
+L'**Indagine sui musei e le istituzioni similari** è la più importante ed estesa rilevazione censuaria Istat, realizzata con il Ministero della Cultura, Regioni e Province Autonome, per mappare il sistema museale italiano. Raccoglie dati su struttura, servizi, attività, pubblico e rapporto con il territorio. Avviata nel 2012, è stata aggiornata l'ultima volta al 2023 (dati riferiti al 2022) -- in allegato una presentazione dei dati più salienti per l'Emilia Romagna [@re-rstatisticaVisualizzazioneDatiSui2023]
+
+La somministrazione del prossimo questionario avverrà nel 2026 (per i dati riferiti al 2025).
+:::
+
+# Fonti

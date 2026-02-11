@@ -19,12 +19,13 @@
 .vscode/
 .claude/
 
-# ----------------- QUARTO WEBSITE 
+# ----------------- QUARTO WEBSITE
 _site/
 _freeze/
 .quarto/
 _quarto/
 /.quarto/
+*_files/
 
 # ----------------- DATA FILES
 

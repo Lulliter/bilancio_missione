@@ -357,14 +357,36 @@ display: none;
 <p>Dati di input per bilancio di missione 2025</p>
 <div id="aggiornamento" class="section level2">
 <h2>Aggiornamento</h2>
-<p>Progetto creato a Dicembre 2025</p>
+<p>Progetto creato a Genaio/Febbraio 2026.</p>
+<p>La struttura è pensata per restituire sia un documento sintetico che
+i dati di input e gli artefatti di output. Per questo le 2 cartelle sono
+strutturate con le stesse sotto cartelle.</p>
+<ul>
+<li><code>data_in/</code> per i dati di input (es. dati di bilancio,
+dati di attività, ecc.) e</li>
+<li><code>data_out/</code> per i dati di output (es. grafici, tabelle,
+ecc.) che vengono poi copiati su OneDrive.</li>
+</ul>
 </div>
 <div id="workflow-minimale" class="section level2">
 <h2>Workflow minimale</h2>
-<p>Qui invece che da <code>docs/</code> GH Pages pubblica direttamente
+<ol style="list-style-type: decimal">
+<li>Il file <code>index.qmd</code> è il file principale che contiene il
+codice per generare sia l’output HTML che il documento Word.</li>
+</ol>
+<ul>
+<li>Qui invece che da <code>docs/</code> GH Pages pubblica direttamente
 da root, dove c’è solo il file <code>index.qmd</code>, che viene 1)
 pubblicato come <code>html</code> e 2) anche salvato in versione
-<code>2025_bil-missione.docx</code> su OneDrive.</p>
+<code>2025_bil-missione.docx</code> su OneDrive.</li>
+</ul>
+<ol start="2" style="list-style-type: decimal">
+<li>Il file <code>_render_copy2onedrive.sh</code> è uno script bash che
+esegue <code>index.qmd</code> per generare sia <code>index.html</code>
+che <code>2025_bil-missione.docx</code>, e poi copia questi file
+(insieme a <code>data_out/</code> e <code>data_in/</code>) nella
+cartella condivisa OneDrive.</li>
+</ol>
 <pre class="bash"><code># Esegue index.qmd in HTML + DOCX e copia su OneDrive
 ./_render_copy2onedrive.sh
 

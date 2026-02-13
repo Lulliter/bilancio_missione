@@ -25,3 +25,6 @@ cp -Rv "$SOURCE/data_in" "$DEST/"
 # Then 
 # ./_render_copy2onedrive.sh
 # -------------------------------------------------------------------------------
+#
+# [After running the script, you can commit and push the changes to GitHub:]
+# git add -A && git commit -m "min flip" && git push

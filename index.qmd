@@ -15,6 +15,7 @@ format:
     toc-location: left
     toc-title: Indice
     embed-resources: true # external dependencies embedded (Not in ..._files/)
+    include-after-body: _includes/footer.html
   docx:
     toc: false
     toc-depth: 3
@@ -87,18 +88,18 @@ femmine <- "#C47A87"
 
 grave <- "#834ba0"
 moderata <- "#ce78b3"
- 
+
 ```
 
 
 ```{r}
-# ------- R utilities and functions  
+# ------- R utilities and functions
 #source(file = here("R","f_recap_values.R")) # # f_recap_values(df, c("col1","col2"))
 #source(file = here("R","f_ggplot2.R")) # custom ggplot2 theme
-source(file = here("R","f_ft_formatting.R")) # %>% f_ft_properties()
+source(file = here("R", "f_ft_formatting.R")) # %>% f_ft_properties()
 ```
 
-# Importazione dati
+# Importazione dati principali
 
 + **Shapefile x mappe**  
 [@istatConfiniUnitaAmministrative2025a]
@@ -106,10 +107,14 @@ source(file = here("R","f_ft_formatting.R")) # %>% f_ft_properties()
 #| label: import_shapefiles
 
 # Import comuni PARMA shapefile (istat, 2025) - Parma ----
-ER_PR_comuni_sf <- readRDS(here("data_in", "ER_shp", "ER_PR_comuni_sf.rds")) |> 
+ER_PR_comuni_sf <- readRDS(here("data_in", "ER_shp", "ER_PR_comuni_sf.rds")) |>
   select(PRO_COM_T, COMUNE, Shape_Leng, Shape_Area, geometry)
 # Importa tabella LINK x assegnare COMUNI A DISTRETTI ----
-comuni_distretti_parma <- read_excel(here("data_in", "ER_shp", "comuni_distretti_parma.xlsx"))
+comuni_distretti_parma <- read_excel(here(
+  "data_in",
+  "ER_shp",
+  "comuni_distretti_parma.xlsx"
+))
 
 ```
 
@@ -121,21 +126,38 @@ I dati sulla popolazione residente vengono da 2 fonti: Istat [[@istatDemoDemogra
 
 # Import dati popolazione residente x sesso/eta in province RER ----
 # ----- Puliti in `data_in/RER_statistica/convert_RER_2tidy.R` (A)
-resident_prov_eta5_sex <- readRDS(here("data_in", "pop_resid_2025", "RER_statistica", "resident_prov_eta5_sex.rds")) |>
-  rename(territorio = provincia) |> 
-  mutate(genere =  factor(genere, levels = c("Maschi", "Femmine", "Totale")))
+resident_prov_eta5_sex <- readRDS(here(
+  "data_in",
+  "pop_resid_2025",
+  "RER_statistica",
+  "resident_prov_eta5_sex.rds"
+)) |>
+  rename(territorio = provincia) |>
+  mutate(genere = factor(genere, levels = c("Maschi", "Femmine", "Totale")))
 
 # Import dati stranieri PR ----
 # Puliti in `data_in/istat_demo_stran_2025/convert_istat_pop_2tidy.R` (B)
-resid_stran_eta5_sex_PR <- readRDS(here("data_in", "pop_resid_2025", "istat_demo_stran_2025", "resid_stran_eta5_sex_PR.rds")) |>
-  mutate(genere =  factor(genere, levels = c("Maschi", "Femmine", "Totale")))
+resid_stran_eta5_sex_PR <- readRDS(here(
+  "data_in",
+  "pop_resid_2025",
+  "istat_demo_stran_2025",
+  "resid_stran_eta5_sex_PR.rds"
+)) |>
+  mutate(genere = factor(genere, levels = c("Maschi", "Femmine", "Totale")))
 
 # Import dati stranieri ER ----
 # Puliti in `data_in/istat_demo_stran_2025/convert_istat_pop_2tidy.R` (B)
-resid_stran_eta5_sex_ER <- readRDS("~/Github/bilancio_missione/data_in/pop_resid_2025/istat_demo_stran_2025/resid_stran_eta5_sex_ER.rds")
+resid_stran_eta5_sex_ER <- readRDS(
+  "~/Github/bilancio_missione/data_in/pop_resid_2025/istat_demo_stran_2025/resid_stran_eta5_sex_ER.rds"
+)
 
 # Import dati pop residente x sesso/eta in distretti ER ----
-resident_distr_eta_sex <- readRDS(here("data_in", "pop_resid_2025", "RER_statistica", "resident_distr_eta_sex.rds")) 
+resident_distr_eta_sex <- readRDS(here(
+  "data_in",
+  "pop_resid_2025",
+  "RER_statistica",
+  "resident_distr_eta_sex.rds"
+))
 ```
 
 + **Dati TREND demografici ISTAT 2002-2024**  
@@ -145,10 +167,22 @@ resident_distr_eta_sex <- readRDS(here("data_in", "pop_resid_2025", "RER_statist
 #| label: import_istat_trend_demo
 
 # --- Load dataset ISTAT TREND DEMOGRAFICI ----
-indicatori_di_struttura <- readRDS(here("data_in", "istat_demo_2002_2024", "indicatori_di_struttura.rds"))
+indicatori_di_struttura <- readRDS(here(
+  "data_in",
+  "istat_demo_2002_2024",
+  "indicatori_di_struttura.rds"
+))
 #speranza_di_vita_65 <- readRDS(here("data_in", "istat_demo_2002_2024", "speranza_di_vita_65.rds"))
-crescita_naturale <- readRDS(here("data_in", "istat_demo_2002_2024", "crescita_naturale.rds"))
-saldo_migratorio <- readRDS(here("data_in", "istat_demo_2002_2024", "saldo_migratorio_totale.rds"))
+crescita_naturale <- readRDS(here(
+  "data_in",
+  "istat_demo_2002_2024",
+  "crescita_naturale.rds"
+))
+saldo_migratorio <- readRDS(here(
+  "data_in",
+  "istat_demo_2002_2024",
+  "saldo_migratorio_totale.rds"
+))
 
 # Esplora indicatori disponibili
 # tabyl(indicatori_di_struttura$indicatore)
@@ -161,7 +195,10 @@ saldo_migratorio <- readRDS(here("data_in", "istat_demo_2002_2024", "saldo_migra
 
 # Import dati fragilità demografica ----
 # % Popolazione residente di 65 anni e oltre in famiglie unipersonali al 31.12.2023
-fragil_raw <- read_excel("data_in/fragil/Dati-Fragilita-2023-Indicatori-elementari-comunali-e-provinciali.xlsx", skip= 1)
+fragil_raw <- read_excel(
+  "data_in/fragil/Dati-Fragilita-2023-Indicatori-elementari-comunali-e-provinciali.xlsx",
+  skip = 1
+)
 ```
 
 
@@ -177,9 +214,16 @@ fragil_raw <- read_excel("data_in/fragil/Dati-Fragilita-2023-Indicatori-elementa
 ```{r}
 # Directories ----
 bes_data_in <- here::here("data_in", "bes_2003_2023")
-bes_data_out <- here::here("data_out","bes_2003_2023")
+bes_data_out <- here::here("data_out", "bes_2003_2023")
 # Import full BES dataset per provincia e sesso ----
-all_bes <- read_excel(here("data_in", "bes_2003_2023", "Indicatori_per_provincia_sesso_ed.2025.xlsx") , sheet = "Indicatori_per_provincia_sesso") |>
+all_bes <- read_excel(
+  here(
+    "data_in",
+    "bes_2003_2023",
+    "Indicatori_per_provincia_sesso_ed.2025.xlsx"
+  ),
+  sheet = "Indicatori_per_provincia_sesso"
+) |>
   janitor::clean_names()
 ```
 
@@ -190,7 +234,11 @@ all_bes <- read_excel(here("data_in", "bes_2003_2023", "Indicatori_per_provincia
 # Corrisponde a EHIS_limit_tavola3_2_3 pulito e salvato
 # ----- "Persone di 65+ anni con difficoltà nelle attività di **cura della persona**, regione e ripartizione geografica"
 
-ADL_reg <- readRDS(here::here("data_in","istat_EHIS_2019","ADL_reg_perc_clean.rds"))
+ADL_reg <- readRDS(here::here(
+  "data_in",
+  "istat_EHIS_2019",
+  "ADL_reg_perc_clean.rds"
+))
 ```
 
 # 1° PRIORITÀ: Ridurre le disuguaglianze 
@@ -214,12 +262,18 @@ Quali sono le **dinamiche demografiche in atto** che influenzano le disuguaglian
 
 # popolazione residente Parma 2025
 pop_parma_2025 <- resident_prov_eta5_sex |>
-  dplyr::filter(territorio == "Parma" & genere == "Totale" & fascia_eta == "Tutte_eta") |>
+  dplyr::filter(
+    territorio == "Parma" & genere == "Totale" & fascia_eta == "Tutte_eta"
+  ) |>
   dplyr::pull(residenti)
 
 # popolazione residente ER 2025
 pop_ER_2025 <- resident_prov_eta5_sex |>
-  dplyr::filter(territorio == "Emilia-Romagna" & genere == "Totale" & fascia_eta == "Tutte_eta") |>
+  dplyr::filter(
+    territorio == "Emilia-Romagna" &
+      genere == "Totale" &
+      fascia_eta == "Tutte_eta"
+  ) |>
   dplyr::pull(residenti)
 ```
 
@@ -232,13 +286,15 @@ pop_ER_2025 <- resident_prov_eta5_sex |>
 
 # popolazione straniera residente Parma 2025
 pop_stran_parma_2025 <- resid_stran_eta5_sex_PR |>
-  dplyr::filter(territorio == "Parma" & genere == "Totale" ) |>
+  dplyr::filter(territorio == "Parma" & genere == "Totale") |>
   # non c'è la fascia "Tutte_eta" perciò sommo tutte le età
   dplyr::summarise(
     totale_residenti_stranieri = sum(residenti)
-  ) |> 
+  ) |>
   dplyr::pull(totale_residenti_stranieri)
 ```
+
+
 
 ```{r}
 #| label: resid_stran_ER
@@ -248,10 +304,10 @@ pop_stran_parma_2025 <- resid_stran_eta5_sex_PR |>
 
 # popolazione straniera residente Parma 2025
 pop_stran_ER_2025 <- resid_stran_eta5_sex_ER |>
-  dplyr::filter(territorio == "Emilia-Romagna" & genere == "Totale" ) |>
+  dplyr::filter(territorio == "Emilia-Romagna" & genere == "Totale") |>
   dplyr::summarise(
     totale_residenti_stranieri = sum(residenti)
-  ) |> 
+  ) |>
   dplyr::pull(totale_residenti_stranieri)
 ```
 
@@ -267,15 +323,22 @@ La popolazione residente nella provincia di Parma nel 2025 (ultimo aggiornamento
 tbl_pop_parma_ER_2025 <- tibble(
   Territorio = c("Parma", "Emilia-Romagna"),
   pop_residente_2025 = c(pop_parma_2025, pop_ER_2025),
-  pop_stran_residente_2025 = c(pop_stran_parma_2025, pop_stran_ER_2025)) |>
-  mutate(Perc_stranieri = round(pop_stran_residente_2025 /pop_residente_2025  * 100, 2)) |>
-  flextable()  |>
+  pop_stran_residente_2025 = c(pop_stran_parma_2025, pop_stran_ER_2025)
+) |>
+  mutate(
+    Perc_stranieri = round(
+      pop_stran_residente_2025 / pop_residente_2025 * 100,
+      2
+    )
+  ) |>
+  flextable() |>
   colformat_double(
     j = c("pop_residente_2025", "pop_stran_residente_2025"),
     big.mark = ".",
     decimal.mark = ",",
     digits = 0,
-    na_str = "N.D.") |>
+    na_str = "N.D."
+  ) |>
   # Formattazione percentuale
   colformat_double(
     j = "Perc_stranieri",
@@ -283,7 +346,8 @@ tbl_pop_parma_ER_2025 <- tibble(
     decimal.mark = ",",
     digits = 2,
     suffix = " %",
-    na_str = "N.D.") |>
+    na_str = "N.D."
+  ) |>
   # Headers
   set_header_labels(
     Territorio = "Territorio",
@@ -291,11 +355,16 @@ tbl_pop_parma_ER_2025 <- tibble(
     pop_stran_residente_2025 = "Popolazione straniera residente (2025)",
     Perc_stranieri = "% popolazione straniera sul totale (2025)"
   ) |>
-  add_header_lines(values = "Popolazione residente e straniera a Parma ed Emilia-Romagna (2025)", top = TRUE) |>
+  add_header_lines(
+    values = "Popolazione residente e straniera a Parma ed Emilia-Romagna (2025)",
+    top = TRUE
+  ) |>
   bold(part = "header", i = 1) |>
   fontsize(size = 14, part = "header", i = 1) |>
   align(align = "center", part = "header", i = 1) |>
-  add_footer_lines("Fonte: Regione Emilia-Romagna - Statistica e Istat - Demografia in cifre, 2025") |>
+  add_footer_lines(
+    "Fonte: Regione Emilia-Romagna - Statistica e Istat - Demografia in cifre, 2025"
+  ) |>
   fontsize(size = 9, part = "footer") |>
   italic(part = "footer") |>
   color(color = grey_sc, part = "footer") |>
@@ -309,10 +378,16 @@ tbl_pop_parma_ER_2025
 
 ```{r}
 # save as Rds
-saveRDS(object =  tbl_pop_parma_ER_2025, file = here("data_out", "pop_resid_2025", "tbl_pop_parma_ER_2025.rds"))
+saveRDS(
+  object = tbl_pop_parma_ER_2025,
+  file = here("data_out", "pop_resid_2025", "tbl_pop_parma_ER_2025.rds")
+)
 
 # save as word docx
-flextable::save_as_docx(tbl_pop_parma_ER_2025, path = here("data_out", "pop_resid_2025", "tbl_pop_parma_ER_2025.docx"))
+flextable::save_as_docx(
+  tbl_pop_parma_ER_2025,
+  path = here("data_out", "pop_resid_2025", "tbl_pop_parma_ER_2025.docx")
+)
 ```
 
 
@@ -321,27 +396,41 @@ flextable::save_as_docx(tbl_pop_parma_ER_2025, path = here("data_out", "pop_resi
 #| label: plot_parma_piramid
 #| output: false
 
-# Data 
+# Data
 piramid_pop_PR_data <- resident_prov_eta5_sex |>
   # filter
-  dplyr::filter(territorio == "Parma" & fascia_eta != "Tutte_eta" & genere %in% c("Maschi", "Femmine")) |> 
+  dplyr::filter(
+    territorio == "Parma" &
+      fascia_eta != "Tutte_eta" &
+      genere %in% c("Maschi", "Femmine")
+  ) |>
   dplyr::mutate(
     fascia_eta = stringr::str_replace(fascia_eta, "^(\\d)-(\\d)$", "0\\1-0\\2"),
-    fascia_eta = stringr::str_replace(fascia_eta, "^(\\d)-(\\d{2})$", "0\\1-\\2")
+    fascia_eta = stringr::str_replace(
+      fascia_eta,
+      "^(\\d)-(\\d{2})$",
+      "0\\1-\\2"
+    )
   )
 
 # ------- Save data  objects
 # as RDS
-saveRDS(object =  piramid_pop_PR_data, file = here("data_out", "pop_resid_2025","piramid_pop_PR_data.rds"))
+saveRDS(
+  object = piramid_pop_PR_data,
+  file = here("data_out", "pop_resid_2025", "piramid_pop_PR_data.rds")
+)
 # as XLSX
-writexl::write_xlsx(x = piramid_pop_PR_data, path = here("data_out", "pop_resid_2025", "piramid_pop_PR_data.xlsx"))
+writexl::write_xlsx(
+  x = piramid_pop_PR_data,
+  path = here("data_out", "pop_resid_2025", "piramid_pop_PR_data.xlsx")
+)
 
 
 # Plot piramide età Parma 2025 ----
 
 # Calculate nice limit automatically
 max_pop <- max(abs(piramid_pop_PR_data$residenti))
-nice_limit <- ceiling(max_pop / 1000) * 1000  # Round up to nearest 1000
+nice_limit <- ceiling(max_pop / 1000) * 1000 # Round up to nearest 1000
 
 piramid_pop_PR <- piramid_pop_PR_data |>
   ggplot(aes(
@@ -361,8 +450,10 @@ piramid_pop_PR <- piramid_pop_PR_data |>
   ) +
   coord_flip() +
   scale_y_continuous(
-    labels = \(x) scales::label_number(big.mark = ".", decimal.mark = ",")(abs(x)),
-    breaks = seq(-nice_limit, nice_limit, by = nice_limit/4),
+    labels = \(x) {
+      scales::label_number(big.mark = ".", decimal.mark = ",")(abs(x))
+    },
+    breaks = seq(-nice_limit, nice_limit, by = nice_limit / 4),
     limits = c(-nice_limit, nice_limit),
     expand = expansion(mult = 0.025)
   ) +
@@ -373,11 +464,19 @@ piramid_pop_PR <- piramid_pop_PR_data |>
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
     panel.grid.minor = element_blank(),
-    axis.text.x = element_text(size = rel(0.85), angle= 45),
+    axis.text.x = element_text(size = rel(0.85), angle = 45),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
-    plot.subtitle = element_text(size = rel(0.95), lineheight = 1.2, margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
+    plot.subtitle = element_text(
+      size = rel(0.95),
+      lineheight = 1.2,
+      margin = margin(b = 10)
+    ),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
@@ -407,21 +506,31 @@ piramid_pop_stran_PR_data <- resid_stran_eta5_sex_PR |>
   dplyr::filter(territorio == "Parma" & genere %in% c("Maschi", "Femmine")) |>
   dplyr::mutate(
     fascia_eta = stringr::str_replace(fascia_eta, "^(\\d)-(\\d)$", "0\\1-0\\2"),
-    fascia_eta = stringr::str_replace(fascia_eta, "^(\\d)-(\\d{2})$", "0\\1-\\2")
+    fascia_eta = stringr::str_replace(
+      fascia_eta,
+      "^(\\d)-(\\d{2})$",
+      "0\\1-\\2"
+    )
   )
 
 # ------- Save data and plot objects
 # as RDS
-saveRDS(object =  piramid_pop_stran_PR_data, file = here("data_out", "pop_resid_2025","piramid_pop_stran_PR_data.rds"))
+saveRDS(
+  object = piramid_pop_stran_PR_data,
+  file = here("data_out", "pop_resid_2025", "piramid_pop_stran_PR_data.rds")
+)
 # as XLSX
-writexl::write_xlsx(x = piramid_pop_stran_PR_data, path = here("data_out", "pop_resid_2025", "piramid_pop_stran_PR_data.xlsx"))
+writexl::write_xlsx(
+  x = piramid_pop_stran_PR_data,
+  path = here("data_out", "pop_resid_2025", "piramid_pop_stran_PR_data.xlsx")
+)
 
 
 # Calculate nice limit automatically
 max_stran <- max(abs(piramid_pop_stran_PR_data$residenti))
-nice_limit_stran <- ceiling(max_stran / 100) * 100  # Round up to nearest 100
+nice_limit_stran <- ceiling(max_stran / 100) * 100 # Round up to nearest 100
 
-piramid_pop_stran_PR <- piramid_pop_stran_PR_data  |>
+piramid_pop_stran_PR <- piramid_pop_stran_PR_data |>
   ggplot(aes(
     x = fascia_eta,
     y = residenti,
@@ -439,8 +548,14 @@ piramid_pop_stran_PR <- piramid_pop_stran_PR_data  |>
   ) +
   coord_flip() +
   scale_y_continuous(
-    labels = \(x) scales::label_number(big.mark = ".", decimal.mark = ",")(abs(x)),
-    breaks = seq(-nice_limit_stran, nice_limit_stran, by = nice_limit_stran/4),
+    labels = \(x) {
+      scales::label_number(big.mark = ".", decimal.mark = ",")(abs(x))
+    },
+    breaks = seq(
+      -nice_limit_stran,
+      nice_limit_stran,
+      by = nice_limit_stran / 4
+    ),
     limits = c(-nice_limit_stran, nice_limit_stran),
     expand = expansion(mult = 0.025)
   ) +
@@ -451,11 +566,19 @@ piramid_pop_stran_PR <- piramid_pop_stran_PR_data  |>
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
     panel.grid.minor = element_blank(),
-    axis.text.x = element_text(size = rel(0.85), angle= 45),
+    axis.text.x = element_text(size = rel(0.85), angle = 45),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
-    plot.subtitle = element_text(size = rel(0.95), lineheight = 1.2, margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
+    plot.subtitle = element_text(
+      size = rel(0.95),
+      lineheight = 1.2,
+      margin = margin(b = 10)
+    ),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
@@ -482,17 +605,24 @@ piramid_pop_stran_PR
 
 library(patchwork)
 # Combine plots
-piramids_PR_both <- piramid_pop_PR + piramid_pop_stran_PR +
-  plot_layout(guides = "collect") +  # This collects and merges legends
+piramids_PR_both <- piramid_pop_PR +
+  piramid_pop_stran_PR +
+  plot_layout(guides = "collect") + # This collects and merges legends
   plot_annotation(
     title = "Piramidi d'età della popolazione residente a Parma (2025)",
     subtitle = "Confronto tra popolazione totale e straniera (scale diverse)",
-    caption = "Fonte: Regione Emilia-Romagna - Statistica e Istat - Demografia in cifre") &
+    caption = "Fonte: Regione Emilia-Romagna - Statistica e Istat - Demografia in cifre"
+  ) &
   theme(
     plot.title = element_text(size = rel(1.4), face = "bold"),
     plot.subtitle = element_text(size = rel(1.1)),
-    plot.caption = element_text(size = rel(0.9), face = "italic", color = grey_sc),
-    legend.position = "bottom")
+    plot.caption = element_text(
+      size = rel(0.9),
+      face = "italic",
+      color = grey_sc
+    ),
+    legend.position = "bottom"
+  )
 
 piramids_PR_both
 
@@ -509,9 +639,9 @@ La popolazione residente nella provincia di Parma è suddivisa in 4 distretti sa
 
 # # 1) Importa tabella link distretti-comuni
 # comuni_distretti_parma <- read_excel(here("data_in", "ER_shp", "comuni_distretti_parma.xlsx"))
-# 
+#
 # # 2) Import comuni PARMA shapefile (istat, 2025) - Parma ----
-# ER_PR_comuni_sf <- readRDS(here("data_in", "ER_shp", "ER_PR_comuni_sf.rds")) |> 
+# ER_PR_comuni_sf <- readRDS(here("data_in", "ER_shp", "ER_PR_comuni_sf.rds")) |>
 #   select(PRO_COM_T, COMUNE, Shape_Leng, Shape_Area, geometry)
 
 # 3) Associa distretto a ogni comune di  Parma ----
@@ -531,21 +661,22 @@ ER_PR_distretti_sf <- ER_PR_comuni_distr_sf %>%
     comuni = paste(COMUNE, collapse = ", "),
     geometry = st_union(geometry),
     .groups = "drop"
-  ) 
+  )
 ```
 
 
 ```{r}
 #| label: resid_distretti_parma_data
 
-resident_distr_eta_sex <- resident_distr_eta_sex |> 
-  # Separa una colonna con la provincia 
-  dplyr::rename(distretto_prov = provincia) |> 
+resident_distr_eta_sex <- resident_distr_eta_sex |>
+  # Separa una colonna con la provincia
+  dplyr::rename(distretto_prov = provincia) |>
   dplyr::mutate(
     distretto = str_remove(distretto_prov, "\\s*\\(AUSL.*\\)$") |> str_trim(),
     ausl = str_extract(distretto_prov, "(?<=\\().*(?=\\))"),
-    prov = str_extract(distretto_prov, "(?<=AUSL\\s)[A-Z]+")) |> 
-  dplyr::mutate (
+    prov = str_extract(distretto_prov, "(?<=AUSL\\s)[A-Z]+")
+  ) |>
+  dplyr::mutate(
     provincia = case_when(
       prov == "PR" ~ "Parma",
       prov == "RE" ~ "Reggio nell'Emilia",
@@ -555,17 +686,19 @@ resident_distr_eta_sex <- resident_distr_eta_sex |>
       prov == "I" ~ "Bologna",
       prov == "FE" ~ "Ferrara",
       prov == "R" & str_detect(distretto_prov, "Forlì") ~ "Forlì-Cesena",
-      prov == "R" & str_detect(distretto_prov, "Cesena")~  "Forlì-Cesena",
-      prov == "R" & str_detect(distretto_prov, "Rubicone")~  "Forlì-Cesena",
-      prov == "R" & str_detect(distretto_prov, "Rimini")~  "Rimini",
-      prov == "R" & str_detect(distretto_prov, "Riccione")~  "Rimini",
-      
-      prov == "R" & str_detect(distretto_prov, "Ravenna")~  "Ravenna",
-      prov == "R" & str_detect(distretto_prov, "Faenza")~  "Ravenna",
-      prov == "R" & str_detect(distretto_prov, "Lugo")~  "Ravenna",
-      TRUE ~ NA_character_)) |>  
+      prov == "R" & str_detect(distretto_prov, "Cesena") ~ "Forlì-Cesena",
+      prov == "R" & str_detect(distretto_prov, "Rubicone") ~ "Forlì-Cesena",
+      prov == "R" & str_detect(distretto_prov, "Rimini") ~ "Rimini",
+      prov == "R" & str_detect(distretto_prov, "Riccione") ~ "Rimini",
+
+      prov == "R" & str_detect(distretto_prov, "Ravenna") ~ "Ravenna",
+      prov == "R" & str_detect(distretto_prov, "Faenza") ~ "Ravenna",
+      prov == "R" & str_detect(distretto_prov, "Lugo") ~ "Ravenna",
+      TRUE ~ NA_character_
+    )
+  ) |>
   # filtra dati popolazione per distretti Parma ----
-dplyr::filter(prov == "PR")
+  dplyr::filter(prov == "PR")
 
 names(resident_distr_eta_sex)
 names(ER_PR_distretti_sf)
@@ -577,59 +710,79 @@ tabyl(resident_distr_eta_sex$distretto_prov)
 resident_distr_eta_sex_sf <- resident_distr_eta_sex |>
   left_join(
     ER_PR_distretti_sf |> st_drop_geometry(),
-    by = c("distretto_prov" = "Distretto")) |>
+    by = c("distretto_prov" = "Distretto")
+  ) |>
   left_join(
     ER_PR_distretti_sf |> select(Distretto, geometry),
-    by = c("distretto_prov" = "Distretto")) |>
+    by = c("distretto_prov" = "Distretto")
+  ) |>
   st_as_sf()
 
 # # 2) Split into separate datasets per sesso / eta ----
 # distr_eta_tutti <- resident_distr_eta_sex |>
-#   dplyr::filter(fascia_eta == "Tutte_eta" & genere == "Totale") 
-# 
+#   dplyr::filter(fascia_eta == "Tutte_eta" & genere == "Totale")
+#
 # distr_eta_0_13 <- resident_distr_eta_sex |>
 #   dplyr::filter(fascia_eta == "0-13" & genere == "Totale")
-# 
+#
 # distr_eta_14_59 <- resident_distr_eta_sex |>
 #   dplyr::filter(fascia_eta == "14-59" & genere == "Totale")
-# 
+#
 # distr_eta_60_plus <- resident_distr_eta_sex |>
 #   dplyr::filter(fascia_eta == "60  e oltre" & genere == "Totale")
-# 
+#
 # # 3) Associa geometria distretti a dati popolazione per distretti Parma ----
 # distr_eta_tutti_sf <- ER_PR_distretti_sf |>
 #   full_join(
 #     distr_eta_tutti,
 #     by = c("Distretto" = "distretto_prov")
 #   )
-# 
+#
 # distr_eta_0_13_sf <- ER_PR_distretti_sf |>
 #   left_join(
 #     distr_eta_0_13,
 #     by = c("Distretto" = "distretto_prov")
 #   )
-# 
-# 
+#
+#
 # distr_eta_14_59_sf <- ER_PR_distretti_sf |>
 #   left_join(
 #     distr_eta_14_59,
 #     by = c("Distretto" = "distretto_prov")
 #   )
-# 
+#
 # distr_eta_60_plus_sf <- ER_PR_distretti_sf |>
 #   left_join(
 #     distr_eta_60_plus,
 #     by = c("Distretto" = "distretto_prov")
 #   )
 
-# Save joined data 
-saveRDS(object =  resident_distr_eta_sex_sf, file = here("data_out", "pop_resid_2025", "resident_distr_eta_sex_sf.rds"))
+# Save joined data
+saveRDS(
+  object = resident_distr_eta_sex_sf,
+  file = here("data_out", "pop_resid_2025", "resident_distr_eta_sex_sf.rds")
+)
 # as XLSX
-writexl::write_xlsx(x = resident_distr_eta_sex_sf, path = here("data_out", "pop_resid_2025", "resident_distr_eta_sex_sf.xlsx"))
+writexl::write_xlsx(
+  x = resident_distr_eta_sex_sf,
+  path = here("data_out", "pop_resid_2025", "resident_distr_eta_sex_sf.xlsx")
+)
 # as shapefile
-fs::dir_create(here("data_out", "pop_resid_2025", "resident_distr_eta_sex_sf_shp"))
+fs::dir_create(here(
+  "data_out",
+  "pop_resid_2025",
+  "resident_distr_eta_sex_sf_shp"
+))
 
-sf::write_sf( resident_distr_eta_sex_sf,  here("data_out", "pop_resid_2025", "resident_distr_eta_sex_sf_shp",  "resident_distr_eta_sex_sf.shp"))
+sf::write_sf(
+  resident_distr_eta_sex_sf,
+  here(
+    "data_out",
+    "pop_resid_2025",
+    "resident_distr_eta_sex_sf_shp",
+    "resident_distr_eta_sex_sf.shp"
+  )
+)
 ```
 
 ### [Tbl] Popolazione residente per distretti di Parma
@@ -640,30 +793,39 @@ sf::write_sf( resident_distr_eta_sex_sf,  here("data_out", "pop_resid_2025", "re
 
 # Tabella popolazione residente Parma ed ER 2025 ( con distinzione straniera )----
 tbl_pop_distr_2025 <- resident_distr_eta_sex |>
-  dplyr::filter(fascia_eta == "Tutte_eta" & genere == "Totale") |> 
-  select(provincia, distretto_prov, residenti) |> 
-  flextable()  |>
+  dplyr::filter(fascia_eta == "Tutte_eta" & genere == "Totale") |>
+  select(provincia, distretto_prov, residenti) |>
+  flextable() |>
   # Headers
-  set_header_labels( 
+  set_header_labels(
     provincia = "Provincia",
     distretto_prov = "Distretto",
     residenti = "Popolazione residente"
   ) |>
-  add_header_lines(values = "Popolazione residente per distretto sanitario (2025)", top = TRUE) |>
+  add_header_lines(
+    values = "Popolazione residente per distretto sanitario (2025)",
+    top = TRUE
+  ) |>
   bold(part = "header", i = 1) |>
   fontsize(size = 14, part = "header", i = 1) |>
   align(align = "center", part = "header", i = 1) |>
   add_footer_lines("Fonte: Regione Emilia-Romagna - Statistica, 2025") |>
   fontsize(size = 9, part = "footer") |>
   italic(part = "footer") |>
-  color(color = grey_sc, part = "footer") 
+  color(color = grey_sc, part = "footer")
 
 tbl_pop_distr_2025
 
 # save as Rds
-saveRDS(object =  tbl_pop_distr_2025, file = here("data_out", "pop_resid_2025", "tbl_pop_distr_2025.rds"))
+saveRDS(
+  object = tbl_pop_distr_2025,
+  file = here("data_out", "pop_resid_2025", "tbl_pop_distr_2025.rds")
+)
 # save as word docx
-flextable::save_as_docx(tbl_pop_distr_2025, path = here("data_out", "pop_resid_2025", "tbl_pop_distr_2025.docx"))
+flextable::save_as_docx(
+  tbl_pop_distr_2025,
+  path = here("data_out", "pop_resid_2025", "tbl_pop_distr_2025.docx")
+)
 ```
 
 ### Mappa popolazione residente per distretto
@@ -684,23 +846,33 @@ fonte2_anno_agg <- "RE-R Statistica (2025)"
 fonte2_nome <- "Popolazione residente"
 
 # Plot mappa distretti Parma con popolazione residente 2025 ----
-map_distretti_parma_pop <- resident_distr_eta_sex_sf |> 
+map_distretti_parma_pop <- resident_distr_eta_sex_sf |>
   filter(genere == "Totale" & fascia_eta == "Tutte_eta") |>
   ggplot() +
   geom_sf(aes(fill = residenti), color = "white", linewidth = rel(0.2)) +
-  geom_sf_label(aes(label = str_wrap(distretto, width = 20)), size = 3, alpha = 0.7) +  # Etichette con sfondo
+  geom_sf_label(
+    aes(label = str_wrap(distretto, width = 20)),
+    size = 3,
+    alpha = 0.7
+  ) + # Etichette con sfondo
   scale_fill_viridis_c(
-    option = "cividis", begin = 0.5, end = 0.9,
+    option = "cividis",
+    begin = 0.5,
+    end = 0.9,
     direction = -1,
     na.value = "grey90",
     name = "N. residenti",
     labels = scales::label_number(big.mark = ".", decimal.mark = ",")
   ) +
   labs(
-    title    = "Popolazione residente per distretto sanitario",
+    title = "Popolazione residente per distretto sanitario",
     subtitle = "(Confini = unione di comuni di pertinenza)",
-    caption  = glue::glue("Fonte: {fonte_anno_agg} — {fonte_nome}; \n{fonte2_anno_agg} — {fonte2_nome}"),
-    x = "",    y = "") +
+    caption = glue::glue(
+      "Fonte: {fonte_anno_agg} — {fonte_nome}; \n{fonte2_anno_agg} — {fonte2_nome}"
+    ),
+    x = "",
+    y = ""
+  ) +
   theme_minimal() +
   theme(
     legend.position = "right",
@@ -730,11 +902,15 @@ fonte2_nome <- "Popolazione residente"
 
 
 # Plot mappa distretti Parma con popolazione residente 2025 ----
-map_distretti_parma_pop_anz <- resident_distr_eta_sex_sf |> 
+map_distretti_parma_pop_anz <- resident_distr_eta_sex_sf |>
   filter(genere == "Totale" & fascia_eta == "60  e oltre") |>
   ggplot() +
   geom_sf(aes(fill = residenti), color = "white", linewidth = rel(0.2)) +
-  geom_sf_label(aes(label = str_wrap(distretto, width= 20)), size = 3, alpha = 0.7) +  # Etichette con sfondo
+  geom_sf_label(
+    aes(label = str_wrap(distretto, width = 20)),
+    size = 3,
+    alpha = 0.7
+  ) + # Etichette con sfondo
   scale_fill_viridis_c(
     option = "rocket",
     direction = -1,
@@ -743,10 +919,13 @@ map_distretti_parma_pop_anz <- resident_distr_eta_sex_sf |>
     labels = scales::label_number(big.mark = ".", decimal.mark = ",")
   ) +
   labs(
-    title    = "Popolazione residente per distretto sanitario (60 anni e oltre)",
+    title = "Popolazione residente per distretto sanitario (60 anni e oltre)",
     subtitle = "(Confini = unione di comuni di pertinenza)",
-    caption  = glue::glue("Fonte: {fonte_anno_agg} — {fonte_nome}; \n{fonte2_anno_agg} — {fonte2_nome}"),
-    x = "",    y = ""
+    caption = glue::glue(
+      "Fonte: {fonte_anno_agg} — {fonte_nome}; \n{fonte2_anno_agg} — {fonte2_nome}"
+    ),
+    x = "",
+    y = ""
   ) +
   theme_minimal() +
   theme(
@@ -776,19 +955,26 @@ fonte2_anno_agg <- "RE-R Statistica (2025)"
 fonte2_nome <- "Popolazione residente"
 
 # Plot mappa distretti Parma con popolazione residente 2025 ----
-map_distretti_parma_pop_anz_per <- resident_distr_eta_sex_sf |> 
+map_distretti_parma_pop_anz_per <- resident_distr_eta_sex_sf |>
   filter(genere == "Totale" & fascia_eta %in% c("60  e oltre", "Tutte_eta")) |>
-  group_by(distretto) |> 
-  summarise(total_residenti = sum(if_else(fascia_eta == "Tutte_eta", residenti, 0)),
-            residenti_60_plus = sum(if_else(fascia_eta == "60  e oltre", residenti, 0)),
-            perc_60_plus = residenti_60_plus / total_residenti * 100,
-            .groups = "drop"
+  group_by(distretto) |>
+  summarise(
+    total_residenti = sum(if_else(fascia_eta == "Tutte_eta", residenti, 0)),
+    residenti_60_plus = sum(if_else(fascia_eta == "60  e oltre", residenti, 0)),
+    perc_60_plus = residenti_60_plus / total_residenti * 100,
+    .groups = "drop"
   ) |>
   ggplot() +
   geom_sf(aes(fill = perc_60_plus), color = "white", linewidth = rel(0.2)) +
-  geom_sf_label(aes(label = str_wrap(distretto, width= 20)), size = 3, alpha = 0.7) +  # Etichette con sfondo
+  geom_sf_label(
+    aes(label = str_wrap(distretto, width = 20)),
+    size = 3,
+    alpha = 0.7
+  ) + # Etichette con sfondo
   scale_fill_viridis_c(
-    option = "cividis", begin = 0.5, end = 0.9,
+    option = "cividis",
+    begin = 0.5,
+    end = 0.9,
     direction = -1,
     na.value = "grey90",
     name = "% residenti >60",
@@ -796,10 +982,13 @@ map_distretti_parma_pop_anz_per <- resident_distr_eta_sex_sf |>
     labels = scales::label_number(suffix = "%", decimal.mark = ",")
   ) +
   labs(
-    title    = "Popolazione residente per distretto sanitario (60 anni e oltre in %)",
+    title = "Popolazione residente per distretto sanitario (60 anni e oltre in %)",
     subtitle = "(Confini = unione di comuni di pertinenza)",
-    caption  = glue::glue("Fonte: {fonte_anno_agg} — {fonte_nome}; \n{fonte2_anno_agg} — {fonte2_nome}"),
-    x = "",    y = ""
+    caption = glue::glue(
+      "Fonte: {fonte_anno_agg} — {fonte_nome}; \n{fonte2_anno_agg} — {fonte2_nome}"
+    ),
+    x = "",
+    y = ""
   ) +
   theme_minimal() +
   theme(
@@ -830,23 +1019,32 @@ fonte2_nome <- "Popolazione residente"
 
 
 # Plot mappa distretti Parma con popolazione residente 2025 ----
-map_distretti_parma_pop_gio <- resident_distr_eta_sex_sf |> 
+map_distretti_parma_pop_gio <- resident_distr_eta_sex_sf |>
   filter(genere == "Totale" & fascia_eta == "0-13") |>
   ggplot() +
   geom_sf(aes(fill = residenti), color = "white", linewidth = rel(0.2)) +
-  geom_sf_label(aes(label = str_wrap(distretto, width= 20)), size = 3, alpha = 0.7) +  # Etichette con sfondo
+  geom_sf_label(
+    aes(label = str_wrap(distretto, width = 20)),
+    size = 3,
+    alpha = 0.7
+  ) + # Etichette con sfondo
   scale_fill_viridis_c(
-    option = "cividis", begin = 0.5, end = 0.9,
+    option = "cividis",
+    begin = 0.5,
+    end = 0.9,
     direction = -1,
     na.value = "grey90",
     name = "N. residenti < 14",
     labels = scales::label_number(big.mark = ".", decimal.mark = ",")
   ) +
   labs(
-    title    = "Popolazione residente per distretto sanitario (0-13 anni)",
+    title = "Popolazione residente per distretto sanitario (0-13 anni)",
     subtitle = "(Confini = unione di comuni di pertinenza)",
-    caption  = glue::glue("Fonte: {fonte_anno_agg} — {fonte_nome}; \n{fonte2_anno_agg} — {fonte2_nome}"),
-    x = "",    y = ""
+    caption = glue::glue(
+      "Fonte: {fonte_anno_agg} — {fonte_nome}; \n{fonte2_anno_agg} — {fonte2_nome}"
+    ),
+    x = "",
+    y = ""
   ) +
   theme_minimal() +
   theme(
@@ -876,19 +1074,26 @@ fonte2_anno_agg <- "RE-R Statistica (2025)"
 fonte2_nome <- "Popolazione residente"
 
 # Plot mappa distretti Parma con popolazione residente 2025 ----
-map_distretti_parma_pop_gio_per <- resident_distr_eta_sex_sf |> 
+map_distretti_parma_pop_gio_per <- resident_distr_eta_sex_sf |>
   filter(genere == "Totale" & fascia_eta %in% c("0-13", "Tutte_eta")) |>
-  group_by(distretto) |> 
-  summarise(total_residenti = sum(if_else(fascia_eta == "Tutte_eta", residenti, 0)),
-            residenti_0_13 = sum(if_else(fascia_eta == "0-13", residenti, 0)),
-            perc_0_13 = residenti_0_13 / total_residenti * 100,
-            .groups = "drop"
+  group_by(distretto) |>
+  summarise(
+    total_residenti = sum(if_else(fascia_eta == "Tutte_eta", residenti, 0)),
+    residenti_0_13 = sum(if_else(fascia_eta == "0-13", residenti, 0)),
+    perc_0_13 = residenti_0_13 / total_residenti * 100,
+    .groups = "drop"
   ) |>
   ggplot() +
   geom_sf(aes(fill = perc_0_13), color = "white", linewidth = rel(0.2)) +
-  geom_sf_label(aes(label = str_wrap(distretto, width= 20)), size = 3, alpha = 0.7) +  # Etichette con sfondo
+  geom_sf_label(
+    aes(label = str_wrap(distretto, width = 20)),
+    size = 3,
+    alpha = 0.7
+  ) + # Etichette con sfondo
   scale_fill_viridis_c(
-    option = "cividis", begin = 0.5, end = 0.9,
+    option = "cividis",
+    begin = 0.5,
+    end = 0.9,
     direction = -1,
     na.value = "grey90",
     name = "% residenti <14",
@@ -896,10 +1101,13 @@ map_distretti_parma_pop_gio_per <- resident_distr_eta_sex_sf |>
     labels = scales::label_number(suffix = "%", decimal.mark = ",")
   ) +
   labs(
-    title    = "Popolazione residente per distretto sanitario (0-13 anni in %)",
+    title = "Popolazione residente per distretto sanitario (0-13 anni in %)",
     subtitle = "(Confini = unione di comuni di pertinenza)",
-    caption  = glue::glue("Fonte: {fonte_anno_agg} — {fonte_nome}; \n{fonte2_anno_agg} — {fonte2_nome}"),
-    x = "",    y = ""
+    caption = glue::glue(
+      "Fonte: {fonte_anno_agg} — {fonte_nome}; \n{fonte2_anno_agg} — {fonte2_nome}"
+    ),
+    x = "",
+    y = ""
   ) +
   theme_minimal() +
   theme(
@@ -923,8 +1131,10 @@ map_distretti_parma_pop_gio_per
 # Combine plots
 # Combine plots - remove titles/subtitles/captions from individual plots
 map_distretti_parma_pop_anz_gio_per_patch <-
-  (map_distretti_parma_pop_anz_per + labs(title = NULL, subtitle = NULL, caption = NULL)) +
-  (map_distretti_parma_pop_gio_per + labs(title = NULL, subtitle = NULL, caption = NULL)) +
+  (map_distretti_parma_pop_anz_per +
+    labs(title = NULL, subtitle = NULL, caption = NULL)) +
+  (map_distretti_parma_pop_gio_per +
+    labs(title = NULL, subtitle = NULL, caption = NULL)) +
   plot_annotation(
     title = "Popolazione residente per distretto sanitario: età 0-13 e 60+ (in %)",
     subtitle = "(Confini = unione di comuni di pertinenza)",
@@ -933,7 +1143,11 @@ map_distretti_parma_pop_anz_gio_per_patch <-
   theme(
     plot.title = element_text(size = rel(1.4), face = "bold"),
     plot.subtitle = element_text(size = rel(1.1)),
-    plot.caption = element_text(size = rel(0.9), face = "italic", color = grey_sc),
+    plot.caption = element_text(
+      size = rel(0.9),
+      face = "italic",
+      color = grey_sc
+    ),
     legend.position = "bottom"
   )
 
@@ -948,13 +1162,13 @@ Uno degli indicatori "spia" di potenziale fragilità sociale è la `percentuale 
 
 ```{r}
 # # % Popolazione residente di 65 anni e oltre in famiglie unipersonali al 31.12.2023
-# 
+#
 # fragil_raw <- read_excel("data_in/fragil/Dati-Fragilita-2023-Indicatori-elementari-comunali-e-provinciali.xlsx", skip= 1)
 
 names(fragil_raw)
 
-over65_unip <-  fragil_raw |> 
-  filter (den_prov == "Parma" ) |> 
+over65_unip <- fragil_raw |>
+  filter(den_prov == "Parma") |>
   select(cod_com, den_com, socind1)
 
 # Join over65_unip with ER_PR_comuni_sf ----
@@ -962,16 +1176,25 @@ over65_unip_sf <- ER_PR_comuni_sf |>
   left_join(
     over65_unip,
     by = c("PRO_COM_T" = "cod_com")
-  ) |> 
+  ) |>
   st_as_sf()
 
 # Save joined data
-saveRDS(object =  over65_unip_sf, file = here("data_out", "fragil", "over65_unip_sf.rds"))
+saveRDS(
+  object = over65_unip_sf,
+  file = here("data_out", "fragil", "over65_unip_sf.rds")
+)
 # as XLSX
-writexl::write_xlsx(x = over65_unip_sf |> st_drop_geometry(), path = here("data_out", "fragil", "over65_unip_sf.xlsx"))
+writexl::write_xlsx(
+  x = over65_unip_sf |> st_drop_geometry(),
+  path = here("data_out", "fragil", "over65_unip_sf.xlsx")
+)
 # as shapefile
 fs::dir_create(here("data_out", "fragil", "over65_unip_sf_shp"))
-sf::write_sf( over65_unip_sf,  here("data_out", "fragil", "over65_unip_sf_shp",  "over65_unip_sf.shp"))
+sf::write_sf(
+  over65_unip_sf,
+  here("data_out", "fragil", "over65_unip_sf_shp", "over65_unip_sf.shp")
+)
 ```
 
 ```{r}
@@ -981,25 +1204,37 @@ sf::write_sf( over65_unip_sf,  here("data_out", "fragil", "over65_unip_sf_shp", 
 #| out-width: 100%
 
 # Plot mappa over65 unipersonali Parma 2023 ----
-over65_unip_map <- over65_unip_sf |> 
+over65_unip_map <- over65_unip_sf |>
   ggplot() +
   geom_sf(aes(fill = socind1), color = "white", linewidth = rel(0.2)) +
   #geom_sf_label(aes(label = den_com), size = 2, alpha = 0.7) +  # Etichette con sfondo
   scale_fill_viridis_c(
-    option = "cividis", begin = 0.5, end = 0.9,
+    option = "cividis",
+    begin = 0.5,
+    end = 0.9,
     direction = -1,
     na.value = "grey90",
     name = "%. residenti soli 65+",
     labels = scales::label_number(big.mark = ".", decimal.mark = ",")
   ) +
   # Add layer for distretti borders
-  geom_sf(data = ER_PR_distretti_sf, fill = NA, color = blu_sc, linewidth = rel(0.5)) +
+  geom_sf(
+    data = ER_PR_distretti_sf,
+    fill = NA,
+    color = blu_sc,
+    linewidth = rel(0.5)
+  ) +
   # ADd labs
   labs(
-    title    = "Popolazione residente di 65 anni e oltre in famiglie unipersonali  (Anno 2023)",
+    title = "Popolazione residente di 65 anni e oltre in famiglie unipersonali  (Anno 2023)",
     subtitle = "Indicatore in % per comune",
-    caption  = str_wrap("Fonte: Regione Emilia-Romagna - La potenziale fragilità demografica, sociale ed economica nei comuni della regione Emilia-Romagna (2023)", width = 80),
-    x = "",    y = "") +
+    caption = str_wrap(
+      "Fonte: Regione Emilia-Romagna - La potenziale fragilità demografica, sociale ed economica nei comuni della regione Emilia-Romagna (2023)",
+      width = 80
+    ),
+    x = "",
+    y = ""
+  ) +
   theme_minimal() +
   theme(
     legend.position = "right",
@@ -1019,12 +1254,12 @@ over65_unip_map
 
 ### Persone over 65 non autosufficienti
 
-Secondo l’indagine europea sulla salute (_EHIS_), attualmente in corso di aggiornamento, na quota significativa di popolazione anziana (65+) presenta difficoltà nelle attività di cura della persona ( _ADL, Activities of Daily Living_ ), sia essa moderata o grave.
+Secondo l’indagine europea sulla salute (_EHIS_), attualmente in corso di aggiornamento, na quota significativa di popolazione anziana (65+) presenta difficoltà nelle attività di cura della persona ( _ADL, Activities of Daily Living_ ), sia essa moderata o grave.  
 
-[@istatCondizioniDiSalute2022]
+Nel 2023, gli anziani non autosufficienti con gravi limitazioni erano 358.594 in Emilia-Romagna e 4.027.488 in Italia (per la prima volta sopra 4 milioni). Purtroppo a fronte di tassi di copertura del bisogno di servizi socio-sanitari altamente insufficienti e variabili a livello regionale, al netto delle diverse allocazioni/modalità di erogazione delle risorse [@fostiSettoreLongTerm2025]. <!-- : di carattere domiciliare/ADI (30,6%), residenziale (7,6%), o semiresidenziale (0,6%).   -->
+
 ```{r}
 #| label: adl_reg_data
-
 
 # ------- Arguments for plot
 TITLE <- "Popolazione anziana non autosufficiente "
@@ -1035,26 +1270,38 @@ CAP <- "Fonte: ISTAT - EHIS (European Health Interview Survey) 2022, su dati 201
 adl_reg_data <- ADL_reg |>
   dplyr::filter(territorio %in% c("Emilia-Romagna", "Italia")) |>
   tidyr::pivot_longer(
-    cols = c(moderata, grave),  # removed nessuna       
+    cols = c(moderata, grave), # removed nessuna
     names_to = "difficolta",
     values_to = "percentuale"
   ) |>
   dplyr::mutate(
     difficolta = factor(
       difficolta,
-      levels = c(#"nessuna", 
-                 "moderata", "grave"),
-      labels = c(#"Nessuna", 
-                 "Moderata", "Grave")
+      levels = c(
+        #"nessuna",
+        "moderata",
+        "grave"
+      ),
+      labels = c(
+        #"Nessuna",
+        "Moderata",
+        "Grave"
+      )
     ),
     territorio = factor(territorio, levels = c("Italia", "Emilia-Romagna"))
   )
 
 # ------- Save data objects
 # as RDS
-saveRDS(object = adl_reg_data, file = here("data_out", "istat_EHIS_2019", "adl_reg_data.rds"))
+saveRDS(
+  object = adl_reg_data,
+  file = here("data_out", "istat_EHIS_2019", "adl_reg_data.rds")
+)
 # as XLSX
-writexl::write_xlsx(x = adl_reg_data, path = here("data_out", "istat_EHIS_2019", "adl_reg_data.xlsx"))
+writexl::write_xlsx(
+  x = adl_reg_data,
+  path = here("data_out", "istat_EHIS_2019", "adl_reg_data.xlsx")
+)
 ```
 
 
@@ -1064,11 +1311,18 @@ writexl::write_xlsx(x = adl_reg_data, path = here("data_out", "istat_EHIS_2019",
 
 # Plot: adl_reg_plot ----
 adl_reg_plot <- adl_reg_data |>
-  filter(difficolta != "nessuna") |> 
+  filter(difficolta != "nessuna") |>
   ggplot(aes(x = territorio, y = percentuale, fill = difficolta)) +
   geom_col(position = "dodge", width = 0.7) +
   geom_text(
-    aes(label = scales::number(percentuale, accuracy = 0.1, suffix = "%", decimal.mark = ",")),
+    aes(
+      label = scales::number(
+        percentuale,
+        accuracy = 0.1,
+        suffix = "%",
+        decimal.mark = ","
+      )
+    ),
     position = position_dodge(width = 0.7),
     vjust = -0.5,
     size = 3
@@ -1091,7 +1345,11 @@ adl_reg_plot <- adl_reg_data |>
     axis.text.x = element_text(size = rel(1)),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     plot.subtitle = element_text(size = rel(1)),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
@@ -1116,63 +1374,117 @@ adl_reg_plot
 
 In generale, l’analisi degli indicatori demografici 2002-2025 evidenzia come il profilo demografico di Parma si distingue dalla media regionale che nazionale, specialmente per un trend di invecchiamento più contenuto e una dinamica migratoria più vivace -- che contribuisce a bilanciare il deficit di natalità generalizzato.
 
-### Pop Residente 
+### Popolazione Residente 
 
 ```{r}
 #| label: pop_res_trend
 
-pop_res_2001_2018 <- read_excel(here("data_in","pop_resid_2025","IT1,22_315_DF_DCIS_POPORESBIL1_1,1.0.xlsx"), 
-                                sheet = "2001_2018",
-                                col_types = c("text", "text","numeric", "numeric", 
-                                              "numeric","numeric", "numeric",
-                                              "numeric","numeric", "numeric", "numeric",
-                                              "numeric", "numeric", "numeric",
-                                              "numeric", "numeric", "numeric",
-                                              "numeric", "numeric", "numeric",
-                                              "numeric"), na = "..") |> 
+pop_res_2001_2018 <- read_excel(
+  here(
+    "data_in",
+    "pop_resid_2025",
+    "IT1,22_315_DF_DCIS_POPORESBIL1_1,1.0.xlsx"
+  ),
+  sheet = "2001_2018",
+  col_types = c(
+    "text",
+    "text",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric"
+  ),
+  na = ".."
+) |>
   select(-'2019')
 
-pop_res_2019_2024 <- read_excel(here("data_in","pop_resid_2025","IT1,22_315_DF_DCIS_POPORESBIL1_1,1.0.xlsx"), sheet = "2019_2024")
- 
+pop_res_2019_2024 <- read_excel(
+  here(
+    "data_in",
+    "pop_resid_2025",
+    "IT1,22_315_DF_DCIS_POPORESBIL1_1,1.0.xlsx"
+  ),
+  sheet = "2019_2024"
+)
+
 # Large to long format
-pop_res_2001_2018_l <- pop_res_2001_2018 |> 
-  pivot_longer(cols = starts_with("20"), names_to = "anno", values_to = "numero") |> 
-  mutate(anno = as.numeric(anno)) |>  
+pop_res_2001_2018_l <- pop_res_2001_2018 |>
+  pivot_longer(
+    cols = starts_with("20"),
+    names_to = "anno",
+    values_to = "numero"
+  ) |>
+  mutate(anno = as.numeric(anno)) |>
   janitor::clean_names() |>
-  # Indicatore nome diverso da uniformare 
-  mutate(indicatore = case_when(str_detect(indicatore, "gennaio") ~ "Popolazione al 1 gennaio",
-                               TRUE ~ indicatore)) |> 
-  mutate(indicatore = case_when(str_detect(indicatore, "dicembre") ~ "Popolazione al 31 dicembre",
-                               TRUE ~ indicatore))
- 
+  # Indicatore nome diverso da uniformare
+  mutate(
+    indicatore = case_when(
+      str_detect(indicatore, "gennaio") ~ "Popolazione al 1 gennaio",
+      TRUE ~ indicatore
+    )
+  ) |>
+  mutate(
+    indicatore = case_when(
+      str_detect(indicatore, "dicembre") ~ "Popolazione al 31 dicembre",
+      TRUE ~ indicatore
+    )
+  )
+
 pop_res_2019_2024_l <- pop_res_2019_2024 |>
-  pivot_longer(cols = starts_with("20"), names_to = "anno", values_to = "numero") |> 
-  mutate(anno = as.numeric(anno)) |>   
+  pivot_longer(
+    cols = starts_with("20"),
+    names_to = "anno",
+    values_to = "numero"
+  ) |>
+  mutate(anno = as.numeric(anno)) |>
   janitor::clean_names() |>
-  # Indicatore nome diverso da uniformare 
-  mutate(indicatore = case_when(str_detect(indicatore, "gennaio") ~ "Popolazione al 1 gennaio",
-                               TRUE ~ indicatore)) |> 
-  mutate(indicatore = case_when(str_detect(indicatore, "dicembre") ~ "Popolazione al 31 dicembre",
-                               TRUE ~ indicatore))
+  # Indicatore nome diverso da uniformare
+  mutate(
+    indicatore = case_when(
+      str_detect(indicatore, "gennaio") ~ "Popolazione al 1 gennaio",
+      TRUE ~ indicatore
+    )
+  ) |>
+  mutate(
+    indicatore = case_when(
+      str_detect(indicatore, "dicembre") ~ "Popolazione al 31 dicembre",
+      TRUE ~ indicatore
+    )
+  )
 
 # bind rows
 pop_res_2001_2024_l <- bind_rows(pop_res_2001_2018_l, pop_res_2019_2024_l)
 
 # somma per anno e territorio di immigrati ed emigrati
-tot_imm <-  pop_res_2001_2024_l |> 
-  filter(str_detect(indicatore, "Immigr")) |> 
-  group_by(territorio, anno) |> 
-  summarise(numero = sum(numero, na.rm = TRUE), .groups = "keep") |> 
+tot_imm <- pop_res_2001_2024_l |>
+  filter(str_detect(indicatore, "Immigr")) |>
+  group_by(territorio, anno) |>
+  summarise(numero = sum(numero, na.rm = TRUE), .groups = "keep") |>
   mutate(indicatore = "Immigrati")
- 
-tot_emi <- pop_res_2001_2024_l |> 
-  filter(str_detect(indicatore, "Emigr")) |> 
-  group_by(territorio, anno) |> 
-  summarise(numero = sum(numero, na.rm = TRUE), .groups = "keep") |> 
+
+tot_emi <- pop_res_2001_2024_l |>
+  filter(str_detect(indicatore, "Emigr")) |>
+  group_by(territorio, anno) |>
+  summarise(numero = sum(numero, na.rm = TRUE), .groups = "keep") |>
   mutate(indicatore = "Emigrati")
 
-pop_2001_2024 <- bind_rows(pop_res_2001_2024_l,tot_imm, tot_emi)  |> 
-  filter(indicatore %in% c("Popolazione al 1 gennaio", "Immigrati", "Emigrati"))  
+pop_2001_2024 <- bind_rows(pop_res_2001_2024_l, tot_imm, tot_emi) |>
+  filter(indicatore %in% c("Popolazione al 1 gennaio", "Immigrati", "Emigrati"))
 
 tabyl(pop_res_2001_2024_l$indicatore)
 tabyl(pop_2001_2024$indicatore)
@@ -1180,30 +1492,35 @@ tabyl(pop_2001_2024$indicatore)
 
 # Crea % immigrazione ed emigrazione
 pop_2001_2024_pct <- pop_2001_2024 |>
-  pivot_wider(names_from = indicatore, values_from = numero) |> 
-  group_by(territorio, anno) |> 
+  pivot_wider(names_from = indicatore, values_from = numero) |>
+  group_by(territorio, anno) |>
   summarise(
     pop_residente = `Popolazione al 1 gennaio`,
     immigrati = Immigrati,
     emigrati = Emigrati,
     .groups = "keep"
-  ) |> 
+  ) |>
   mutate(
     pct_immigrati = immigrati / pop_residente * 100,
     pct_emigrati = emigrati / pop_residente * 100
   )
 
 # BAck to long form
-pop_2001_2024_pct_long <- pop_2001_2024_pct |> 
-  select(territorio, anno, 
-         pop_residente,
-         pct_immigrati, pct_emigrati) |> 
-  pivot_longer(cols =  -c(territorio, anno), names_to = "indicatore", values_to = "valore") |> 
-  mutate(indicatore = case_when(
-    indicatore == "pop_residente" ~ "Popolazione al 1 gennaio",
-    indicatore == "pct_immigrati" ~ "Immigrati %",
-    indicatore == "pct_emigrati" ~ "Emigrati %",
-    TRUE ~ indicatore)) |> 
+pop_2001_2024_pct_long <- pop_2001_2024_pct |>
+  select(territorio, anno, pop_residente, pct_immigrati, pct_emigrati) |>
+  pivot_longer(
+    cols = -c(territorio, anno),
+    names_to = "indicatore",
+    values_to = "valore"
+  ) |>
+  mutate(
+    indicatore = case_when(
+      indicatore == "pop_residente" ~ "Popolazione al 1 gennaio",
+      indicatore == "pct_immigrati" ~ "Immigrati %",
+      indicatore == "pct_emigrati" ~ "Emigrati %",
+      TRUE ~ indicatore
+    )
+  ) |>
   mutate(
     scala = case_when(
       indicatore == "Popolazione al 1 gennaio" ~ "Valori assoluti",
@@ -1213,15 +1530,21 @@ pop_2001_2024_pct_long <- pop_2001_2024_pct |>
 
 ```
 
-#### Pop res trend
+<!-- #### Pop res trend -->
 ```{r}
 #| label: pop_res_trend_plot
 #| output: false
 
 pop_res_trend_plot <- pop_2001_2024_pct_long |>
   filter(anno > 2001) |>
-  mutate(territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna", "Italia"), labels=c("Parma", "Emilia-Romagna", "Italia"))) |>
-  filter(indicatore %in% c("Popolazione al 1 gennaio")) |>#, "Immigrati %", "Emigrati %")) |>
+  mutate(
+    territorio = factor(
+      territorio,
+      levels = c("Parma", "Emilia-Romagna", "Italia"),
+      labels = c("Parma", "Emilia-Romagna", "Italia")
+    )
+  ) |>
+  filter(indicatore %in% c("Popolazione al 1 gennaio")) |> #, "Immigrati %", "Emigrati %")) |>
   #  filter(indicatore %in% c( "Immigrati %", "Emigrati %")) |>
   ggplot(aes(x = anno, y = valore, color = indicatore, group = indicatore)) +
   geom_line(linewidth = 1) +
@@ -1242,10 +1565,13 @@ pop_res_trend_plot <- pop_2001_2024_pct_long |>
   ) +
   # DEcide color by indicator
   scale_color_manual(
-    values = c("Popolazione al 1 gennaio" = grey_sc,
+    values = c(
+      "Popolazione al 1 gennaio" = grey_sc,
       "Immigrati %" = grn_sc,
-      "Emigrati %" = burg_sc) ) +
-  facet_wrap(~ territorio, ncol = 3) +
+      "Emigrati %" = burg_sc
+    )
+  ) +
+  facet_wrap(~territorio, ncol = 3) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -1253,9 +1579,13 @@ pop_res_trend_plot <- pop_2001_2024_pct_long |>
     axis.text.x = element_text(angle = 45, hjust = 1, size = rel(0.85)),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     strip.text.x = element_text(size = rel(1.125), face = "bold"), # Facet territ
-    strip.text.y = element_text(size = rel(1) , face = "bold"), # Facet indicatore 
+    strip.text.y = element_text(size = rel(1), face = "bold"), # Facet indicatore
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
     legend.position = "bottom",
@@ -1272,16 +1602,22 @@ pop_res_trend_plot <- pop_2001_2024_pct_long |>
 pop_res_trend_plot
 ```
 
-#### Migr trend
+<!-- #### Migr trend -->
 ```{r}
 #| label: pop_migr_trend_plot
 #| output: false
 
 pop_migr_trend_plot <- pop_2001_2024_pct_long |>
   filter(anno > 2001) |>
-  mutate(territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna", "Italia"), labels=c("Parma", "Emilia-Romagna", "Italia"))) |>
+  mutate(
+    territorio = factor(
+      territorio,
+      levels = c("Parma", "Emilia-Romagna", "Italia"),
+      labels = c("Parma", "Emilia-Romagna", "Italia")
+    )
+  ) |>
   # filter(indicatore %in% c("Popolazione al 1 gennaio")) |>#, "Immigrati %", "Emigrati %")) |>
-   filter(indicatore %in% c( "Immigrati %", "Emigrati %")) |>
+  filter(indicatore %in% c("Immigrati %", "Emigrati %")) |>
   ggplot(aes(x = anno, y = valore, color = indicatore, group = indicatore)) +
   geom_line(linewidth = 1) +
   geom_point(size = 1.5) +
@@ -1298,13 +1634,16 @@ pop_migr_trend_plot <- pop_2001_2024_pct_long |>
       }
     },
     expand = expansion(mult = c(0.05, 0.1))
-  ) +  
+  ) +
   # DEcide color by indicator
   scale_color_manual(
-    values = c("Popolazione al 1 gennaio" = grey_md1,
+    values = c(
+      "Popolazione al 1 gennaio" = grey_md1,
       "Immigrati %" = grn_md,
-      "Emigrati %" = burg_md) ) +
-  facet_wrap(~ territorio, ncol = 3) +
+      "Emigrati %" = burg_md
+    )
+  ) +
+  facet_wrap(~territorio, ncol = 3) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -1312,9 +1651,13 @@ pop_migr_trend_plot <- pop_2001_2024_pct_long |>
     axis.text.x = element_text(angle = 45, hjust = 1, size = rel(0.85)),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     strip.text.x = element_text(size = rel(1.125), face = "bold"), # Facet territ
-    strip.text.y = element_text(size = rel(1) , face = "bold"), # Facet indicatore 
+    strip.text.y = element_text(size = rel(1), face = "bold"), # Facet indicatore
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
     legend.position = "bottom",
@@ -1331,7 +1674,9 @@ pop_migr_trend_plot <- pop_2001_2024_pct_long |>
 pop_migr_trend_plot
 ``` 
 
-#### Res + migr trend 
+#### ...confronto trend flussi migratori 
+
+ [POCO LEGGIBILE E SCALE TROPPO DIVERSE ]{style="color: red;"}  
 ```{r}
 #| label: pop_res_migr_trend_plot
 #| output: true
@@ -1339,9 +1684,15 @@ pop_migr_trend_plot
 pop_res_migr_trend_plot <- pop_2001_2024_pct_long |>
   filter(anno > 2001) |>
   filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia")) |>
-  mutate(territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna", "Italia"), labels=c("Parma", "Emilia-Romagna", "Italia"))) |>
+  mutate(
+    territorio = factor(
+      territorio,
+      levels = c("Parma", "Emilia-Romagna", "Italia"),
+      labels = c("Parma", "Emilia-Romagna", "Italia")
+    )
+  ) |>
   # filter(indicatore %in% c("Popolazione al 1 gennaio")) |>#, "Immigrati %", "Emigrati %")) |>
-   # filter(indicatore %in% c( "Immigrati %", "Emigrati %")) |>
+  # filter(indicatore %in% c( "Immigrati %", "Emigrati %")) |>
   ggplot(aes(x = anno, y = valore, color = indicatore, group = indicatore)) +
   geom_line(linewidth = 1) +
   geom_point(size = 1.5) +
@@ -1359,13 +1710,16 @@ pop_res_migr_trend_plot <- pop_2001_2024_pct_long |>
     },
     expand = expansion(mult = c(0.05, 0.1))
   ) +
-    # DEcide color by indicator
+  # DEcide color by indicator
   scale_color_manual(
-    values = c("Popolazione al 1 gennaio" = grey_md1,
+    values = c(
+      "Popolazione al 1 gennaio" = grey_md1,
       "Immigrati %" = grn_md,
-      "Emigrati %" = burg_md) ) +
-  # Qui separo per 2 variabili 
-  facet_grid(scala ~ territorio , scales = "free_y") +
+      "Emigrati %" = burg_md
+    )
+  ) +
+  # Qui separo per 2 variabili
+  facet_grid(scala ~ territorio, scales = "free_y") +
   theme_minimal(base_size = 13) +
   theme(
     # panel.border= element_rect(color = "grey70", fill = NA, linewidth = rel(0.5)),
@@ -1374,10 +1728,14 @@ pop_res_migr_trend_plot <- pop_2001_2024_pct_long |>
     axis.text.x = element_text(angle = 45, hjust = 1, size = rel(0.85)),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     strip.text.x = element_text(size = rel(1.125), face = "bold"), # Facet territ
-    strip.text.y = element_text(size = rel(1) , face = "bold"), # Facet indicatore 
-    legend.text = element_text(size = rel(0.9) ),
+    strip.text.y = element_text(size = rel(1), face = "bold"), # Facet indicatore
+    legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
     legend.position = "bottom",
     panel.spacing = unit(1, "lines")
@@ -1393,8 +1751,14 @@ pop_res_migr_trend_plot <- pop_2001_2024_pct_long |>
 pop_res_migr_trend_plot
 
 # Save data as RDS and XLSX
-saveRDS(object = pop_2001_2024_pct_long, file = here("data_out",  "pop_resid_2025", "pop_2001_2024_pct_long.rds"))
-writexl::write_xlsx(x = pop_2001_2024_pct_long, path = here("data_out",  "pop_resid_2025", "pop_2001_2024_pct_long.xlsx"))
+saveRDS(
+  object = pop_2001_2024_pct_long,
+  file = here("data_out", "pop_resid_2025", "pop_2001_2024_pct_long.rds")
+)
+writexl::write_xlsx(
+  x = pop_2001_2024_pct_long,
+  path = here("data_out", "pop_resid_2025", "pop_2001_2024_pct_long.xlsx")
+)
 ```
 
 ### Età media
@@ -1442,14 +1806,20 @@ e_m_data <- indicatori_di_struttura |>
       levels = c("Parma", "Emilia-Romagna", "ITALIA", "Altro")
     ),
     highlight = factor(highlight)
-  ) |> 
+  ) |>
   dplyr::filter(indicatore == INDICATORE)
 
 # ------- Save data and plot objects
 # as RDS
-saveRDS(object =  e_m_data, file = here("data_out", "istat_demo_2002_2024", "e_m_data.rds"))
+saveRDS(
+  object = e_m_data,
+  file = here("data_out", "istat_demo_2002_2024", "e_m_data.rds")
+)
 # as XLSX
-writexl::write_xlsx(x = e_m_data, path = here("data_out", "istat_demo_2002_2024", "e_m_data.xlsx"))
+writexl::write_xlsx(
+  x = e_m_data,
+  path = here("data_out", "istat_demo_2002_2024", "e_m_data.xlsx")
+)
 # as PNG (manuale)
 ```
 
@@ -1464,22 +1834,27 @@ e_m_plot <- e_m_data |>
     x = anno,
     y = valore,
     color = territorio_display,
-    group = territorio)) +
+    group = territorio
+  )) +
   # Linee normali
   geom_line(linewidth = rel(1.2)) +
   # Linea più spessa per Parma ed Emilia-Romagna
   geom_line(
     data = \(df) df |> filter(territorio %in% c("Parma", "Emilia-Romagna")),
-    linewidth = rel(1.2)) +
+    linewidth = rel(1.2)
+  ) +
   scale_x_continuous(
     breaks = seq(min(e_m_data$anno), max(e_m_data$anno), by = 1),
     limits = c(min(e_m_data$anno), max(e_m_data$anno)),
-    expand = expansion(mult = c(0.02, 0.02))) +
+    expand = expansion(mult = c(0.02, 0.02))
+  ) +
   scale_color_manual(
     values = c(
       "Parma" = ylw_md,
       "Emilia-Romagna" = grn_md,
-      "ITALIA" = blu_md)) +
+      "ITALIA" = blu_md
+    )
+  ) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -1487,18 +1862,24 @@ e_m_plot <- e_m_data |>
     axis.text.x = element_text(angle = 45, hjust = 1, size = rel(0.85)),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
     legend.position = "bottom",
-    panel.spacing = unit(1, "lines")) +
+    panel.spacing = unit(1, "lines")
+  ) +
   labs(
     title = TITLE,
     subtitle = SUBTIT,
     caption = CAP,
     x = "",
-    y = "")  
+    y = ""
+  )
 
 # Stampa il grafico (questo triggera il salvataggio)
 e_m_plot
@@ -1547,15 +1928,21 @@ i_v_data <- indicatori_di_struttura |>
       levels = c("Parma", "Emilia-Romagna", "ITALIA", "Altro")
     ),
     highlight = factor(highlight)
-  ) |> 
+  ) |>
   dplyr::filter(indicatore == INDICATORE)
 
 
 # ------- Save data and plot objects
 # as RDS
-saveRDS(object =  i_v_data, file = here("data_out", "istat_demo_2002_2024", "i_v_data.rds"))
+saveRDS(
+  object = i_v_data,
+  file = here("data_out", "istat_demo_2002_2024", "i_v_data.rds")
+)
 # as XLSX
-writexl::write_xlsx(x = i_v_data, path = here("data_out", "istat_demo_2002_2024", "i_v_data.xlsx"))
+writexl::write_xlsx(
+  x = i_v_data,
+  path = here("data_out", "istat_demo_2002_2024", "i_v_data.xlsx")
+)
 ```
 
 ```{r}
@@ -1568,22 +1955,27 @@ i_v_plot <- i_v_data |>
     x = anno,
     y = valore,
     color = territorio_display,
-    group = territorio)) +
+    group = territorio
+  )) +
   # Linee normali
   geom_line(linewidth = rel(1.2)) +
   # Linea più spessa per Parma ed Emilia-Romagna
   geom_line(
     data = \(df) df |> filter(territorio %in% c("Parma", "Emilia-Romagna")),
-    linewidth = rel(1.2)) +
+    linewidth = rel(1.2)
+  ) +
   scale_x_continuous(
     breaks = seq(min(i_v_data$anno), max(i_v_data$anno), by = 1),
     limits = c(min(i_v_data$anno), max(i_v_data$anno)),
-    expand = expansion(mult = c(0.02, 0.02))) +
+    expand = expansion(mult = c(0.02, 0.02))
+  ) +
   scale_color_manual(
     values = c(
       "Parma" = ylw_md,
       "Emilia-Romagna" = grn_md,
-      "ITALIA" = blu_md)) +
+      "ITALIA" = blu_md
+    )
+  ) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -1591,18 +1983,24 @@ i_v_plot <- i_v_data |>
     axis.text.x = element_text(angle = 45, hjust = 1, size = rel(0.85)),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
     legend.position = "bottom",
-    panel.spacing = unit(1, "lines")) +
+    panel.spacing = unit(1, "lines")
+  ) +
   labs(
     title = TITLE,
     subtitle = SUBTIT,
     caption = CAP,
     x = "",
-    y = "")  
+    y = ""
+  )
 
 # Stampa il grafico (questo triggera il salvataggio)
 i_v_plot
@@ -1651,15 +2049,21 @@ i_d_a_data <- indicatori_di_struttura |>
       levels = c("Parma", "Emilia-Romagna", "ITALIA", "Altro")
     ),
     highlight = factor(highlight)
-  ) |> 
+  ) |>
   dplyr::filter(indicatore == INDICATORE)
 
 
 # ------- Save data and plot objects
 # as RDS
-saveRDS(object =  i_d_a_data, file = here("data_out", "istat_demo_2002_2024", "i_d_a_data.rds"))
+saveRDS(
+  object = i_d_a_data,
+  file = here("data_out", "istat_demo_2002_2024", "i_d_a_data.rds")
+)
 # as XLSX
-writexl::write_xlsx(x = i_d_a_data, path = here("data_out", "istat_demo_2002_2024", "i_d_a_data.xlsx"))
+writexl::write_xlsx(
+  x = i_d_a_data,
+  path = here("data_out", "istat_demo_2002_2024", "i_d_a_data.xlsx")
+)
 ```
 
 ```{r}
@@ -1672,22 +2076,27 @@ i_d_a_plot <- i_d_a_data |>
     x = anno,
     y = valore,
     color = territorio_display,
-    group = territorio)) +
+    group = territorio
+  )) +
   # Linee normali
   geom_line(linewidth = rel(1.2)) +
   # Linea più spessa per Parma ed Emilia-Romagna
   geom_line(
     data = \(df) df |> filter(territorio %in% c("Parma", "Emilia-Romagna")),
-    linewidth = rel(1.2)) +
+    linewidth = rel(1.2)
+  ) +
   scale_x_continuous(
     breaks = seq(min(i_d_a_data$anno), max(i_d_a_data$anno), by = 1),
     limits = c(min(i_d_a_data$anno), max(i_d_a_data$anno)),
-    expand = expansion(mult = c(0.02, 0.02))) +
+    expand = expansion(mult = c(0.02, 0.02))
+  ) +
   scale_color_manual(
     values = c(
       "Parma" = ylw_md,
       "Emilia-Romagna" = grn_md,
-      "ITALIA" = blu_md)) +
+      "ITALIA" = blu_md
+    )
+  ) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -1695,18 +2104,24 @@ i_d_a_plot <- i_d_a_data |>
     axis.text.x = element_text(angle = 45, hjust = 1, size = rel(0.85)),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
     legend.position = "bottom",
-    panel.spacing = unit(1, "lines")) +
+    panel.spacing = unit(1, "lines")
+  ) +
   labs(
     title = TITLE,
     subtitle = SUBTIT,
     caption = CAP,
     x = "",
-    y = "")  
+    y = ""
+  )
 
 # Stampa il grafico (questo triggera il salvataggio)
 i_d_a_plot
@@ -1756,15 +2171,21 @@ i_d_s_data <- indicatori_di_struttura |>
       levels = c("Parma", "Emilia-Romagna", "ITALIA", "Altro")
     ),
     highlight = factor(highlight)
-  ) |> 
+  ) |>
   dplyr::filter(indicatore == INDICATORE)
 
 
 # ------- Save data and plot objects
 # as RDS
-saveRDS(object =  i_d_s_data, file = here("data_out", "istat_demo_2002_2024", "i_d_s_data.rds"))
+saveRDS(
+  object = i_d_s_data,
+  file = here("data_out", "istat_demo_2002_2024", "i_d_s_data.rds")
+)
 # as XLSX
-writexl::write_xlsx(x = i_d_s_data, path = here("data_out", "istat_demo_2002_2024", "i_d_s_data.xlsx"))
+writexl::write_xlsx(
+  x = i_d_s_data,
+  path = here("data_out", "istat_demo_2002_2024", "i_d_s_data.xlsx")
+)
 ```
 
 ```{r}
@@ -1777,22 +2198,27 @@ i_d_s_plot <- i_d_s_data |>
     x = anno,
     y = valore,
     color = territorio_display,
-    group = territorio)) +
+    group = territorio
+  )) +
   # Linee normali
   geom_line(linewidth = rel(1.2)) +
   # Linea più spessa per Parma ed Emilia-Romagna
   geom_line(
     data = \(df) df |> filter(territorio %in% c("Parma", "Emilia-Romagna")),
-    linewidth = rel(1.2)) +
+    linewidth = rel(1.2)
+  ) +
   scale_x_continuous(
     breaks = seq(min(i_d_s_data$anno), max(i_d_s_data$anno), by = 1),
     limits = c(min(i_d_s_data$anno), max(i_d_s_data$anno)),
-    expand = expansion(mult = c(0.02, 0.02))) +
+    expand = expansion(mult = c(0.02, 0.02))
+  ) +
   scale_color_manual(
     values = c(
       "Parma" = ylw_md,
       "Emilia-Romagna" = grn_md,
-      "ITALIA" = blu_md)) +
+      "ITALIA" = blu_md
+    )
+  ) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -1800,18 +2226,24 @@ i_d_s_plot <- i_d_s_data |>
     axis.text.x = element_text(angle = 45, hjust = 1, size = rel(0.85)),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
     legend.position = "bottom",
-    panel.spacing = unit(1, "lines")) +
+    panel.spacing = unit(1, "lines")
+  ) +
   labs(
     title = TITLE,
     subtitle = SUBTIT,
     caption = CAP,
     x = "",
-    y = "")  
+    y = ""
+  )
 
 # Stampa il grafico (questo triggera il salvataggio)
 i_d_s_plot
@@ -1825,7 +2257,10 @@ i_d_s_plot
 c_n_data <- crescita_naturale |>
   dplyr::filter(territorio %in% c("Parma", "Emilia-Romagna", "ITALIA")) |>
   dplyr::mutate(
-    territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna", "ITALIA"))
+    territorio = factor(
+      territorio,
+      levels = c("Parma", "Emilia-Romagna", "ITALIA")
+    )
   )
 
 ```
@@ -1894,9 +2329,15 @@ c_n_plot
 
 # ------- Save data and plot objects
 # as RDS
-saveRDS(object =  c_n_data, file = here("data_out", "istat_demo_2002_2024", "c_n_data.rds"))
+saveRDS(
+  object = c_n_data,
+  file = here("data_out", "istat_demo_2002_2024", "c_n_data.rds")
+)
 # as XLSX
-writexl::write_xlsx(x = c_n_data, path = here("data_out", "istat_demo_2002_2024", "c_n_data.xlsx"))
+writexl::write_xlsx(
+  x = c_n_data,
+  path = here("data_out", "istat_demo_2002_2024", "c_n_data.xlsx")
+)
 
 ```
 
@@ -1924,13 +2365,19 @@ s_m_data <- saldo_migratorio |>
         # "NORD-EST",
         "ITALIA"
       )
-  )  
+  )
 
 # ------- Save data and plot objects
 # as RDS
-saveRDS(object =  s_m_data, file = here("data_out", "istat_demo_2002_2024", "s_m_data.rds"))
+saveRDS(
+  object = s_m_data,
+  file = here("data_out", "istat_demo_2002_2024", "s_m_data.rds")
+)
 # as XLSX
-writexl::write_xlsx(x = s_m_data, path = here("data_out", "istat_demo_2002_2024", "s_m_data.xlsx"))
+writexl::write_xlsx(
+  x = s_m_data,
+  path = here("data_out", "istat_demo_2002_2024", "s_m_data.xlsx")
+)
 ```
 
 ```{r}
@@ -1943,17 +2390,21 @@ s_m_plot <- s_m_data |>
     x = anno,
     y = valore,
     color = territorio,
-    group = territorio)) +
-  geom_line(linewidth = rel(1.2) ) +
+    group = territorio
+  )) +
+  geom_line(linewidth = rel(1.2)) +
   scale_x_continuous(
     breaks = seq(min(s_m_data$anno), max(s_m_data$anno), by = 1),
     limits = c(min(s_m_data$anno), max(s_m_data$anno)),
-    expand = expansion(mult = c(0.02, 0.02))) +
+    expand = expansion(mult = c(0.02, 0.02))
+  ) +
   scale_color_manual(
     values = c(
       "Parma" = ylw_md,
       "Emilia-Romagna" = grn_md,
-      "ITALIA" = blu_md)  ) +
+      "ITALIA" = blu_md
+    )
+  ) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -1964,22 +2415,26 @@ s_m_plot <- s_m_data |>
     plot.title = element_text(
       size = rel(1.3),
       face = "bold",
-      margin = margin(b = 10) ),
+      margin = margin(b = 10)
+    ),
     plot.subtitle = element_text(
       size = rel(0.95),
       lineheight = 1.2,
-      margin = margin(b = 10)  ),
+      margin = margin(b = 10)
+    ),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
     legend.position = "bottom",
-    panel.spacing = unit(1, "lines")  ) +
+    panel.spacing = unit(1, "lines")
+  ) +
   labs(
     title = "Trend demografici: saldo migratorio totale",
     subtitle = "Indicatore espresso in: differenza tra num. iscritti ed num. cancellati dai registri anagrafici per trasferimento di residenza",
     caption = CAP,
     x = "",
-    y = "")
+    y = ""
+  )
 # Stampa il grafico (questo triggera il salvataggio)
 s_m_plot
 ```
@@ -1992,16 +2447,24 @@ s_m_plot
 ```{r}
 #| label: bes_mob_lau_data
 
-bes_mob_lau <-  all_bes |>
-  filter (territorio %in% c("Parma", "Emilia-Romagna", "Italia")) |>
-  filter(indicatore == "Mobilità dei laureati italiani (25-39 anni)")   |>
-  dplyr::mutate (territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna" , "Italia"))) |> 
+bes_mob_lau <- all_bes |>
+  filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia")) |>
+  filter(indicatore == "Mobilità dei laureati italiani (25-39 anni)") |>
+  dplyr::mutate(
+    territorio = factor(
+      territorio,
+      levels = c("Parma", "Emilia-Romagna", "Italia")
+    )
+  ) |>
   select(indicatore, territorio, sesso, v2019:v2023)
 
 
 # save data
-saveRDS(object =  bes_mob_lau, file = here(bes_data_out, "bes_mob_lau.rds"))
-writexl::write_xlsx(x = bes_mob_lau, path = here(bes_data_out, "bes_mob_lau.xlsx"))
+saveRDS(object = bes_mob_lau, file = here(bes_data_out, "bes_mob_lau.rds"))
+writexl::write_xlsx(
+  x = bes_mob_lau,
+  path = here(bes_data_out, "bes_mob_lau.xlsx")
+)
 ```
 
 Parma ed Emilia-Romagna registrano saldi migratori positivi dei laureati (attrazione netta), mentre l'Italia nel complesso perde laureati verso l'estero, con tassi negativi stabilmente tra -2 e -8 per mille nel periodo 2019-2023.
@@ -2011,9 +2474,9 @@ Parma ed Emilia-Romagna registrano saldi migratori positivi dei laureati (attraz
 #| output: true
 
 # Plot: histogram ----
-bes_mob_lau_plot <- bes_mob_lau  |>
+bes_mob_lau_plot <- bes_mob_lau |>
   filter(sesso == "Totale") |>
-  # make long 
+  # make long
   tidyr::pivot_longer(
     cols = starts_with("v"),
     names_to = "anno",
@@ -2022,26 +2485,38 @@ bes_mob_lau_plot <- bes_mob_lau  |>
   ) |>
   dplyr::mutate(
     anno = as.integer(anno),
-    territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna", "Italia")),
+    territorio = factor(
+      territorio,
+      levels = c("Parma", "Emilia-Romagna", "Italia")
+    ),
     valore_num = as.numeric(gsub(",", ".", valore))
   ) |>
   ggplot(aes(x = anno, y = valore_num, fill = territorio)) +
-  geom_col(position = position_dodge2(width = 0.9, preserve = "single", padding = 0),
-           width = 0.9,
-           color = "white",
-           linewidth = 0.5) +
+  geom_col(
+    position = position_dodge2(width = 0.9, preserve = "single", padding = 0),
+    width = 0.9,
+    color = "white",
+    linewidth = 0.5
+  ) +
   scale_fill_manual(
     values = c(
       "Parma" = ylw_lg,
       "Emilia-Romagna" = grn_lg,
-      "Italia" = blu_lg )) +
+      "Italia" = blu_lg
+    )
+  ) +
   scale_x_continuous(
     breaks = seq(2004, 2025, by = 1),
-    expand = expansion(mult = c(0.02, 0.02))) +
+    expand = expansion(mult = c(0.02, 0.02))
+  ) +
   scale_y_continuous(
-    labels = scales::label_number(big.mark = ".", decimal.mark = ",", suffix = "‰"), 
+    labels = scales::label_number(
+      big.mark = ".",
+      decimal.mark = ",",
+      suffix = "‰"
+    ),
     breaks = scales::breaks_extended(n = 10),
-    expand= expansion(mult = c(0.25,0.25))
+    expand = expansion(mult = c(0.25, 0.25))
   ) +
   theme_minimal(base_size = 13) +
   theme(
@@ -2050,18 +2525,24 @@ bes_mob_lau_plot <- bes_mob_lau  |>
     axis.text.x = element_text(angle = 0, hjust = 1, size = rel(1)),
     axis.text.y = element_text(size = rel(1)),
     axis.title = element_text(size = rel(0.9), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
     legend.position = "bottom",
-    panel.spacing = unit(1, "lines")) +
+    panel.spacing = unit(1, "lines")
+  ) +
   labs(
     title = "Mobilità (Iscritti - Cancellati) per trasferimento \ndi residenza dei laureati italiani (25-39 anni)",
     subtitle = "Confronto territoriale",
     caption = "Fonte: Istat, BES (Benessere Equo e Sostenibile), 2025",
     x = "",
-    y = "Saldo su residenti X 1000")
+    y = "Saldo su residenti X 1000"
+  )
 
 bes_mob_lau_plot
 ```
@@ -2106,27 +2587,39 @@ Il **Reddito medio disponibile pro capite (€)** è un _aggregato di contabilit
 
 bes_reddito <- all_bes |>
   filter(dominio == "Benessere economico") |>
-  filter (territorio %in% c("Parma", "Emilia-Romagna", "Italia")) |>
-  filter (unita_misura == "Euro" ) |>
+  filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia")) |>
+  filter(unita_misura == "Euro") |>
   filter(sesso == "Totale") |>
-  select(indicatore, territorio, v2021, v2022, v2023) |> 
+  select(indicatore, territorio, v2021, v2022, v2023) |>
   # in ordine per grafico
   mutate(
-    territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna", "Italia")),
-    indicatore = factor(indicatore, levels = c(
-      "Reddito medio disponibile pro capite",
-      "Retribuzione media annua dei lavoratori dipendenti",
-      "Importo medio annuo pro-capite dei redditi pensionistici"
-    ))
-  ) |> 
+    territorio = factor(
+      territorio,
+      levels = c("Parma", "Emilia-Romagna", "Italia")
+    ),
+    indicatore = factor(
+      indicatore,
+      levels = c(
+        "Reddito medio disponibile pro capite",
+        "Retribuzione media annua dei lavoratori dipendenti",
+        "Importo medio annuo pro-capite dei redditi pensionistici"
+      )
+    )
+  ) |>
   # make col v numeric
-  mutate(across(c(v2021, v2022, v2023), ~ as.numeric(str_replace(.x, ",", "."))))                
+  mutate(across(
+    c(v2021, v2022, v2023),
+    ~ as.numeric(str_replace(.x, ",", "."))
+  ))
 
-# ------- Save data 
+# ------- Save data
 # as RDS
 saveRDS(object = bes_reddito, file = here(bes_data_out, "bes_reddito.rds"))
 # as XLSX
-writexl::write_xlsx(x = bes_reddito, path = here(bes_data_out, "bes_reddito.xlsx"))
+writexl::write_xlsx(
+  x = bes_reddito,
+  path = here(bes_data_out, "bes_reddito.xlsx")
+)
 ```
 
 
@@ -2142,8 +2635,8 @@ bes_reddito_long <- bes_reddito |>
     cols = c("v2021", "v2022", "v2023"),
     names_to = "anno",
     values_to = "value",
-    names_prefix = "v"  # Remove the "v" prefix
-  ) 
+    names_prefix = "v" # Remove the "v" prefix
+  )
 
 # Create faceted barplot
 reddito_barplot <- bes_reddito_long |>
@@ -2151,12 +2644,19 @@ reddito_barplot <- bes_reddito_long |>
   ggplot(aes(x = anno, y = value_num, fill = territorio)) +
   geom_col(position = "dodge", width = 0.7) +
   geom_text(
-    aes(label = scales::number(value_num, big.mark = ".", decimal.mark = ",", accuracy = 1)),
+    aes(
+      label = scales::number(
+        value_num,
+        big.mark = ".",
+        decimal.mark = ",",
+        accuracy = 1
+      )
+    ),
     position = position_dodge(width = 0.7),
     vjust = -0.5,
     size = 3
   ) +
-  facet_wrap(~ indicatore, ncol = 1, scales = "fixed") +
+  facet_wrap(~indicatore, ncol = 1, scales = "fixed") +
   scale_fill_manual(
     values = c(
       "Parma" = ylw_lg,
@@ -2183,7 +2683,12 @@ reddito_barplot <- bes_reddito_long |>
     panel.grid.minor = element_blank(),
     plot.title = element_text(face = "bold", size = rel(1.2)),
     plot.subtitle = element_text(size = rel(1)),
-    plot.caption = element_text(size = rel(0.8), face = "italic", color = grey_sc, hjust = 0),
+    plot.caption = element_text(
+      size = rel(0.8),
+      face = "italic",
+      color = grey_sc,
+      hjust = 0
+    ),
     legend.position = "bottom",
     strip.text = element_text(face = "bold", size = rel(1), hjust = 0),
     strip.background = element_rect(fill = grey_md2, color = NA)
@@ -2207,7 +2712,8 @@ bes_reddito_tbl <- bes_reddito |>
     big.mark = ".",
     decimal.mark = ",",
     digits = 0,
-    na_str = "N.D.") |>
+    na_str = "N.D."
+  ) |>
   set_header_labels(
     indicatore = "Indicatore",
     territorio = "Territorio",
@@ -2215,7 +2721,10 @@ bes_reddito_tbl <- bes_reddito |>
     v2022 = "2022",
     v2023 = "2023"
   ) |>
-  add_header_lines(values = "Indicatori economici per territorio (€), 2021-2023", top = TRUE) |>
+  add_header_lines(
+    values = "Indicatori economici per territorio (€), 2021-2023",
+    top = TRUE
+  ) |>
   bold(part = "header", i = 1) |>
   fontsize(size = 14, part = "header", i = 1) |>
   align(align = "center", part = "header", i = 1) |>
@@ -2224,8 +2733,8 @@ bes_reddito_tbl <- bes_reddito |>
   italic(part = "footer") |>
   color(color = grey_sc, part = "footer") |>
   # Merge col with same Indicatore
-  flextable::merge_v( j = "indicatore", part = "body") |> 
-  
+  flextable::merge_v(j = "indicatore", part = "body") |>
+
   # add background to italia and Parma
   # bg(i = ~ territorio %in% c("Italia"), bg = blu_lg, part = "body") |>
   bg(i = ~ territorio %in% c("Parma"), bg = ylw_lg, part = "body") |>
@@ -2236,10 +2745,16 @@ bes_reddito_tbl
 
 ```{r}
 # save as Rds
-saveRDS(object =  bes_reddito_tbl, file = here(bes_data_out, "bes_reddito_tbl.rds"))
+saveRDS(
+  object = bes_reddito_tbl,
+  file = here(bes_data_out, "bes_reddito_tbl.rds")
+)
 
 # save as word docx
-flextable::save_as_docx(bes_reddito_tbl, path = here(bes_data_out, "bes_reddito_tbl.docx"))
+flextable::save_as_docx(
+  bes_reddito_tbl,
+  path = here(bes_data_out, "bes_reddito_tbl.docx")
+)
 ```
 
 
@@ -2247,22 +2762,29 @@ flextable::save_as_docx(bes_reddito_tbl, path = here(bes_data_out, "bes_reddito_
 #| label: bes_redd_m_f_data
 
 bes_redd_m_f <- all_bes |>
-  filter(dominio == "Benessere economico" & indicatore == "Retribuzione media annua dei lavoratori dipendenti") |>
-  filter (territorio %in% c("Parma",  "Italia")) |>
-  filter (unita_misura == "Euro" ) |>
-  filter(sesso %in% c("Maschi", "Femmine"))  |> 
+  filter(
+    dominio == "Benessere economico" &
+      indicatore == "Retribuzione media annua dei lavoratori dipendenti"
+  ) |>
+  filter(territorio %in% c("Parma", "Italia")) |>
+  filter(unita_misura == "Euro") |>
+  filter(sesso %in% c("Maschi", "Femmine")) |>
   # in ordine per grafico
   mutate(
-    territorio = factor(territorio, levels = c("Parma",  "Italia")),
-    v2023 = as.numeric(str_replace(v2023, ",", "."))) |> 
-  select(indicatore, territorio, sesso, v2023) |> 
+    territorio = factor(territorio, levels = c("Parma", "Italia")),
+    v2023 = as.numeric(str_replace(v2023, ",", "."))
+  ) |>
+  select(indicatore, territorio, sesso, v2023) |>
   arrange(territorio, sesso)
 
-# ------- Save data 
+# ------- Save data
 # as RDS
 saveRDS(object = bes_redd_m_f, file = here(bes_data_out, "bes_redd_m_f.rds"))
 # as XLSX
-writexl::write_xlsx(x = bes_redd_m_f, path = here(bes_data_out, "bes_redd_m_f.xlsx"))
+writexl::write_xlsx(
+  x = bes_redd_m_f,
+  path = here(bes_data_out, "bes_redd_m_f.xlsx")
+)
 ```
 
 #### Maschi e Femmine 
@@ -2279,14 +2801,18 @@ bes_reddito_m_f_tbl <- bes_redd_m_f |>
     big.mark = ".",
     decimal.mark = ",",
     digits = 0,
-    na_str = "N.D.") |>
+    na_str = "N.D."
+  ) |>
   set_header_labels(
     indicatore = "Indicatore",
     territorio = "Territorio",
     sesso = "Sesso",
     v2023 = "2023"
   ) |>
-  add_header_lines(values = "Retribuzione media per sesso (€), 2023", top = TRUE) |>
+  add_header_lines(
+    values = "Retribuzione media per sesso (€), 2023",
+    top = TRUE
+  ) |>
   bold(part = "header", i = 1) |>
   fontsize(size = 14, part = "header", i = 1) |>
   align(align = "center", part = "header", i = 1) |>
@@ -2295,15 +2821,21 @@ bes_reddito_m_f_tbl <- bes_redd_m_f |>
   italic(part = "footer") |>
   color(color = grey_sc, part = "footer") |>
   # Merge col with same Indicatore
-  flextable::merge_v( j = "indicatore", part = "body") |> 
-  flextable::merge_v( j = "territorio", part = "body") 
+  flextable::merge_v(j = "indicatore", part = "body") |>
+  flextable::merge_v(j = "territorio", part = "body")
 
 bes_reddito_m_f_tbl
 
 # save as Rds
-saveRDS(object =  bes_reddito_m_f_tbl, file = here(bes_data_out, "bes_reddito_m_f_tbl.rds"))
+saveRDS(
+  object = bes_reddito_m_f_tbl,
+  file = here(bes_data_out, "bes_reddito_m_f_tbl.rds")
+)
 # save as word docx
-flextable::save_as_docx(bes_reddito_m_f_tbl, path = here(bes_data_out, "bes_reddito_m_f_tbl.docx"))
+flextable::save_as_docx(
+  bes_reddito_m_f_tbl,
+  path = here(bes_data_out, "bes_reddito_m_f_tbl.docx")
+)
 ```
 
 
@@ -2315,18 +2847,35 @@ Anche a Parma, che supera sistematicamente l'Italia nei tassi di occupazione, si
 ```{r}
 #| label: occup_data
 
-bes_lav <- all_bes |> 
+bes_lav <- all_bes |>
   filter(dominio == "Lavoro e conciliazione dei tempi di vita") |>
-  filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia")) 
+  filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia"))
 
 tabyl(bes_lav$indicatore)
 
 # Indicatori di occupazione
-bes_occup <- bes_lav |> 
-  dplyr::filter(indicatore%in% c("Tasso di occupazione (20-64 anni)",
-                                 "Tasso di occupazione giovanile (15-29 anni)")) |>
+bes_occup <- bes_lav |>
+  dplyr::filter(
+    indicatore %in%
+      c(
+        "Tasso di occupazione (20-64 anni)",
+        "Tasso di occupazione giovanile (15-29 anni)"
+      )
+  ) |>
   # Select only useful for plot
-  select( territorio, indicatore, sesso, unita_misura, v2018, v2019, v2020, v2021, v2022, v2023, v2024)  |> 
+  select(
+    territorio,
+    indicatore,
+    sesso,
+    unita_misura,
+    v2018,
+    v2019,
+    v2020,
+    v2021,
+    v2022,
+    v2023,
+    v2024
+  ) |>
   # transform to long format
   tidyr::pivot_longer(
     cols = starts_with("v"),
@@ -2336,14 +2885,17 @@ bes_occup <- bes_lav |>
   ) |>
   dplyr::mutate(anno = as.integer(anno)) |>
   dplyr::mutate(
-    indicatore = factor(indicatore, levels = c(
-      "Tasso di occupazione (20-64 anni)",
-      "Tasso di occupazione giovanile (15-29 anni)"
-    ))
+    indicatore = factor(
+      indicatore,
+      levels = c(
+        "Tasso di occupazione (20-64 anni)",
+        "Tasso di occupazione giovanile (15-29 anni)"
+      )
+    )
   )
 
 # save as RDS
-saveRDS(object =  bes_occup, file = here(bes_data_out, "bes_occup.rds"))
+saveRDS(object = bes_occup, file = here(bes_data_out, "bes_occup.rds"))
 # save as xlsx
 writexl::write_xlsx(x = bes_occup, path = here(bes_data_out, "bes_occup.xlsx"))
 
@@ -2354,11 +2906,16 @@ writexl::write_xlsx(x = bes_occup, path = here(bes_data_out, "bes_occup.xlsx"))
 #| output: true
 
 # Plot: faceted line with points ----
-bes_occup_plot <- bes_occup  |>
+bes_occup_plot <- bes_occup |>
   dplyr::filter(sesso == "Totale") |>
   mutate(valore_num = as.numeric(gsub(",", ".", valore))) |>
   tidyr::complete(anno, territorio, indicatore) |>
-  ggplot(aes(x = anno, y = valore_num, color = territorio, group = territorio)) +
+  ggplot(aes(
+    x = anno,
+    y = valore_num,
+    color = territorio,
+    group = territorio
+  )) +
   geom_line(linewidth = 1) +
   geom_point(size = 2.5) +
   scale_color_manual(
@@ -2377,7 +2934,7 @@ bes_occup_plot <- bes_occup  |>
     limits = c(20, 80),
     breaks = seq(20, 80, by = 10)
   ) +
-  facet_wrap(~ indicatore, ncol = 1) +
+  facet_wrap(~indicatore, ncol = 1) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -2385,7 +2942,11 @@ bes_occup_plot <- bes_occup  |>
     axis.text.x = element_text(angle = 0, hjust = 1, size = rel(0.85)),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
@@ -2410,8 +2971,8 @@ bes_occup_plot
 #| output: true
 
 # Plot: faceted dodged bars ----
-bes_occup_mf_plot <- bes_occup  |>
-  dplyr::filter(sesso  %in% c("Maschi", "Femmine")) |>
+bes_occup_mf_plot <- bes_occup |>
+  dplyr::filter(sesso %in% c("Maschi", "Femmine")) |>
   dplyr::filter(territorio %in% c("Parma", "Italia")) |>
   dplyr::filter(anno == 2024) |>
   mutate(valore_num = as.numeric(gsub(",", ".", valore))) |>
@@ -2423,12 +2984,15 @@ bes_occup_mf_plot <- bes_occup  |>
   scale_fill_manual(
     values = c(
       "Maschi" = maschi,
-      "Femmine" = femmine)) +
+      "Femmine" = femmine
+    )
+  ) +
   scale_y_continuous(
     labels = scales::label_percent(scale = 1, decimal.mark = ","),
     limits = c(0, 100),
-    breaks = seq(0, 100, by = 20)) +
-  facet_wrap(~ indicatore, ncol = 1) +
+    breaks = seq(0, 100, by = 20)
+  ) +
+  facet_wrap(~indicatore, ncol = 1) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -2436,18 +3000,24 @@ bes_occup_mf_plot <- bes_occup  |>
     axis.text.x = element_text(angle = 0, hjust = 1, size = rel(1)),
     axis.text.y = element_text(size = rel(0.95)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
     legend.position = "right",
-    panel.spacing = unit(1, "lines")) +
+    panel.spacing = unit(1, "lines")
+  ) +
   labs(
     title = "Tassi di occupazione per genere - Anno 2024",
     subtitle = "Confronto territoriale",
     caption = "Fonte: Istat, BES (Benessere Equo e Sostenibile), 2025",
     x = "",
-    y = "")
+    y = ""
+  )
 
 bes_occup_mf_plot
 ```
@@ -2466,10 +3036,27 @@ Il **tasso di mancata partecipazione al lavoro** misura il _Rapporto tra la somm
 
 # Indicatori di DISoccupazione
 bes_disoccup <- bes_lav |>
-  dplyr::filter(indicatore%in% c("Tasso di mancata partecipazione al lavoro",
-                                 "Tasso di mancata partecipazione al lavoro giovanile (15-29 anni)")) |>
+  dplyr::filter(
+    indicatore %in%
+      c(
+        "Tasso di mancata partecipazione al lavoro",
+        "Tasso di mancata partecipazione al lavoro giovanile (15-29 anni)"
+      )
+  ) |>
   # Select only useful for plot
-  select( territorio, indicatore, sesso, unita_misura, v2018, v2019, v2020, v2021, v2022, v2023, v2024)  |> 
+  select(
+    territorio,
+    indicatore,
+    sesso,
+    unita_misura,
+    v2018,
+    v2019,
+    v2020,
+    v2021,
+    v2022,
+    v2023,
+    v2024
+  ) |>
   # transform to long format
   tidyr::pivot_longer(
     cols = starts_with("v"),
@@ -2481,21 +3068,29 @@ bes_disoccup <- bes_lav |>
   # rewrite indicator names
   dplyr::mutate(
     indicatore = dplyr::case_when(
-      indicatore == "Tasso di mancata partecipazione al lavoro" ~ "% di disoccupati e inattivi 'disponibili' (15-74 anni)",
-      indicatore == "Tasso di mancata partecipazione al lavoro giovanile (15-29 anni)" ~ "% di disoccupati e inattivi 'disponibili' (15-29 anni)",
+      indicatore ==
+        "Tasso di mancata partecipazione al lavoro" ~ "% di disoccupati e inattivi 'disponibili' (15-74 anni)",
+      indicatore ==
+        "Tasso di mancata partecipazione al lavoro giovanile (15-29 anni)" ~ "% di disoccupati e inattivi 'disponibili' (15-29 anni)",
       TRUE ~ indicatore
     )
   ) |>
   dplyr::mutate(
-    indicatore = factor(indicatore, levels = c(
-      "% di disoccupati e inattivi 'disponibili' (15-74 anni)",
-      "% di disoccupati e inattivi 'disponibili' (15-29 anni)"
-    ))
+    indicatore = factor(
+      indicatore,
+      levels = c(
+        "% di disoccupati e inattivi 'disponibili' (15-74 anni)",
+        "% di disoccupati e inattivi 'disponibili' (15-29 anni)"
+      )
+    )
   )
-# save as RDS 
-saveRDS(object =  bes_disoccup, file = here(bes_data_out, "bes_disoccup.rds"))
+# save as RDS
+saveRDS(object = bes_disoccup, file = here(bes_data_out, "bes_disoccup.rds"))
 # save as xlsx
-writexl::write_xlsx(x = bes_disoccup, path = here(bes_data_out, "bes_disoccup.xlsx"))
+writexl::write_xlsx(
+  x = bes_disoccup,
+  path = here(bes_data_out, "bes_disoccup.xlsx")
+)
 ```
 
 
@@ -2508,7 +3103,12 @@ bes_disoccup_plot <- bes_disoccup |>
   dplyr::filter(sesso == "Totale") |>
   mutate(valore_num = as.numeric(gsub(",", ".", valore))) |>
   tidyr::complete(anno, territorio, indicatore) |>
-  ggplot(aes(x = anno, y = valore_num, color = territorio, group = territorio)) +
+  ggplot(aes(
+    x = anno,
+    y = valore_num,
+    color = territorio,
+    group = territorio
+  )) +
   geom_line(linewidth = 1) +
   geom_point(size = 2.5) +
   scale_color_manual(
@@ -2526,7 +3126,7 @@ bes_disoccup_plot <- bes_disoccup |>
     labels = scales::label_percent(scale = 1, decimal.mark = ","),
     expand = expansion(mult = c(0.05, 0.1))
   ) +
-  facet_wrap(~ indicatore, ncol = 1) +
+  facet_wrap(~indicatore, ncol = 1) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -2534,7 +3134,11 @@ bes_disoccup_plot <- bes_disoccup |>
     axis.text.x = element_text(angle = 0, hjust = 1, size = rel(0.85)),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
@@ -2558,8 +3162,8 @@ bes_disoccup_plot
 #| output: true
 
 # Plot: faceted dodged bars ----
-bes_disoccup_mf_plot <- bes_disoccup  |>
-  dplyr::filter(sesso  %in% c("Maschi", "Femmine")) |>
+bes_disoccup_mf_plot <- bes_disoccup |>
+  dplyr::filter(sesso %in% c("Maschi", "Femmine")) |>
   mutate(sesso = factor(sesso, levels = c("Maschi", "Femmine"))) |>
   dplyr::filter(territorio %in% c("Parma", "Italia")) |>
   mutate(territorio = factor(territorio, levels = c("Parma", "Italia"))) |>
@@ -2570,13 +3174,15 @@ bes_disoccup_mf_plot <- bes_disoccup  |>
   scale_fill_manual(
     values = c(
       "Maschi" = maschi,
-      "Femmine" = femmine)) +
+      "Femmine" = femmine
+    )
+  ) +
   scale_y_continuous(
     labels = scales::label_percent(scale = 1, decimal.mark = ","),
     breaks = scales::breaks_pretty(n = 5),
     expand = expansion(mult = c(0, 0.1))
   ) +
-  facet_wrap(~ indicatore, ncol = 1) +
+  facet_wrap(~indicatore, ncol = 1) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -2584,7 +3190,11 @@ bes_disoccup_mf_plot <- bes_disoccup  |>
     axis.text.x = element_text(angle = 0, hjust = 1, size = rel(1)),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.2), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.2),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
@@ -2592,7 +3202,7 @@ bes_disoccup_mf_plot <- bes_disoccup  |>
     panel.spacing = unit(1, "lines")
   ) +
   labs(
-    title =  "Mancata partecipazione al lavoro per genere - Anno 2024" ,
+    title = "Mancata partecipazione al lavoro per genere - Anno 2024",
     subtitle = "Confronto territoriale",
     caption = "Fonte: Istat, BES (Benessere Equo e Sostenibile), 2025",
     x = "",
@@ -2612,38 +3222,38 @@ La provincia di Parma, al 2024, presenta un profilo di istruzione in linea o sup
 
 # ricostruito ma disponibile anche in "data_in/bes_2003_2023/BesT_Emilia-Romagna_2025.xlsx"
 bes_dip_lau_23 <- tribble(
-  ~provincia,          ~diplomati_25_64, ~laureati_25_39, ~passaggio_uni, ~neet,
-  "Piacenza",          65.3 ,             25.7,            58.6,           11.2,
-  "Parma",             69.5 ,             29.3,            61.8,            8.4,
-  "Reggio Emilia",     68.6 ,             25.6,            52.8,           10.4,
-  "Modena",            66.6 ,             30.6,            52.2,            9.5,
-  "Bologna",           77.5 ,             45.2,            56.3,           11.3,
-  "Ferrara",           65.0 ,             30.2,            55.9,           12.5,
-  "Ravenna",           67.4 ,             33.7,            48.3,           12.8,
-  "Forlì-Cesena",      68.9 ,             31.8,            54.3,           11.9,
-  "Rimini",            69.5 ,             34.5,            49.9,           13.1,
-  "Emilia-Romagna",    69.9 ,             33.7,            54.5,           11.0,
-  "Nord-est",          69.7 ,             32.1,            52.2,           10.6,
-  "Italia",            65.5 ,             30.0,            51.7,           16.1
+  ~provincia       , ~diplomati_25_64 , ~laureati_25_39 , ~passaggio_uni , ~neet ,
+  "Piacenza"       , 65.3             , 25.7            , 58.6           , 11.2  ,
+  "Parma"          , 69.5             , 29.3            , 61.8           ,  8.4  ,
+  "Reggio Emilia"  , 68.6             , 25.6            , 52.8           , 10.4  ,
+  "Modena"         , 66.6             , 30.6            , 52.2           ,  9.5  ,
+  "Bologna"        , 77.5             , 45.2            , 56.3           , 11.3  ,
+  "Ferrara"        , 65.0             , 30.2            , 55.9           , 12.5  ,
+  "Ravenna"        , 67.4             , 33.7            , 48.3           , 12.8  ,
+  "Forlì-Cesena"   , 68.9             , 31.8            , 54.3           , 11.9  ,
+  "Rimini"         , 69.5             , 34.5            , 49.9           , 13.1  ,
+  "Emilia-Romagna" , 69.9             , 33.7            , 54.5           , 11.0  ,
+  "Nord-est"       , 69.7             , 32.1            , 52.2           , 10.6  ,
+  "Italia"         , 65.5             , 30.0            , 51.7           , 16.1
 )
 
 #quello che uso
 bes_dip_lau_24 <- tribble(
-  ~provincia,    ~diplomati_25_64, ~laureati_25_39, ~passaggio_uni, ~neet,
+  ~provincia       , ~diplomati_25_64 , ~laureati_25_39 , ~passaggio_uni , ~neet ,
 
-"Piacenza",             68.3,       32.3,           58.6,          10.5,                   
-"Parma",                69.9,       30.8,           61.8,          10.9,      
-"Reggio Emilia",        71.8,       28.9,           52.8,          9.1,      
-"Modena",               68.2,       35.8,           52.2,          9.0,      
-"Bologna",              80.1,       48.8,           56.3,          9.1,      
-"Ferrara",              65.9,       30.5,           55.9,          9.1,      
-"Ravenna",              70.2,       40.3,           48.3,          11.0,      
-"Forlì-Cesena",         65.3,       27.2,           54.3,          10.9,      
-"Rimini",               72.4,       35.7,           49.9,          7.4,      
-"Emilia-Romagna",       71.6,       36.4,           54.5,          9.6,      
-"Nord-est",             71.3,       34.7,           52.2,          9.2,      
-"Italia",               66.7,       30.9,           51.7,          15.2
-)           
+  "Piacenza"       , 68.3             , 32.3            , 58.6           , 10.5  ,
+  "Parma"          , 69.9             , 30.8            , 61.8           , 10.9  ,
+  "Reggio Emilia"  , 71.8             , 28.9            , 52.8           ,  9.1  ,
+  "Modena"         , 68.2             , 35.8            , 52.2           ,  9.0  ,
+  "Bologna"        , 80.1             , 48.8            , 56.3           ,  9.1  ,
+  "Ferrara"        , 65.9             , 30.5            , 55.9           ,  9.1  ,
+  "Ravenna"        , 70.2             , 40.3            , 48.3           , 11.0  ,
+  "Forlì-Cesena"   , 65.3             , 27.2            , 54.3           , 10.9  ,
+  "Rimini"         , 72.4             , 35.7            , 49.9           ,  7.4  ,
+  "Emilia-Romagna" , 71.6             , 36.4            , 54.5           ,  9.6  ,
+  "Nord-est"       , 71.3             , 34.7            , 52.2           ,  9.2  ,
+  "Italia"         , 66.7             , 30.9            , 51.7           , 15.2
+)
 
 # make long
 bes_dip_lau_24 <- bes_dip_lau_24 |>
@@ -2656,7 +3266,12 @@ bes_dip_lau_24 <- bes_dip_lau_24 |>
     indicatore = factor(
       indicatore,
       levels = c("diplomati_25_64", "laureati_25_39", "passaggio_uni", "neet"),
-      labels = c("Diplomati (25-64 anni)", "Laureati (25-39 anni)", "Passaggio alla università", "NEET (15-29 anni)")
+      labels = c(
+        "Diplomati (25-64 anni)",
+        "Laureati (25-39 anni)",
+        "Passaggio alla università",
+        "NEET (15-29 anni)"
+      )
     )
   )
 
@@ -2671,22 +3286,39 @@ bes_dip_lau_24 <- bes_dip_lau_24 |>
 bes_dip_lau_plot <- bes_dip_lau_24 |>
   filter(provincia %in% c("Parma", "Emilia-Romagna", "Italia")) |>
   filter(indicatore != "NEET (15-29 anni)") |>
-  mutate(territorio = factor(provincia, levels = c("Parma", "Emilia-Romagna", "Italia"))) |>
-  mutate(indicatore = recode(indicatore,
-    "Passaggio alla università" = "Passaggio alla università (*)")) |>
+  mutate(
+    territorio = factor(
+      provincia,
+      levels = c("Parma", "Emilia-Romagna", "Italia")
+    )
+  ) |>
+  mutate(
+    indicatore = recode(
+      indicatore,
+      "Passaggio alla università" = "Passaggio alla università (*)"
+    )
+  ) |>
   ggplot(aes(x = territorio, y = valore, fill = territorio)) +
-  geom_col(position = position_dodge2(width = 0.9, preserve = "single", padding = 0),
-           width = 0.7,
-           color = "white",
-           linewidth = 0.5) +
-  facet_wrap(~ indicatore, nrow = 2, scales = "free_x") +
+  geom_col(
+    position = position_dodge2(width = 0.9, preserve = "single", padding = 0),
+    width = 0.7,
+    color = "white",
+    linewidth = 0.5
+  ) +
+  facet_wrap(~indicatore, nrow = 2, scales = "free_x") +
   scale_fill_manual(
     values = c(
       "Parma" = ylw_lg,
       "Emilia-Romagna" = grn_lg,
-      "Italia" = blu_lg)) +
+      "Italia" = blu_lg
+    )
+  ) +
   scale_y_continuous(
-    labels = scales::label_number(big.mark = ".", decimal.mark = ",", suffix = "%"),
+    labels = scales::label_number(
+      big.mark = ".",
+      decimal.mark = ",",
+      suffix = "%"
+    ),
     breaks = scales::breaks_extended(n = 6),
     limits = c(0, NA),
     expand = expansion(mult = c(0, 0.05))
@@ -2698,25 +3330,37 @@ bes_dip_lau_plot <- bes_dip_lau_24 |>
     axis.text.x = element_text(size = rel(0.9)),
     axis.text.y = element_text(size = rel(0.9)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     plot.caption = element_text(size = rel(0.75), hjust = 0),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
     legend.position = "bottom",
-    panel.spacing = unit(1, "lines")) +
+    panel.spacing = unit(1, "lines")
+  ) +
   labs(
     title = "Diplomati e laureati in Emilia-Romagna al 2024",
     subtitle = "Confronto territoriale",
     caption = "Fonte: Istat, BesT (Bes dei Territori), 2025\n(*) Nota: I dati sul Passaggio all'università dei diplomati sono riferiti al 2022",
     x = "",
-    y = "")
+    y = ""
+  )
 
 bes_dip_lau_plot
-   
+
 # save data as RDS and XLSX
-saveRDS(object =  bes_dip_lau_24, file = here("data_out", "bes_2003_2023","bes_dip_lau_24.rds"))
-writexl::write_xlsx(x = bes_dip_lau_24, path = here("data_out", "bes_2003_2023","bes_dip_lau_24.xlsx"))
+saveRDS(
+  object = bes_dip_lau_24,
+  file = here("data_out", "bes_2003_2023", "bes_dip_lau_24.rds")
+)
+writexl::write_xlsx(
+  x = bes_dip_lau_24,
+  path = here("data_out", "bes_2003_2023", "bes_dip_lau_24.xlsx")
+)
 ```
 
 ### Formazione e NEET
@@ -2730,31 +3374,57 @@ Resta piuttosto alta la partecipazione a formazione continua sul territorio -- s
 
 bes_neet <- all_bes |>
   dplyr::filter(dominio == "Istruzione e formazione") |>
-  dplyr::filter (territorio %in% c("Parma", "Emilia-Romagna" , "Italia" )) |> 
-  mutate(territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna" , "Italia")))    |>
-  filter(indicatore %in% c("Giovani che non lavorano e non studiano (NEET)",
-                           "Laureati e altri titoli terziari (25-39 anni)"#,
-                           # "Persone con almeno il diploma (25-64 anni)"
-  ))  |> 
+  dplyr::filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia")) |>
+  mutate(
+    territorio = factor(
+      territorio,
+      levels = c("Parma", "Emilia-Romagna", "Italia")
+    )
+  ) |>
+  filter(
+    indicatore %in%
+      c(
+        "Giovani che non lavorano e non studiano (NEET)",
+        "Laureati e altri titoli terziari (25-39 anni)" #,
+        # "Persone con almeno il diploma (25-64 anni)"
+      )
+  ) |>
   mutate(
     indicatore = dplyr::case_when(
-      indicatore == "Giovani che non lavorano e non studiano (NEET)" ~ "NEET (15-29 anni)",
-      indicatore == "Laureati e altri titoli terziari (25-39 anni)" ~ "Laureati e altri titoli terziari (25-39 anni)",
+      indicatore ==
+        "Giovani che non lavorano e non studiano (NEET)" ~ "NEET (15-29 anni)",
+      indicatore ==
+        "Laureati e altri titoli terziari (25-39 anni)" ~ "Laureati e altri titoli terziari (25-39 anni)",
       TRUE ~ indicatore
     )
   ) |>
   dplyr::mutate(
-    indicatore = factor(indicatore, levels = c(
-      "NEET (15-29 anni)",
-      "Laureati e altri titoli terziari (25-39 anni)"#,
-      # "Persone con almeno il diploma (25-64 anni)"
-    ))
+    indicatore = factor(
+      indicatore,
+      levels = c(
+        "NEET (15-29 anni)",
+        "Laureati e altri titoli terziari (25-39 anni)" #,
+        # "Persone con almeno il diploma (25-64 anni)"
+      )
+    )
   ) |>
   # Select only useful for plot
-  select( indicatore, territorio, sesso, unita_misura, v2018, v2019, v2020, v2021, v2022, v2023, v2024) 
+  select(
+    indicatore,
+    territorio,
+    sesso,
+    unita_misura,
+    v2018,
+    v2019,
+    v2020,
+    v2021,
+    v2022,
+    v2023,
+    v2024
+  )
 
 # save as RDS
-saveRDS(object =  bes_neet, file = here(bes_data_out, "bes_neet.rds"))
+saveRDS(object = bes_neet, file = here(bes_data_out, "bes_neet.rds"))
 # save as xlsx
 writexl::write_xlsx(x = bes_neet, path = here(bes_data_out, "bes_neet.xlsx"))
 ```
@@ -2764,33 +3434,42 @@ writexl::write_xlsx(x = bes_neet, path = here(bes_data_out, "bes_neet.xlsx"))
 #| output: true
 
 # Plot: line with dots  ----
-bes_neet_plot <- bes_neet  |>
+bes_neet_plot <- bes_neet |>
   tidyr::pivot_longer(
     cols = starts_with("v"),
     names_to = "anno",
     values_to = "valore",
-    names_prefix = "v") |>
+    names_prefix = "v"
+  ) |>
   mutate(anno = as.integer(anno)) |>
   mutate(valore_num = as.numeric(gsub(",", ".", valore))) |>
   tidyr::complete(anno, territorio, indicatore) |>
-  ggplot(aes(x = anno, y = valore_num, color = territorio, group = territorio)) +
+  ggplot(aes(
+    x = anno,
+    y = valore_num,
+    color = territorio,
+    group = territorio
+  )) +
   geom_line(linewidth = 1) +
   geom_point(size = 2.5) +
   scale_color_manual(
     values = c(
       "Parma" = ylw_lg,
       "Emilia-Romagna" = grn_lg,
-      "Italia" = blu_lg)) +
+      "Italia" = blu_lg
+    )
+  ) +
   scale_x_continuous(
     breaks = seq(2004, 2025, by = 1),
-    expand = expansion(mult = c(0.02, 0.02))) +
+    expand = expansion(mult = c(0.02, 0.02))
+  ) +
   scale_y_continuous(
     labels = scales::label_percent(scale = 1, decimal.mark = ","),
     limits = c(NA, NA),
     breaks = scales::breaks_pretty(n = 5),
     expand = expansion(mult = c(0.2, 0.2))
   ) +
-  facet_wrap(~ indicatore, ncol = 1) +
+  facet_wrap(~indicatore, ncol = 1) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -2798,7 +3477,11 @@ bes_neet_plot <- bes_neet  |>
     axis.text.x = element_text(angle = 0, hjust = 1, size = rel(0.85)),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
@@ -2820,18 +3503,38 @@ bes_neet_plot
 ```{r}
 #| label: bes_formaz_data
 
-bes_formaz <-  all_bes |>
+bes_formaz <- all_bes |>
   dplyr::filter(dominio == "Istruzione e formazione") |>
-  dplyr::filter (territorio %in% c("Parma", "Emilia-Romagna" , "Italia" )) |> 
-  mutate(territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna" , "Italia")))    |>
-  filter(indicatore %in% c("Partecipazione alla formazione continua" ))  |> 
+  dplyr::filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia")) |>
+  mutate(
+    territorio = factor(
+      territorio,
+      levels = c("Parma", "Emilia-Romagna", "Italia")
+    )
+  ) |>
+  filter(indicatore %in% c("Partecipazione alla formazione continua")) |>
   # Select only useful for plot
-  select( indicatore, territorio, sesso, unita_misura, v2018, v2019, v2020, v2021, v2022, v2023, v2024) 
+  select(
+    indicatore,
+    territorio,
+    sesso,
+    unita_misura,
+    v2018,
+    v2019,
+    v2020,
+    v2021,
+    v2022,
+    v2023,
+    v2024
+  )
 
 # save as RDS
-saveRDS(object =   bes_formaz, file = here(bes_data_out, "bes_formaz.rds"))
+saveRDS(object = bes_formaz, file = here(bes_data_out, "bes_formaz.rds"))
 # save as xlsx
-writexl::write_xlsx(x = bes_formaz, path = here(bes_data_out, "bes_formaz.xlsx"))
+writexl::write_xlsx(
+  x = bes_formaz,
+  path = here(bes_data_out, "bes_formaz.xlsx")
+)
 ```
 
 ```{r}
@@ -2839,7 +3542,7 @@ writexl::write_xlsx(x = bes_formaz, path = here(bes_data_out, "bes_formaz.xlsx")
 #| output: true
 
 # Plot:  like bes_neet_plot  ----
-bes_formaz_plot <- bes_formaz  |>
+bes_formaz_plot <- bes_formaz |>
   tidyr::pivot_longer(
     cols = starts_with("v"),
     names_to = "anno",
@@ -2848,7 +3551,12 @@ bes_formaz_plot <- bes_formaz  |>
   ) |>
   mutate(anno = as.integer(anno)) |>
   mutate(valore_num = as.numeric(gsub(",", ".", valore))) |>
-  ggplot(aes(x = anno, y = valore_num, color = territorio, group = territorio)) +
+  ggplot(aes(
+    x = anno,
+    y = valore_num,
+    color = territorio,
+    group = territorio
+  )) +
   geom_line(linewidth = 1) +
   geom_point(size = 2.5) +
   scale_color_manual(
@@ -2874,7 +3582,11 @@ bes_formaz_plot <- bes_formaz  |>
     axis.text.x = element_text(angle = 0, hjust = 1, size = rel(0.85)),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
     legend.position = "bottom"
@@ -2900,14 +3612,19 @@ bes_formaz_plot
 ```{r}
 #| label: bes_serv_san_data
 
-# NON uso xche incompleti e fuori scopo 
+# NON uso xche incompleti e fuori scopo
 bes_serv_san <- all_bes |>
-  dplyr::filter(indicatore%in% c("Emigrazione ospedaliera in altra regione",
-                                 "Medici specialisti",
-                                 "Posti letto per specialità ad elevata assistenza")) |>
-  dplyr::filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia")) 
+  dplyr::filter(
+    indicatore %in%
+      c(
+        "Emigrazione ospedaliera in altra regione",
+        "Medici specialisti",
+        "Posti letto per specialità ad elevata assistenza"
+      )
+  ) |>
+  dplyr::filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia"))
 
-bes_serv_san |> 
+bes_serv_san |>
   flextable()
 ```
 
@@ -2919,49 +3636,76 @@ bes_serv_san |>
 ```{r}
 #| label: bes_servizi_data
 
-bes_servizi <-  all_bes |>
-  dplyr::filter(dominio%in% c("Qualità dei servizi", "Ambiente", 
-                              "Paesaggio e patrimonio culturale",
-                              "Innovazione, ricerca e creatività")) |> 
-  dplyr::filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia")) |> 
-  mutate(territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna", "Italia"))) |>
-  select(-codice, -sesso,-dominio, -nota, -(starts_with("w"))) |> 
-  filter(indicatore %in% c(
-    # Qualità dei servizi ---
-    "Copertura della rete fissa di accesso ultra veloce a internet",
-    "Comuni con servizi per le famiglie interamente online",
-    "Raccolta differenziata dei rifiuti urbani",
-    "Irregolarità del servizio elettrico",
-    "Posti-km offerti dal Tpl",
-    "Disponibilità di verde urbano",
-    "Densità e rilevanza del patrimonio museale",
-    # Inquinamento --- 
-    "Rifiuti urbani prodotti",
-    "Dispersione da rete idrica comunale",
-    "Impermeabilizzazione del suolo da copertura artificiale",
-    "Concentrazione media annua di PM10",
-    "Concentrazione media annua di PM2.5",
-    "Energia elettrica da fonti rinnovabili")) |> 
-  
-  mutate( indicatore = factor(indicatore, levels = c(
-    # Qualità dei servizi ---
-    "Copertura della rete fissa di accesso ultra veloce a internet",
-    "Comuni con servizi per le famiglie interamente online",
-    "Raccolta differenziata dei rifiuti urbani",
-    "Irregolarità del servizio elettrico",
-    "Posti-km offerti dal Tpl",
-    "Disponibilità di verde urbano",
-    "Densità e rilevanza del patrimonio museale",
-    # Inquinamento --- 
-    "Rifiuti urbani prodotti",
-    "Dispersione da rete idrica comunale",
-    "Impermeabilizzazione del suolo da copertura artificiale",
-    "Concentrazione media annua di PM10",
-    "Concentrazione media annua di PM2.5",
-    "Energia elettrica da fonti rinnovabili")))  |> 
+bes_servizi <- all_bes |>
+  dplyr::filter(
+    dominio %in%
+      c(
+        "Qualità dei servizi",
+        "Ambiente",
+        "Paesaggio e patrimonio culturale",
+        "Innovazione, ricerca e creatività"
+      )
+  ) |>
+  dplyr::filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia")) |>
+  mutate(
+    territorio = factor(
+      territorio,
+      levels = c("Parma", "Emilia-Romagna", "Italia")
+    )
+  ) |>
+  select(-codice, -sesso, -dominio, -nota, -(starts_with("w"))) |>
+  filter(
+    indicatore %in%
+      c(
+        # Qualità dei servizi ---
+        "Copertura della rete fissa di accesso ultra veloce a internet",
+        "Comuni con servizi per le famiglie interamente online",
+        "Raccolta differenziata dei rifiuti urbani",
+        "Irregolarità del servizio elettrico",
+        "Posti-km offerti dal Tpl",
+        "Disponibilità di verde urbano",
+        "Densità e rilevanza del patrimonio museale",
+        # Inquinamento ---
+        "Rifiuti urbani prodotti",
+        "Dispersione da rete idrica comunale",
+        "Impermeabilizzazione del suolo da copertura artificiale",
+        "Concentrazione media annua di PM10",
+        "Concentrazione media annua di PM2.5",
+        "Energia elettrica da fonti rinnovabili"
+      )
+  ) |>
+
+  mutate(
+    indicatore = factor(
+      indicatore,
+      levels = c(
+        # Qualità dei servizi ---
+        "Copertura della rete fissa di accesso ultra veloce a internet",
+        "Comuni con servizi per le famiglie interamente online",
+        "Raccolta differenziata dei rifiuti urbani",
+        "Irregolarità del servizio elettrico",
+        "Posti-km offerti dal Tpl",
+        "Disponibilità di verde urbano",
+        "Densità e rilevanza del patrimonio museale",
+        # Inquinamento ---
+        "Rifiuti urbani prodotti",
+        "Dispersione da rete idrica comunale",
+        "Impermeabilizzazione del suolo da copertura artificiale",
+        "Concentrazione media annua di PM10",
+        "Concentrazione media annua di PM2.5",
+        "Energia elettrica da fonti rinnovabili"
+      )
+    )
+  ) |>
   # in columns starting with v, and where unita_misura is "Valori percentuali" & not NA , add the % sign to the values
-  mutate(across(starts_with("v"), ~ ifelse(
-    unita_misura == "Valori percentuali" & !is.na(.), paste0(., "%"), .)))
+  mutate(across(
+    starts_with("v"),
+    ~ ifelse(
+      unita_misura == "Valori percentuali" & !is.na(.),
+      paste0(., "%"),
+      .
+    )
+  ))
 
 tabyl(bes_servizi$indicatore)
 ```
@@ -2976,25 +3720,36 @@ Nella qualità dei servizi sul territorio, si evidenziano performance migliori a
 
 bes_servizi_tbl <- bes_servizi |>
   select(-fonte, -(v2004:v2017), -v2024) |>
-  filter(indicatore %in%  c(
-    # Qualità dei servizi ---
-    "Copertura della rete fissa di accesso ultra veloce a internet",
-    "Comuni con servizi per le famiglie interamente online",
-    "Raccolta differenziata dei rifiuti urbani",
-    "Irregolarità del servizio elettrico",
-    "Posti-km offerti dal Tpl",
-    "Disponibilità di verde urbano"
-    # "Densità e rilevanza del patrimonio museale" # vecchio e ripreso dopo
-    )) |> 
-  relocate (unita_misura, .after = indicatore) |>
-  arrange( indicatore, territorio) |>
-  flextable() |> 
-  flextable::merge_v( j = "indicatore", target = c("indicatore", "unita_misura"), part = "body") |> 
-  bg (i = ~ territorio == "Parma", j = 3:9, bg = ylw_lg )  |> 
+  filter(
+    indicatore %in%
+      c(
+        # Qualità dei servizi ---
+        "Copertura della rete fissa di accesso ultra veloce a internet",
+        "Comuni con servizi per le famiglie interamente online",
+        "Raccolta differenziata dei rifiuti urbani",
+        "Irregolarità del servizio elettrico",
+        "Posti-km offerti dal Tpl",
+        "Disponibilità di verde urbano"
+        # "Densità e rilevanza del patrimonio museale" # vecchio e ripreso dopo
+      )
+  ) |>
+  relocate(unita_misura, .after = indicatore) |>
+  arrange(indicatore, territorio) |>
+  flextable() |>
+  flextable::merge_v(
+    j = "indicatore",
+    target = c("indicatore", "unita_misura"),
+    part = "body"
+  ) |>
+  bg(i = ~ territorio == "Parma", j = 3:9, bg = ylw_lg) |>
   # ALign years column to the right
-  flextable::align(j = c("v2018", "v2019", "v2020", "v2021", "v2022", "v2023"), align = "right", part = "body") |>
+  flextable::align(
+    j = c("v2018", "v2019", "v2020", "v2021", "v2022", "v2023"),
+    align = "right",
+    part = "body"
+  ) |>
   # Headers
-  set_header_labels(  
+  set_header_labels(
     unita_misura = "unità di misura",
     v2018 = "2018",
     v2019 = "2019",
@@ -3003,21 +3758,30 @@ bes_servizi_tbl <- bes_servizi |>
     v2022 = "2022",
     v2023 = "2023"
   ) |>
-  add_header_lines(values = "Qualità dei servizi (confronto territori) ", top = TRUE) |>
+  add_header_lines(
+    values = "Qualità dei servizi (confronto territori) ",
+    top = TRUE
+  ) |>
   bold(part = "header", i = 1) |>
   fontsize(size = 14, part = "header", i = 1) |>
   align(align = "center", part = "header", i = 1) |>
   add_footer_lines("Fonte: Istat, BES (Benessere Equo e Sostenibile), 2025") |>
   fontsize(size = 9, part = "footer") |>
   italic(part = "footer") |>
-  color(color = grey_sc, part = "footer") 
+  color(color = grey_sc, part = "footer")
 
 bes_servizi_tbl
 
 # save as RDS
-saveRDS(object =  bes_servizi, file = here("data_out","bes_2003_2023", "bes_servizi_tbl.rds"))
+saveRDS(
+  object = bes_servizi,
+  file = here("data_out", "bes_2003_2023", "bes_servizi_tbl.rds")
+)
 # save as docx
-flextable::save_as_docx(bes_servizi_tbl, path = here("data_out","bes_2003_2023", "bes_servizi_tbl.docx"))
+flextable::save_as_docx(
+  bes_servizi_tbl,
+  path = here("data_out", "bes_2003_2023", "bes_servizi_tbl.docx")
+)
 ```
 
 ### [Tbl] Ambiente 
@@ -3030,23 +3794,35 @@ Nell'ambito ambientale, si evidenzia una certa disomogeneità tra Parma e l'Emil
 
 bes_ambiente_tbl <- bes_servizi |>
   select(-fonte, -(v2004:v2017), -v2024) |>
-  filter(indicatore %in%  c(
-    "Rifiuti urbani prodotti",
-    # Inquinamento --- 
-    "Dispersione da rete idrica comunale",
-    "Impermeabilizzazione del suolo da copertura artificiale",
-    "Concentrazione media annua di PM10",
-    "Concentrazione media annua di PM2.5",
-    "Energia elettrica da fonti rinnovabili" ))|> 
-  relocate (unita_misura, .after = indicatore) |>
-  arrange( indicatore, territorio) |> 
-  flextable() |> 
-  flextable::merge_v( j = "indicatore", target = c("indicatore", "unita_misura"), part = "body") |> 
-  bg (i = ~ territorio == "Parma", j = 3:9, bg = ylw_lg )  |> 
+  filter(
+    indicatore %in%
+      c(
+        "Rifiuti urbani prodotti",
+        # Inquinamento ---
+        "Dispersione da rete idrica comunale",
+        "Impermeabilizzazione del suolo da copertura artificiale",
+        "Concentrazione media annua di PM10",
+        "Concentrazione media annua di PM2.5",
+        "Energia elettrica da fonti rinnovabili"
+      )
+  ) |>
+  relocate(unita_misura, .after = indicatore) |>
+  arrange(indicatore, territorio) |>
+  flextable() |>
+  flextable::merge_v(
+    j = "indicatore",
+    target = c("indicatore", "unita_misura"),
+    part = "body"
+  ) |>
+  bg(i = ~ territorio == "Parma", j = 3:9, bg = ylw_lg) |>
   # ALign years column to the right
-  flextable::align(j = c("v2018", "v2019", "v2020", "v2021", "v2022", "v2023"), align = "right", part = "body") |>
+  flextable::align(
+    j = c("v2018", "v2019", "v2020", "v2021", "v2022", "v2023"),
+    align = "right",
+    part = "body"
+  ) |>
   # Headers
-  set_header_labels(  
+  set_header_labels(
     unita_misura = "unità di misura",
     v2018 = "2018",
     v2019 = "2019",
@@ -3055,27 +3831,36 @@ bes_ambiente_tbl <- bes_servizi |>
     v2022 = "2022",
     v2023 = "2023"
   ) |>
-  add_header_lines(values = "Qualità dei servizi (confronto territori) ", top = TRUE) |>
+  add_header_lines(
+    values = "Qualità dei servizi (confronto territori) ",
+    top = TRUE
+  ) |>
   bold(part = "header", i = 1) |>
   fontsize(size = 14, part = "header", i = 1) |>
   align(align = "center", part = "header", i = 1) |>
   add_footer_lines("Fonte: Istat, BES (Benessere Equo e Sostenibile), 2025") |>
   fontsize(size = 9, part = "footer") |>
   italic(part = "footer") |>
-  color(color = grey_sc, part = "footer") 
+  color(color = grey_sc, part = "footer")
 
 bes_ambiente_tbl
 
 # save as RDS
-saveRDS(object =  bes_servizi, file = here("data_out","bes_2003_2023", "bes_ambiente_tbl.rds"))
+saveRDS(
+  object = bes_servizi,
+  file = here("data_out", "bes_2003_2023", "bes_ambiente_tbl.rds")
+)
 # save as docx
-flextable::save_as_docx(bes_ambiente_tbl, path = here("data_out","bes_2003_2023", "bes_ambiente_tbl.docx"))
+flextable::save_as_docx(
+  bes_ambiente_tbl,
+  path = here("data_out", "bes_2003_2023", "bes_ambiente_tbl.docx")
+)
 ```
 
 \newpage
 
 
-## Musei, monumenti e biblioteche 
+# Musei, monumenti e biblioteche 
 
 <!-- MUSEI https://bbcc.regione.emilia-romagna.it/pater/search.do?type=m&option(OGTD)=strict&value(OGTD)=Musei&fakesearch=Musei -->
 
@@ -3084,76 +3869,70 @@ flextable::save_as_docx(bes_ambiente_tbl, path = here("data_out","bes_2003_2023"
 ```{r}
 #| label: musei_conc_data
 
- 
-
 musei_conc <- tribble(
-  ~territorio,    ~indicatore,          ~categoria,                                  ~valore, ~unita, ~fonte_dato,                            ~fonte_anno, ~note,
+  ~territorio       , ~indicatore , ~categoria                  , ~valore , ~unita  , ~fonte_dato                            , ~fonte_anno , ~note             ,
 
- 
- # Densità
-  "Parma-Provincia",   "densita",            "musei ogni 100 km²",                          1.9,   "ratio","Istat, Musei, gallerie e biblioteche", 2022,        NA_character_,
-  "Italia",       "densita",            "musei ogni 100 km²",                          1.5,   "ratio","Istat, Musei, gallerie e biblioteche", 2022,        "media nazionale",
-  "Parma-Provincia",   "densita",            "musei per 10.000 abitanti",                   2.7,   "ratio","Istat, Musei, gallerie e biblioteche", 2022,        NA_character_,
-  "Italia",       "densita",            "musei per 10.000 abitanti",                   0.7,   "ratio","Istat, Musei, gallerie e biblioteche", 2022,        "media nazionale"
- 
+  # Densità
+  "Parma-Provincia" , "densita"   , "musei ogni 100 km²"        , 1.9     , "ratio" , "Istat, Musei, gallerie e biblioteche" ,        2022 , NA_character_     ,
+  "Italia"          , "densita"   , "musei ogni 100 km²"        , 1.5     , "ratio" , "Istat, Musei, gallerie e biblioteche" ,        2022 , "media nazionale" ,
+  "Parma-Provincia" , "densita"   , "musei per 10.000 abitanti" , 2.7     , "ratio" , "Istat, Musei, gallerie e biblioteche" ,        2022 , NA_character_     ,
+  "Italia"          , "densita"   , "musei per 10.000 abitanti" , 0.7     , "ratio" , "Istat, Musei, gallerie e biblioteche" ,        2022 , "media nazionale"
 )
 ```
-
 
 ```{r}
 #| label: musei_n_data
 
-musei_n <- tribble (
-~anno,  ~territorio,     ~categoria,          ~tipo,                            ~numero,   ~perc_pubblica, ~n_per_100km2, ~op_consultate, ~personale,  ~note,
-# Parma comune
-2022,  "Parma (capoluogo)",   "tipo_istituzione",   "istituzioni museali (in generale)",  19,             NA,            NA,    NA_integer_, NA_integer_,   NA_character_,
-2022,  "Parma (capoluogo)",   "tipo_istituzione",   "museo, galleria e/o raccolta",       16,             NA,            NA,    NA_integer_, NA_integer_,   NA_character_,
-2022,  "Parma (capoluogo)",   "tipo_istituzione",   "monumento o complesso monumentale",  3,              NA,            NA,    NA_integer_, NA_integer_,   NA_character_,
-2022,  "Parma (capoluogo)",  "tipo_istituzione",   "area /parco archeologico",            NA_integer_,    NA,           NA,    NA_integer_, NA_integer_,   NA_character_,
-2022,  "Parma (capoluogo)",   "tipo_istituzione",   "biblioteche",                        NA_integer_,    NA,            NA,    NA_integer_, NA_integer_,   NA_character_,  
-               
-# Parma provincia               
-2022,  "Parma",     "tipo_istituzione",   "istituzioni museali (in generale)",  65,             49,            1.9,   NA_integer_, NA_integer_,   NA_character_,
-2022,  "Parma",     "tipo_istituzione",   "museo, galleria e/o raccolta",       NA_integer_,    NA,            NA,    NA_integer_, NA_integer_,   NA_character_,
-2022,  "Parma",     "tipo_istituzione",   "monumento o complesso monumentale",  NA_integer_,    NA,            NA,    NA_integer_, NA_integer_,   NA_character_,
-2022,  "Parma",     "tipo_istituzione",   "area /parco archeologico",           NA_integer_,    NA,           NA,    NA_integer_, NA_integer_,   NA_character_,
-2022,  "Parma",     "tipo_istituzione",   "biblioteche",                        NA_integer_,    NA,            NA,    NA_integer_, NA_integer_,   NA_character_,
+musei_n <- tribble(
+  ~anno , ~territorio         , ~categoria         , ~tipo                               , ~numero     , ~perc_pubblica , ~n_per_100km2 , ~op_consultate , ~personale  , ~note                                                                                ,
+   # Parma comune
+  2022 , "Parma (capoluogo)" , "tipo_istituzione" , "istituzioni museali (in generale)" ,          19 , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2022 , "Parma (capoluogo)" , "tipo_istituzione" , "museo, galleria e/o raccolta"      ,          16 , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2022 , "Parma (capoluogo)" , "tipo_istituzione" , "monumento o complesso monumentale" ,           3 , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2022 , "Parma (capoluogo)" , "tipo_istituzione" , "area /parco archeologico"          , NA_integer_ , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2022 , "Parma (capoluogo)" , "tipo_istituzione" , "biblioteche"                       , NA_integer_ , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
 
-# REgione                
-2022,  "Emilia-Romagna", "tipo_istituzione",   "istituzioni museali (in generale)",   456,    NA,    NA,    NA_integer_, NA_integer_,   NA_character_,
-2022,  "Emilia-Romagna",  "tipo_istituzione",   "museo, galleria e/o raccolta",       376,    NA,    NA,    NA_integer_, NA_integer_,   NA_character_,
-2022,  "Emilia-Romagna",  "tipo_istituzione",   "monumento o complesso monumentale",  68,    NA,     NA,    NA_integer_, NA_integer_,   NA_character_,
-2022,  "Emilia-Romagna",  "tipo_istituzione",   "area /parco archeologico",           12,    NA,     NA,    NA_integer_, NA_integer_,   NA_character_,
-2022,  "Emilia-Romagna",  "tipo_istituzione",   "biblioteche",                        NA_integer_,    NA,           NA,    NA_integer_, NA_integer_,   NA_character_,
+   # Parma provincia
+  2022 , "Parma"             , "tipo_istituzione" , "istituzioni museali (in generale)" ,          65 , 49             , 1.9           , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2022 , "Parma"             , "tipo_istituzione" , "museo, galleria e/o raccolta"      , NA_integer_ , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2022 , "Parma"             , "tipo_istituzione" , "monumento o complesso monumentale" , NA_integer_ , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2022 , "Parma"             , "tipo_istituzione" , "area /parco archeologico"          , NA_integer_ , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2022 , "Parma"             , "tipo_istituzione" , "biblioteche"                       , NA_integer_ , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
 
-# ----- 2024 -------------- Parma comune                
-2024,  "Parma (capoluogo)",   "tipo_istituzione",   "istituzioni museali (in generale)",  NA_integer_,    NA,             NA,   NA_integer_, NA_integer_,    NA_character_,
-2024,  "Parma (capoluogo)",   "tipo_istituzione",   "museo, galleria e/o raccolta",       23,            NA,             NA,   NA_integer_, NA_integer_,          "fonte: PAT-ER", 
-2024,  "Parma (capoluogo)",   "tipo_istituzione",   "monumento o complesso monumentale",  NA_integer_,    NA,             NA,   NA_integer_, NA_integer_,    NA_character_,
-2024,  "Parma (capoluogo)",  "tipo_istituzione",    "area /parco archeologico",           2,             NA,           NA,    NA_integer_, NA_integer_,   "fonte: PAT-ER", 
-2024,  "Parma (capoluogo)",   "tipo_istituzione",   "biblioteche",                        19,             NA,             NA,   NA_integer_, NA_integer_,    "fonte: Sistema Bibliotecario Parmense", 
-2024,  "Parma (capoluogo)",  "tipo_istituzione",    "teatri storici",                     4,             NA,           NA,    NA_integer_, NA_integer_,   "fonte: PAT-ER", 
-              
-# ----- 2024 -------------- Parma provincia               
-2024,  "Parma",     "tipo_istituzione",   "istituzioni museali (in generale)",  NA_integer_,    NA,             NA,   NA_integer_, NA_integer_,    NA_character_,
-2024,  "Parma",     "tipo_istituzione",   "museo, galleria e/o raccolta",       77,            NA,             NA,   NA_integer_, NA_integer_,     "fonte: PAT-ER",
-2024,  "Parma",     "tipo_istituzione",   "monumento o complesso monumentale",  NA_integer_,    NA,             NA,   NA_integer_, NA_integer_,    NA_character_,
-2024,  "Parma",     "tipo_istituzione",   "area /parco archeologico",           7          ,    NA,           NA,    NA_integer_, NA_integer_,     "fonte: PAT-ER",
-2024,  "Parma",     "tipo_istituzione",   "biblioteche del Min Cultura",        1,              NA,             NA,   3530       ,     10,         NA_character_,
-2024,  "Parma",     "tipo_istituzione",   "biblioteche",                        106,            NA,             NA,   NA_integer_, NA_integer_,    "fonte: Sistema Bibliotecario Parmense, Incl: Pubbliche, Scolastiche, Specializzate",
-2024,  "Parma",  "tipo_istituzione",    "teatri storici",                     11,             NA,           NA,    NA_integer_, NA_integer_,   "fonte: PAT-ER", 
-               
-# ----- 2024 -------------- REgione                
-2024,  "Emilia-Romagna",  "tipo_istituzione",   "istituzioni museali (in generale)", NA_integer_,    NA,             NA,   NA_integer_, NA_integer_,    NA_character_,
-2024,  "Emilia-Romagna",  "tipo_istituzione",   "museo, galleria e/o raccolta",      546,            61,             NA,   NA_integer_, NA_integer_,    "fonte: PAT-ER",
-2024,  "Emilia-Romagna",  "tipo_istituzione",   "monumento o complesso monumentale", NA_integer_,    NA,             NA,   NA_integer_, NA_integer_,    NA_character_,
-2024,  "Emilia-Romagna",  "tipo_istituzione",   "area /parco archeologico",          401        ,    NA,           NA,    NA_integer_, NA_integer_,   "fonte: PAT-ER",
-2024,  "Emilia-Romagna",  "tipo_istituzione",   "biblioteche del Min Cultura",        2,              NA,             NA,   10059,            33,        NA_character_,
-2024,  "Emilia-Romagna",  "tipo_istituzione",   "biblioteche",                       1056,           42.2,           NA,   NA_integer_,  NA_integer_,   "Incl: Conservazione, Itineranti, Nazionali, Pubbliche, Scolastiche, Specializzate",
-2024,  "Emilia-Romagna",  "tipo_istituzione",    "teatri storici",                     117,             NA,           NA,    NA_integer_, NA_integer_,   "fonte: PAT-ER", 
+   # REgione
+  2022 , "Emilia-Romagna"    , "tipo_istituzione" , "istituzioni museali (in generale)" ,         456 , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2022 , "Emilia-Romagna"    , "tipo_istituzione" , "museo, galleria e/o raccolta"      ,         376 , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2022 , "Emilia-Romagna"    , "tipo_istituzione" , "monumento o complesso monumentale" ,          68 , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2022 , "Emilia-Romagna"    , "tipo_istituzione" , "area /parco archeologico"          ,          12 , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2022 , "Emilia-Romagna"    , "tipo_istituzione" , "biblioteche"                       , NA_integer_ , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
 
+   # ----- 2024 -------------- Parma comune
+  2024 , "Parma (capoluogo)" , "tipo_istituzione" , "istituzioni museali (in generale)" , NA_integer_ , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2024 , "Parma (capoluogo)" , "tipo_istituzione" , "museo, galleria e/o raccolta"      ,          23 , NA             , NA            , NA_integer_    , NA_integer_ , "fonte: PAT-ER"                                                                      ,
+   2024 , "Parma (capoluogo)" , "tipo_istituzione" , "monumento o complesso monumentale" , NA_integer_ , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2024 , "Parma (capoluogo)" , "tipo_istituzione" , "area /parco archeologico"          ,           2 , NA             , NA            , NA_integer_    , NA_integer_ , "fonte: PAT-ER"                                                                      ,
+   2024 , "Parma (capoluogo)" , "tipo_istituzione" , "biblioteche"                       ,          19 , NA             , NA            , NA_integer_    , NA_integer_ , "fonte: Sistema Bibliotecario Parmense"                                              ,
+   2024 , "Parma (capoluogo)" , "tipo_istituzione" , "teatri storici"                    ,           4 , NA             , NA            , NA_integer_    , NA_integer_ , "fonte: PAT-ER"                                                                      ,
+
+   # ----- 2024 -------------- Parma provincia
+  2024 , "Parma"             , "tipo_istituzione" , "istituzioni museali (in generale)" , NA_integer_ , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2024 , "Parma"             , "tipo_istituzione" , "museo, galleria e/o raccolta"      ,          77 , NA             , NA            , NA_integer_    , NA_integer_ , "fonte: PAT-ER"                                                                      ,
+   2024 , "Parma"             , "tipo_istituzione" , "monumento o complesso monumentale" , NA_integer_ , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2024 , "Parma"             , "tipo_istituzione" , "area /parco archeologico"          ,           7 , NA             , NA            , NA_integer_    , NA_integer_ , "fonte: PAT-ER"                                                                      ,
+   2024 , "Parma"             , "tipo_istituzione" , "biblioteche del Min Cultura"       ,           1 , NA             , NA            ,           3530 ,          10 , NA_character_                                                                        ,
+   2024 , "Parma"             , "tipo_istituzione" , "biblioteche"                       ,         106 , NA             , NA            , NA_integer_    , NA_integer_ , "fonte: Sistema Bibliotecario Parmense, Incl: Pubbliche, Scolastiche, Specializzate" ,
+   2024 , "Parma"             , "tipo_istituzione" , "teatri storici"                    ,          11 , NA             , NA            , NA_integer_    , NA_integer_ , "fonte: PAT-ER"                                                                      ,
+
+   # ----- 2024 -------------- REgione
+  2024 , "Emilia-Romagna"    , "tipo_istituzione" , "istituzioni museali (in generale)" , NA_integer_ , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2024 , "Emilia-Romagna"    , "tipo_istituzione" , "museo, galleria e/o raccolta"      ,         546 , 61             , NA            , NA_integer_    , NA_integer_ , "fonte: PAT-ER"                                                                      ,
+   2024 , "Emilia-Romagna"    , "tipo_istituzione" , "monumento o complesso monumentale" , NA_integer_ , NA             , NA            , NA_integer_    , NA_integer_ , NA_character_                                                                        ,
+   2024 , "Emilia-Romagna"    , "tipo_istituzione" , "area /parco archeologico"          ,         401 , NA             , NA            , NA_integer_    , NA_integer_ , "fonte: PAT-ER"                                                                      ,
+   2024 , "Emilia-Romagna"    , "tipo_istituzione" , "biblioteche del Min Cultura"       ,           2 , NA             , NA            ,          10059 ,          33 , NA_character_                                                                        ,
+   2024 , "Emilia-Romagna"    , "tipo_istituzione" , "biblioteche"                       ,        1056 , 42.2           , NA            , NA_integer_    , NA_integer_ , "Incl: Conservazione, Itineranti, Nazionali, Pubbliche, Scolastiche, Specializzate"  ,
+   2024 , "Emilia-Romagna"    , "tipo_istituzione" , "teatri storici"                    ,         117 , NA             , NA            , NA_integer_    , NA_integer_ , "fonte: PAT-ER"                                                                      ,
 )
- 
+
 
 tabyl(musei_n$tipo)
 ```
@@ -3164,18 +3943,30 @@ tabyl(musei_n$tipo)
 #| output: true
 
 musei_n_prep <- musei_n |>
-  filter(anno == "2024" & tipo != "biblioteche del Min Cultura" & !is.na(numero)) |>
+  filter(
+    anno == "2024" & tipo != "biblioteche del Min Cultura" & !is.na(numero)
+  ) |>
   mutate(anno = as.character(anno)) |>
-  mutate(territorio = factor(territorio, levels = c("Parma (capoluogo)", "Parma", "Emilia-Romagna"))) |>
-  mutate(tipo = factor(tipo, levels = c(                                                                              
-    "museo, galleria e/o raccolta",                                                                                
-    "area /parco archeologico",                                                                                    
-    "teatri storici",                                                                                              
-    "biblioteche"                                                                                                  
-    ))) |>  
+  mutate(
+    territorio = factor(
+      territorio,
+      levels = c("Parma (capoluogo)", "Parma", "Emilia-Romagna")
+    )
+  ) |>
+  mutate(
+    tipo = factor(
+      tipo,
+      levels = c(
+        "museo, galleria e/o raccolta",
+        "area /parco archeologico",
+        "teatri storici",
+        "biblioteche"
+      )
+    )
+  ) |>
   select(-anno, -categoria, -n_per_100km2, -op_consultate, -personale, -note) |>
-  arrange( tipo, territorio) |>
-  relocate (territorio , .after = tipo )
+  arrange(tipo, territorio) |>
+  relocate(territorio, .after = tipo)
 
 musei_n_ft <- musei_n_prep |>
   flextable() |>
@@ -3191,55 +3982,55 @@ musei_n_ft <- musei_n_prep |>
     personale = "Personale addetto",
     note = "Note"
   ) |>
-  add_header_lines(values = "Musei, gallerie, monumenti e biblioteche al 2024/2025 \n(confronto territori) ", top = TRUE) |>
+  add_header_lines(
+    values = "Musei, gallerie, monumenti e biblioteche al 2024/2025 \n(confronto territori) ",
+    top = TRUE
+  ) |>
   bold(part = "header", i = 1) |>
   fontsize(size = 14, part = "header", i = 1) |>
   align(align = "center", part = "header", i = 1) |>
-  add_footer_lines("Fonte: Istat, Regione Emilia-Romagna, Sistema Bibliotecario Parmense (vari anni)") |>
+  add_footer_lines(
+    "Fonte: Istat, Regione Emilia-Romagna, Sistema Bibliotecario Parmense (vari anni)"
+  ) |>
   fontsize(size = 9, part = "footer") |>
   italic(part = "footer") |>
-  color(color = grey_sc, part = "footer") |> 
-  flextable::merge_v( j = "tipo", target = c("tipo"), part = "body") |> 
+  color(color = grey_sc, part = "footer") |>
+  flextable::merge_v(j = "tipo", target = c("tipo"), part = "body") |>
   bg(i = ~ territorio == "Parma", j = 2:4, bg = ylw_lg)
 
 musei_n_ft
 
-# Write as docx
-flextable::save_as_docx(musei_n_ft, path = here("data_out","istat_cultura_2024", "musei_n_tbl.docx"))
-# save as RDS
-saveRDS(object = musei_n_prep, file = here("data_out","istat_cultura_2024", "musei_n_prep.rds"))
+#
 ```
 
 Secondo i dati "Pat-ER" (Patrimonio culturale dell'Emilia-Romagna), aggiornati al 2024/25, l'Emilia-Romagna conta 546 **musei, gallerie e collezioni**, di cui il 61% gestiti dal settore pubblico. Di questi, 77 si trovano in provincia di Parma -- la seconda per numerosità. Cfr. sintesi in infografica [https://bbcc.regione.emilia-romagna.it/musei-in-emilia-romagna/](https://bbcc.regione.emilia-romagna.it/musei-in-emilia-romagna/).   
 
 A questi si aggiungono: 401 **siti e monumenti archeologici**, di cui 7 nella provincia di Parma; 131 **castelli visitabili** in regione, di cui 22 nella provincia di Parma; più moltissimi altri luoghi d'interesse (stabilimenti termali, archeologia industriale, cimiteri monumentali, ecc.). [@regioneemiliaromagnaPatrimonioCulturaleDellEmiliaRomagna2026]
 
-La provincia di Parma si distingue anche per l'altissima disponiilità di verde urbano: qui si trovano anche 9 dei 103 **parchi e giardini storici** della Regione.  
-
-
-::: {.callout-note}
-
-L'**Indagine sui musei e le istituzioni similari** è una rilevazione a carattere censuario, condotta da Istat in collaborazione con il Ministero della Cultura (MiC), le Regioni e le Province Autonome. Essa contribuisce a mappare il patrimonio culturale italiano, raccogliendo un'ampia gamma di informazioni su musei e istituti similari, tra le quali le caratteristiche strutturali, i servizi offerti, le attività svolte, i livelli di fruizione da parte del pubblico e i rapporti con il territorio. La prima rilevazione è stata realizzata nel 2012 (dati riferiti al 2011) e la seconda dopo 4 anni, nel 2016 (dati riferiti al 2015). Successivamente, la rilevazione si è svolta a cadenza annuale dal 2018 (dati riferiti al 2017) fino al 2023 (dati riferiti al 2022).
-
-La somministrazione del prossimo questionario avverrà nel 2026 (per i dati riferiti al 2025).
-:::
-
-
+La provincia di Parma si distingue anche per l'altissima disponiilità di **verde urbano** -- circa 88 m^2/abitante, molto sopra la media italiana di 34 m^2/abitante -- @istatBesTerritoriEmilia2025a. Qui si trovano anche 9 dei 103 **parchi e giardini storici** della Regione.  
 
 In base ai dati del servizio bibliotecario regionali [@sistemabibliotecarioparmenseOPACCatalogoBiblioteche2026], l'Emilia romagna conta 1,056 **biblioteche** (comunali, provinciali, statali, universitarie, ecclesiastiche e di enti privati), di cui il 41% in capo a enti locali. 
 
 All'interno del polo bibliotecario di Parma, si contano un totale di **106** biblioteche, di cui: 
-+ 12 Biblioteche dell'Università degli Studi di Parma
-+ 6 Biblioteche statali
-+ 39 Biblioteche della Provincia di Parma
-+ 20 Biblioteche comunali di Parma
-+ 3 Biblioteche di Casa della Musica
-+ 9 Biblioteche scolastiche
-+ 14 Biblioteche convenzionate 
+
++ 12 Biblioteche dell'Università degli Studi di Parma  
++ 6 Biblioteche statali  
++ 39 Biblioteche della Provincia di Parma  
++ 20 Biblioteche comunali di Parma  
++ 3 Biblioteche di Casa della Musica  
++ 9 Biblioteche scolastiche  
++ 14 Biblioteche convenzionate   
 
 <!-- 19 comunali, 106 provinciali e 1 statale. [@art-erBibliotecheDellaRegione2025] -->
 <!-- BIBLIOTECHE https://patrimonioculturale.regione.emilia-romagna.it/biblioteche/sistemi-bibliotecari-cataloghi-e-servizi -->
 
+::: {.callout-note}
+### Nota
+
+L'**Indagine sui musei e le istituzioni similari** è la più importante ed estesa rilevazione censuaria Istat, realizzata con il Ministero della Cultura, Regioni e Province Autonome, per mappare il sistema museale italiano. Raccoglie dati su struttura, servizi, attività, pubblico e rapporto con il territorio. Avviata nel 2012, è stata aggiornata l'ultima volta al 2023 (dati riferiti al 2022) -- in allegato una presentazione dei dati più salienti per l'Emilia Romagna [@re-rstatisticaVisualizzazioneDatiSui2023]
+
+La somministrazione del prossimo questionario avverrà nel 2026 (per i dati riferiti al 2025).
+:::
 
 # ____
 
@@ -3268,10 +4059,14 @@ Tra le regioni italiane, Lombardia, Emilia-Romagna e Veneto restano quelle più 
 
 bes_brev <- all_bes |>
   dplyr::filter(dominio %in% c("Innovazione, ricerca e creatività")) |>
-  dplyr::filter(indicatore %in% c("Propensione alla brevettazione" 
-  )) |> 
-  dplyr::filter(territorio %in% c("Parma", "Emilia-Romagna" , "Italia")) |>
-  dplyr::mutate (territorio = factor(territorio, levels = c("Parma", "Emilia-Romagna" , "Italia")))
+  dplyr::filter(indicatore %in% c("Propensione alla brevettazione")) |>
+  dplyr::filter(territorio %in% c("Parma", "Emilia-Romagna", "Italia")) |>
+  dplyr::mutate(
+    territorio = factor(
+      territorio,
+      levels = c("Parma", "Emilia-Romagna", "Italia")
+    )
+  )
 ```
 
 ```{r}
@@ -3280,13 +4075,14 @@ bes_brev <- all_bes |>
 #| output: false
 
 # Plot: histogram ----
-bes_brev_plot <- bes_brev  |>
+bes_brev_plot <- bes_brev |>
   select(-fonte, -(v2004:v2017), -v2023, -v2024, -unita_misura) |>
   tidyr::pivot_longer(
     cols = starts_with("v"),
     names_to = "anno",
     values_to = "valore",
-    names_prefix = "v") |>
+    names_prefix = "v"
+  ) |>
   mutate(anno = as.integer(anno)) |>
   mutate(valore_num = as.numeric(gsub(",", ".", valore))) |>
   tidyr::complete(anno, territorio, indicatore) |>
@@ -3298,13 +4094,17 @@ bes_brev_plot <- bes_brev  |>
       "Parma" = ylw_lg,
       "Emilia-Romagna" = grn_lg,
       "Italia" = blu_lg,
-      "Nord-est" = grey_md1)) +
+      "Nord-est" = grey_md1
+    )
+  ) +
   scale_x_continuous(
     breaks = seq(2004, 2025, by = 1),
-    expand = expansion(mult = c(0.02, 0.02))) +
+    expand = expansion(mult = c(0.02, 0.02))
+  ) +
   scale_y_continuous(
     labels = scales::label_number(big.mark = ".", decimal.mark = ","),
-    breaks = scales::breaks_extended(n = 10)) +
+    breaks = scales::breaks_extended(n = 10)
+  ) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_line(color = "grey90", linewidth = rel(0.3)),
@@ -3312,18 +4112,24 @@ bes_brev_plot <- bes_brev  |>
     axis.text.x = element_text(angle = 0, hjust = 1, size = rel(0.85)),
     axis.text.y = element_text(size = rel(0.85)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     strip.text = element_text(size = rel(1.1), face = "bold"),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
     legend.position = "bottom",
-    panel.spacing = unit(1, "lines")) +
+    panel.spacing = unit(1, "lines")
+  ) +
   labs(
     title = "Propensione alla brevettazione",
     subtitle = "Confronto territoriale",
     caption = "Fonte: Istat, BES (Benessere Equo e Sostenibile), 2025",
     x = "",
-    y = "N. di domande di brevetto per milione di abitanti")
+    y = "N. di domande di brevetto per milione di abitanti"
+  )
 
 bes_brev_plot
 ```
@@ -3345,23 +4151,50 @@ bes_brev_plot
 
 # Dati 1 - quota % sul totale nazionale
 brevetti_quota <- tibble(
-  regione = c("Lombardia", "Emilia-Romagna", "Veneto", "Piemonte",
-              "Toscana", "Lazio", "Trentino-Alto Adige",
-              "Friuli Venezia Giulia", "Marche", "Liguria"),
-  quota_pct = c(30.25, 19.00, 13.41, 10.51, 6.51,
-                5.42, 2.91, 2.25, 2.04, 1.85)
+  regione = c(
+    "Lombardia",
+    "Emilia-Romagna",
+    "Veneto",
+    "Piemonte",
+    "Toscana",
+    "Lazio",
+    "Trentino-Alto Adige",
+    "Friuli Venezia Giulia",
+    "Marche",
+    "Liguria"
+  ),
+  quota_pct = c(30.25, 19.00, 13.41, 10.51, 6.51, 5.42, 2.91, 2.25, 2.04, 1.85)
 )
-
 
 
 # dati 2 - domande presentate per mln di abitanti
 brevetti_procapite <- tibble(
-  regione = c("Emilia-Romagna", "Lombardia", "Veneto",
-              "Trentino-Alto Adige", "Piemonte",
-              "Friuli Venezia Giulia", "Toscana", "ITALIA",
-              "Marche", "Liguria", "Abruzzo"),
-  domande_mln = c(207.1, 146.6, 134.2, 130.2, 120.0,
-                  91.2, 86.3, 82.3, 66.8, 59.6, 46.5)
+  regione = c(
+    "Emilia-Romagna",
+    "Lombardia",
+    "Veneto",
+    "Trentino-Alto Adige",
+    "Piemonte",
+    "Friuli Venezia Giulia",
+    "Toscana",
+    "ITALIA",
+    "Marche",
+    "Liguria",
+    "Abruzzo"
+  ),
+  domande_mln = c(
+    207.1,
+    146.6,
+    134.2,
+    130.2,
+    120.0,
+    91.2,
+    86.3,
+    82.3,
+    66.8,
+    59.6,
+    46.5
+  )
 )
 ```
 
@@ -3370,7 +4203,6 @@ brevetti_procapite <- tibble(
 #| label: epo_plot
 #| output: true
 
-
 epo_brev_quota_plot <- brevetti_quota |>
   mutate(
     regione = fct_reorder(regione, quota_pct),
@@ -3378,10 +4210,15 @@ epo_brev_quota_plot <- brevetti_quota |>
   ) |>
   ggplot(aes(x = regione, y = quota_pct, fill = highlight)) +
   geom_col(width = 0.7) +
-  geom_text(aes(label = paste0(format(quota_pct, decimal.mark = ","), "%")),
-            hjust = -0.1, size = 3) +
-  scale_fill_manual(values = c("TRUE" = grn_lg, "FALSE" = grey_md1),
-                    guide = "none") +
+  geom_text(
+    aes(label = paste0(format(quota_pct, decimal.mark = ","), "%")),
+    hjust = -0.1,
+    size = 3
+  ) +
+  scale_fill_manual(
+    values = c("TRUE" = grn_lg, "FALSE" = grey_md1),
+    guide = "none"
+  ) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
   coord_flip() +
   theme_minimal(base_size = 13) +
@@ -3391,13 +4228,18 @@ epo_brev_quota_plot <- brevetti_quota |>
     panel.grid.minor = element_blank(),
     axis.text.x = element_blank(),
     axis.text.y = element_text(size = rel(0.85)),
-     strip.text.x=element_text(size = rel(0.8), face = "bold"),
-    plot.title = element_text(size = rel(1), face = "bold", margin = margin(b = 5)),
+    strip.text.x = element_text(size = rel(0.8), face = "bold"),
+    plot.title = element_text(
+      size = rel(1),
+      face = "bold",
+      margin = margin(b = 5)
+    ),
     plot.subtitle = element_text(size = rel(0.9))
   ) +
   labs(
     title = "In % sul totale nazionale",
-    x = NULL, y = NULL
+    x = NULL,
+    y = NULL
   )
 
 
@@ -3412,10 +4254,15 @@ epo_brev_proc_plot <- brevetti_procapite |>
   ) |>
   ggplot(aes(x = regione, y = domande_mln, fill = highlight)) +
   geom_col(width = 0.7) +
-  geom_text(aes(label = format(domande_mln, decimal.mark = ",")),
-            hjust = -0.1, size = 3) +
-  scale_fill_manual(values = c("ER" = grn_lg, "Italia" = blu_lg, "other" = grey_md1),
-                    guide = "none") +
+  geom_text(
+    aes(label = format(domande_mln, decimal.mark = ",")),
+    hjust = -0.1,
+    size = 3
+  ) +
+  scale_fill_manual(
+    values = c("ER" = grn_lg, "Italia" = blu_lg, "other" = grey_md1),
+    guide = "none"
+  ) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
   coord_flip() +
   theme_minimal(base_size = 13) +
@@ -3425,22 +4272,32 @@ epo_brev_proc_plot <- brevetti_procapite |>
     panel.grid.minor = element_blank(),
     axis.text.x = element_blank(),
     axis.text.y = element_text(size = rel(0.85)),
- strip.text.x=element_text(size = rel(0.8), face = "bold"),
-    plot.title = element_text(size = rel(1), face = "bold", margin = margin(b = 5)),
+    strip.text.x = element_text(size = rel(0.8), face = "bold"),
+    plot.title = element_text(
+      size = rel(1),
+      face = "bold",
+      margin = margin(b = 5)
+    ),
     plot.subtitle = element_text(size = rel(0.9))
   ) +
   labs(
     title = "N./milione di abitanti",
-    x = NULL, y = NULL
+    x = NULL,
+    y = NULL
   )
 
 # Combine with patchwork
-epo_combined_plot <- epo_brev_quota_plot + epo_brev_proc_plot +
+epo_combined_plot <- epo_brev_quota_plot +
+  epo_brev_proc_plot +
   plot_annotation(
     title = "Domande di brevetto presentate all'EPO \n(European Patent Office) nel 2024",
     caption = "Fonte: Eurostat, Patent statistics, 2026",
     theme = theme(
-      plot.title = element_text(size = 16, face = "bold", margin = margin(b = 10)),
+      plot.title = element_text(
+        size = 16,
+        face = "bold",
+        margin = margin(b = 10)
+      ),
       plot.caption = element_text(size = 10, hjust = 0)
     )
   )
@@ -3448,12 +4305,24 @@ epo_combined_plot <- epo_brev_quota_plot + epo_brev_proc_plot +
 epo_combined_plot
 
 # Save data as RDS
-saveRDS(object = brevetti_quota, file = here("data_out", "eurostat_brevetti", "brevetti_quota.rds"))
-saveRDS(object = brevetti_procapite, file = here("data_out", "eurostat_brevetti", "brevetti_procapite.rds"))
+saveRDS(
+  object = brevetti_quota,
+  file = here("data_out", "eurostat_brevetti", "brevetti_quota.rds")
+)
+saveRDS(
+  object = brevetti_procapite,
+  file = here("data_out", "eurostat_brevetti", "brevetti_procapite.rds")
+)
 
 # Save data as xlsx
-writexl::write_xlsx(brevetti_quota, path = here("data_out", "eurostat_brevetti", "brevetti_quota.xlsx"))
-writexl::write_xlsx(brevetti_procapite, path = here("data_out", "eurostat_brevetti", "brevetti_procapite.xlsx"))
+writexl::write_xlsx(
+  brevetti_quota,
+  path = here("data_out", "eurostat_brevetti", "brevetti_quota.xlsx")
+)
+writexl::write_xlsx(
+  brevetti_procapite,
+  path = here("data_out", "eurostat_brevetti", "brevetti_procapite.xlsx")
+)
 ```
 
 
@@ -3482,12 +4351,28 @@ Questi indici mostrano una situazione abbastanza disomogenea tra Parma capoluogo
 
 desier <- tibble(
   territorio = rep(c("Parma", "PR", "ER"), each = 4),
-  dimensione = rep(c("CONNETTIVITÀ", "INTEGRAZIONE DELLE TECNOLOGIE DIGITALI",
-                      "CAPITALE UMANO", "SERVIZI PUBBLICI DIGITALI"), 3),
+  dimensione = rep(
+    c(
+      "CONNETTIVITÀ",
+      "INTEGRAZIONE DELLE TECNOLOGIE DIGITALI",
+      "CAPITALE UMANO",
+      "SERVIZI PUBBLICI DIGITALI"
+    ),
+    3
+  ),
   valore = c(
-    17.10, 10.22, 11.96, 10.41,  # Parma (tot 49.69)
-    11.47,  5.34,  6.40,  6.09,  # PR (tot 29.30)
-    12.48,  5.96,  6.86,  6.54   # ER (tot 31.83)
+    17.10,
+    10.22,
+    11.96,
+    10.41, # Parma (tot 49.69)
+    11.47,
+    5.34,
+    6.40,
+    6.09, # PR (tot 29.30)
+    12.48,
+    5.96,
+    6.86,
+    6.54 # ER (tot 31.83)
   )
 )
 ```
@@ -3498,14 +4383,20 @@ desier <- tibble(
 #| output: true
 
 desier_plot <- desier |>
-  mutate(territorio = factor(territorio, levels = c("Parma", "PR", "ER"),
-                             labels = c("Parma (città)", "Provincia di Parma", "Emilia-Romagna"))) |>
+  mutate(
+    territorio = factor(
+      territorio,
+      levels = c("Parma", "PR", "ER"),
+      labels = c("Parma (città)", "Provincia di Parma", "Emilia-Romagna")
+    )
+  ) |>
   ggplot(aes(x = dimensione, y = valore, fill = territorio)) +
   geom_col(position = "dodge", width = 0.7) +
   geom_text(
     aes(label = format(valore, decimal.mark = ",")),
     position = position_dodge(width = 0.7),
-    vjust = -0.5, size = 3
+    vjust = -0.5,
+    size = 3
   ) +
   scale_x_discrete(labels = \(x) str_wrap(x, width = 15)) +
   scale_fill_manual(
@@ -3525,7 +4416,11 @@ desier_plot <- desier |>
     axis.text.x = element_text(angle = 0, hjust = 0.5, size = rel(0.9)),
     axis.text.y = element_text(size = rel(1)),
     axis.title = element_text(size = rel(1), face = "bold"),
-    plot.title = element_text(size = rel(1.3), face = "bold", margin = margin(b = 10)),
+    plot.title = element_text(
+      size = rel(1.3),
+      face = "bold",
+      margin = margin(b = 10)
+    ),
     legend.text = element_text(size = rel(0.9)),
     legend.title = element_blank(),
     legend.position = "bottom",
@@ -3541,11 +4436,11 @@ desier_plot <- desier |>
 
 desier_plot
 
-# Save data as RDS 
+# Save data as RDS
 saveRDS(desier, file = here("data_out", "desier", "desier.rds"))
-# Save data as xlsx 
+# Save data as xlsx
 writexl::write_xlsx(desier, path = here("data_out", "desier", "desier.xlsx"))
- 
+
 ```
 
 

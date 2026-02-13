@@ -55,6 +55,8 @@ data/data_out/**/*
 # ----------------- Personal 
 # OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
 .httr-oauth
+# xche lo sto dando anche a Sinloc!!!
+_notes/**/*.*   
 
 # ----------------- Unnecessary
 zzz/**/*.*

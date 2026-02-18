@@ -1,0 +1,20 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Input per Bilancio di Missione"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: bilancio_2025.qmd
+        text: Bilancio 2025
+
+format:
+  html:
+    theme: flatly
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    lang: it

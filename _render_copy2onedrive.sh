@@ -7,12 +7,14 @@ SOURCE="/Users/luisamimmi/Github/bilancio_missione"
 DEST="/Users/luisamimmi/Library/CloudStorage/OneDrive-FondazioneCassadiRisparmiodiParmaeMontediCreditosuPegnodiBusseto/Input_bil_missione_2025"
 mkdir -p "$DEST"
 
-# 2) Render index.qmd to both formats ------------------------------------------
-quarto render index.qmd --to html
-quarto render index.qmd --to docx
+# 2) Render website (outputs to docs/) -----------------------------------------
+quarto render
+
+# 2b) Render DOCX separately ---------------------------------------------------
+quarto render bilancio_2025.qmd --to docx
 
 # 3.a) Copy DOCX file ----------------------------------------------------------
-cp -v "$SOURCE/index.docx" "$DEST/2025_bil-missione.docx"
+cp -v "$SOURCE/docs/bilancio_2025.docx" "$DEST/2025_bil-missione.docx"
 
 # 3.b) Copy data folders -------------------------------------------------------
 cp -Rv "$SOURCE/data_out" "$DEST/"

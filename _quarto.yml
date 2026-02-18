@@ -9,7 +9,7 @@ website:
       - href: index.qmd
         text: Home
       - href: bilancio_2025.qmd
-        text: Bilancio 2025
+        text: Bilancio di Missione 2025
 
 format:
   html:
@@ -18,3 +18,4 @@ format:
     toc-depth: 3
     toc-location: left
     lang: it
+    embed-resources: true

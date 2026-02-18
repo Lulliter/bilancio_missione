@@ -1,39 +1,49 @@
-# Input per Bilancio di missione 2025
+# Input per Bilancio di Missione 2025
 
+Sito Quarto per la condivisione interna di dati e analisi per il Bilancio di Missione 2025.
 
-Dati di input per bilancio di missione 2025
+## Struttura
 
+```
+bilancio_missione/
+├── _quarto.yml           # Configurazione sito Quarto
+├── index.qmd             # Home page
+├── bilancio_2025.qmd     # Report principale
+├── docs/                 # Output renderizzato (per GitHub Pages)
+├── data_in/              # Dati di input (ISTAT, BES, ecc.)
+├── data_out/             # Dati di output (grafici, tabelle)
+└── R/                    # Funzioni R
+```
 
-## Aggiornamento 
+## Workflow
 
-Progetto creato a Genaio/Febbraio 2026. 
-
-La struttura è pensata per restituire sia un documento sintetico che i dati di input e gli artefatti di output. Per questo le 2 cartelle sono strutturate con le stesse sotto cartelle. 
-
-+ `data_in/` per i dati di input (es. dati di ISTAT, BES, RE-R ecc.) e
-+ `data_out/` per i dati di output (es. grafici, tabelle, ecc.) che vengono poi copiati su OneDrive.
-
-
-## Workflow minimale
-
-1. Il file `index.qmd` è il file principale che contiene il codice per generare sia l'output HTML che il documento Word. 
-  + Qui invece che da `docs/` GH Pages pubblica direttamente da root, dove c'è solo il file `index.qmd`, che viene 1) pubblicato come `html` e 2) anche salvato in versione `2025_bil-missione.docx` su OneDrive.
-  
-2. Il file `_render_copy2onedrive.sh` è uno script bash che esegue `index.qmd` per generare sia `index.html` che `2025_bil-missione.docx`, e poi copia questi file (insieme a `data_out/` e `data_in/`) nella cartella condivisa OneDrive.
-
-
+1. Renderizza il sito:
 ```bash
-# Esegue index.qmd in HTML + DOCX e copia su OneDrive
-./_render_copy2onedrive.sh
+quarto render
+```
 
-# Commit e push su GitHub per GitHub Pages
-git add index.html
+2. Copia su OneDrive e renderizza:
+```bash
+./_render_copy2onedrive.sh
+```
+
+3. Commit e push:
+```bash
+git add -A
 git commit -m "Aggiorna report"
 git push
 ```
 
 ## Output
 
-- **index.html** - Pubblicato via GitHub Pages su: https://[username].github.io/bilancio_missione/
-- **2025_bil-missione.docx** - Copiato nella cartella condivisa OneDrive
-- **data_out/** e **data_in/** - Copiati nella cartella condivisa OneDrive
+- **GitHub Pages**: servito da `docs/` su [https://lulliter.github.io/bilancio_missione/](https://lulliter.github.io/bilancio_missione/)
+- **OneDrive**: `2025_bil-missione.docx` + cartelle `data_in/` e `data_out/`
+
+## GitHub Pages
+
+Configurazione: Settings → Pages → Deploy from branch `master` `/docs`
+
+## Dati
+
+Tutte le fonti dati utilizzate sono pubbliche e open access (ISTAT, BES, Eurostat, ecc.). Le citazioni sono incluse nel documento e nella bibliografia (`CRP_bil_miss.bib`).
+

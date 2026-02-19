@@ -10,6 +10,8 @@ website:
         text: Home
       - href: bilancio_2025.qmd
         text: Bilancio di Missione 2025
+      - href: questions.qmd
+        text: Domande e approfondimenti
 
 format:
   html:

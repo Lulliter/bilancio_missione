@@ -3693,10 +3693,10 @@ tabyl(bes_servizi$indicatore)
 Nella qualità dei servizi sul territorio, si evidenziano performance migliori a Parma rispetto alla media regionale per quasi tutti gli indicatori considerati, in particolare nella **disponibilità di verde urbano**. Sui **posti-km offerti dal trasporto pubblico locale**, Parma è al di sopra della regione, ma resta al di sotto della media nazionale.
 
 ```{r}
-#| label: bes_servizi_tbl
+#| label: bes_servizi_urbani_tbl
 #| output: true
 
-bes_servizi_tbl <- bes_servizi |>
+bes_servizi_urbani <- bes_servizi |>
   select(-fonte, -(v2004:v2017), -v2024) |>
   filter(
     indicatore %in%
@@ -3712,7 +3712,10 @@ bes_servizi_tbl <- bes_servizi |>
       )
   ) |>
   relocate(unita_misura, .after = indicatore) |>
-  arrange(indicatore, territorio) |>
+  arrange(indicatore, territorio)
+
+
+bes_servizi_urbani_tbl <- bes_servizi_urbani |>
   flextable() |>
   flextable::merge_v(
     j = "indicatore",
@@ -3748,17 +3751,17 @@ bes_servizi_tbl <- bes_servizi |>
   italic(part = "footer") |>
   color(color = grey_sc, part = "footer")
 
-bes_servizi_tbl
+bes_servizi_urbani_tbl
 
 # save as RDS
 saveRDS(
-  object = bes_servizi,
-  file = here("data_out", "bes_2003_2023", "bes_servizi_tbl.rds")
+  object = bes_servizi_urbani,
+  file = here("data_out", "bes_2003_2023", "bes_servizi_urbani.rds")
 )
 # save as docx
 flextable::save_as_docx(
-  bes_servizi_tbl,
-  path = here("data_out", "bes_2003_2023", "bes_servizi_tbl.docx")
+  bes_servizi_urbani_tbl,
+  path = here("data_out", "bes_2003_2023", "bes_servizi_urbani_tbl.docx")
 )
 ```
 
@@ -3766,11 +3769,14 @@ flextable::save_as_docx(
 
 Nell'ambito ambientale, si evidenzia una certa disomogeneità tra Parma e l'Emilia-Romagna -- come nella **dispersione idrica** in cui la media regionale sembra molto più virtuosa, o nella **concentrazione di polveri sottili** (pur molto al di sotto della media nazionale). Parma mostra performance migliori della media regionale per quel che concerne l'**impermeabilizzazione del suolo** e la **produzione di rifiuti urbani**. 
 
+[DATO QUALITA' ARIA SBAGLIATO ALLA FONTE...]{style="color: red;"}    
+
+
 ```{r}
 #| label: bes_ambiente_tbl
 #| output: true
 
-bes_ambiente_tbl <- bes_servizi |>
+bes_ambiente <- bes_servizi |>
   select(-fonte, -(v2004:v2017), -v2024) |>
   filter(
     indicatore %in%
@@ -3785,7 +3791,10 @@ bes_ambiente_tbl <- bes_servizi |>
       )
   ) |>
   relocate(unita_misura, .after = indicatore) |>
-  arrange(indicatore, territorio) |>
+  arrange(indicatore, territorio)
+
+
+bes_ambiente_tbl <- bes_ambiente |>
   flextable() |>
   flextable::merge_v(
     j = "indicatore",
@@ -3825,8 +3834,8 @@ bes_ambiente_tbl
 
 # save as RDS
 saveRDS(
-  object = bes_servizi,
-  file = here("data_out", "bes_2003_2023", "bes_ambiente_tbl.rds")
+  object = bes_ambiente,
+  file = here("data_out", "bes_2003_2023", "bes_ambiente.rds")
 )
 # save as docx
 flextable::save_as_docx(

@@ -94,8 +94,7 @@ f_ft_word <- function(ft) {
       layout = "autofit", # Word layout mode (diff flextable::autofit)
       align = "left",
       opts_word = list(
-        split = FALSE, # <- DO NOT let rows break across pages
-        repeat_headers = TRUE # <- repeat header row(s) on subsequent pages
+        split = FALSE # <- DO NOT let rows break across pages
       )
     ) |>
     fit_to_width(max_width = 6.7) |>

@@ -3881,7 +3881,7 @@ flextable::save_as_docx(
 
 ### [Tbl] Ambiente 2
 ```{r}
-#| label: bes_ambiente_tbl
+#| label: bes_ambiente2_tbl
 #| output: true
 
 bes_ambiente2 <- bes_servizi |>

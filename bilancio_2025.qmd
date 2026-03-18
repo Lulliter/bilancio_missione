@@ -61,7 +61,7 @@ ylw_sc <- "#b27d2c"
 ylw_md <- "#d9a44a"
 ylw_lg <- "#f0c166"
 
-# maschi <- "#6B8FAD"
+maschi <- "#6B8FAD"
 femmine <- "#C47A87"
 
 grave <- "#834ba0"

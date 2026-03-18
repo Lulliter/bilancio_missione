@@ -126,7 +126,7 @@ resid_stran_eta5_sex_PR <- readRDS(here(
 # Import dati stranieri ER ----
 # Puliti in `data_in/istat_demo_stran_2025/convert_istat_pop_2tidy.R` (B)
 resid_stran_eta5_sex_ER <- readRDS(
-  "~/Github/bilancio_missione/data_in/pop_resid_2025/istat_demo_stran_2025/resid_stran_eta5_sex_ER.rds"
+  here("data_in", "pop_resid_2025", "istat_demo_stran_2025", "resid_stran_eta5_sex_ER.rds")
 )
 
 # Import dati pop residente x sesso/eta in distretti ER ----

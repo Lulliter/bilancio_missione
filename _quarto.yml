@@ -5,21 +5,25 @@ project:
 website:
   title: "Input per Bilancio di Missione"
   site-url: https://lulliter.github.io/bilancio_missione/
-  # BANNER (icone vedi https://icons.getbootstrap.com/)
-  announcement:
-    icon: lock # info-circle | lightbulb | megaphone | lock | cone-striped | calendar | mega | exclamation-triangle
-    dismissable: true
-    content: "Sito acessibile solo dalla intranet di Fondazione Cariparma: [https://analisidati.fondazionecrp.it/](https://analisidati.fondazionecrp.it/)"
-    type: warning  #warning| info
-    position: below-navbar
+  # # BANNER (icone vedi https://icons.getbootstrap.com/)
+  # announcement:
+  #   icon: lock # info-circle | lightbulb | megaphone | lock | cone-striped | calendar | mega | exclamation-triangle
+  #   dismissable: true
+  #   content: "Sito acessibile solo dalla intranet di Fondazione Cariparma: [https://analisidati.fondazionecrp.it/](https://analisidati.fondazionecrp.it/)"
+  #   type: warning  #warning| info
+  #   position: below-navbar
   
   navbar:
+    search: false
     left:
       - href: index.qmd
         text: Home
       - href: bilancio_2025.qmd
         text: Bilancio di Missione 2025
-
+    right:
+      - text: "Progetti Osservatorio"
+        icon: database-fill-up #info-circle
+        href: https://osservatorio.fondazionecrp.it/      
 format:
   html:
     theme: flatly

@@ -33,9 +33,13 @@ REPO="$(basename "$SCRIPT_DIR")"
 SRC="$SCRIPT_DIR/docs/"
 DST="$DESTINAZIONE/$REPO/docs/"
 
-# Controlla che il volume Windows sia montato
-if [[ ! -d "$DESTINAZIONE" ]]; then
-    echo "ERRORE: volume Windows non trovato in $DESTINAZIONE"
+# Sveglia il volume SMB (macOS lo riattiva al primo accesso)
+ls "$DESTINAZIONE" &>/dev/null 2>&1
+sleep 1
+
+# Controlla che il volume Windows sia REALMENTE montato (non una cartella fantasma)
+if ! mount | grep -q "/Volumes/areacomuneatutti"; then
+    echo "ERRORE: volume Windows non montato. Connettiti prima alla rete aziendale."
     exit 1
 fi
 
@@ -74,6 +78,9 @@ mkdir -p "$DST"
 # --delete = rimuove nella destinazione i file eliminati nell'origine
 rsync -av --delete "$SRC" "$DST"
 
+# Rimuove il flag "hidden" che macOS aggiunge sui volumi SMB
+chflags -R nohidden "$DST"
+
 echo ""
 echo "Sincronizzazione completata: $REPO/docs/ → $DST"
 
@@ -81,5 +88,5 @@ echo "Sincronizzazione completata: $REPO/docs/ → $DST"
 echo ""
 echo "------------------------------------------------------"
 echo "PROMEMORIA: avvisa Alberto di sincronizzare"
-echo "\"input_bilancio_missione\" come input_bilancio_missione"
+echo "$REPO"
 echo "------------------------------------------------------"

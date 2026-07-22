@@ -1,0 +1,43 @@
+---
+title: "Istruzione"
+author: Fondazione Cariparma - Osservatorio dei dati sociali
+date: last-modified
+date-format: "DD-MMMM-YYYY"
+lang: it
+
+format:
+  html:
+    theme: flatly
+    code-fold: true
+    toc-depth: 3
+    toc_float: true
+    toc-location: left
+    toc-title: Indice
+    embed-resources: true
+  docx:
+    toc: false
+    toc-depth: 3
+    toc-title: "Indice"
+    highlight-style: tango
+    embed-resources: true
+    page-width: 9
+    fig-width: 8
+    fig-height: 6
+    dpi: 300
+execute:
+  eval: true
+  echo: false
+  warning: false
+  error: false
+  output: false
+
+bibliography: ../CRP_bil_miss.bib
+suppress-bibliography: false
+---
+
+# Sinloc Analisi di contesto luglio 2025
++ ISTRUZIONE (1/2) La provincia di Parma registra un livello scolastico buono rispetto alla media nazionale, con
+risultati positivi sia nelle competenze alfabetiche e numeriche, che nella partecipazione alla formazione continua
+
++ ISTRUZIONE (2/2) Le scuole della provincia di Parma registrano una significativa presenza di studenti stranieri, in linea con i dati sulla popolazione; i servizi dedicati agli studenti con disabilità risultano ben
+strutturati e superiori agli standard regionali e nazionali

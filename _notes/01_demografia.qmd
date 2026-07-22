@@ -1,0 +1,57 @@
+---
+title: "Demografia"
+author: Fondazione Cariparma - Osservatorio dei dati sociali
+date: last-modified
+date-format: "DD-MMMM-YYYY"
+lang: it
+
+format:
+  html:
+    theme: flatly
+    code-fold: true
+    toc-depth: 3
+    toc_float: true
+    toc-location: left
+    toc-title: Indice
+    embed-resources: true
+  docx:
+    toc: false
+    toc-depth: 3
+    toc-title: "Indice"
+    highlight-style: tango
+    embed-resources: true
+    page-width: 9
+    fig-width: 8
+    fig-height: 6
+    dpi: 300
+execute:
+  eval: true
+  echo: false
+  warning: false
+  error: false
+  output: false
+
+bibliography: ../CRP_bil_miss.bib
+suppress-bibliography: false
+---
+
+# Sinloc Analisi di contesto luglio e dicembre 2025
+
+> 
++ Parma si configura come un territorio attrattivo, con una alta presenza di cittadini stranieri 
++ Registra segnali di invecchiamento demografico, pur attenuati rispetto al contesto nazionale 
++ L’indice di vecchiaia e di dipendenza, in crescita, indicano l’urgenza di politiche intergenerazionali e di cura
+ 
+## Sinloc: Potenziali implicazioni
+
+> 
++ Promuovere politiche e progetti interculturali, per la piena integrazione dei cittadini stranieri
++ Potenziare i servizi antiviolenza e gli spazi dedicati alle donne, con focus su quelle immigrate.
+
+
+
+# Lula's 
+
+Va guardata la grossa disparità territoriale e i problemi che ne vengono - Vedi unione montana ecc.
+
+

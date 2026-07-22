@@ -636,7 +636,12 @@ piramids_PR_both <- patchwork:::`&.gg`(
 piramids_PR_both
 
 # Save combined plot (manually)
-
+# Salva l'oggetto patchwork come .rds così è riusabile da altri progetti
+# (es. analisi_contesto/presentazione/demographic_trends/slides.qmd).
+saveRDS(
+  object = piramids_PR_both,
+  file = here("data_out", "pop_resid_2025", "piramids_PR_both.rds")
+)
 ```
 
 ## Popolazione per 4 distretti

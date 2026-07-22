@@ -1,0 +1,109 @@
+---
+title: "Servizi sociali - Anziani"
+author: Fondazione Cariparma - Osservatorio dei dati sociali
+date: last-modified
+date-format: "DD-MMMM-YYYY"
+lang: it
+
+format:
+  html:
+    theme: flatly
+    code-fold: true
+    toc-depth: 3
+    toc_float: true
+    toc-location: left
+    toc-title: Indice
+    embed-resources: true
+  docx:
+    toc: false
+    toc-depth: 3
+    toc-title: "Indice"
+    highlight-style: tango
+    embed-resources: true
+    page-width: 9
+    fig-width: 8
+    fig-height: 6
+    dpi: 300
+execute:
+  eval: true
+  echo: false
+  warning: false
+  error: false
+  output: false
+
+bibliography: ../CRP_bil_miss.bib
+suppress-bibliography: false
+---
+
+# Sinloc Analisi di contesto luglio 2025
+
++ SERVIZI PER LA POPOLAZIONE ANZIANA
+La percentuale di utenti per i servizi destinati alla popolazione over 65 nella provincia di Parma è in linea con i dati nazionali e regionali: 
+
+  + il servizio più utilizzato e con maggiore copertura comunale è l’**assistenza domiciliare socio-assistenziale (SAD)** 
+  + Per l’**assistenza domiciliare integrata con servizi sanitari (ADI)**, la percentuale di utenti e la copertura comunale è significativamente inferiore ai dati nazionali e regionali
+  + Nei servizi legati a **voucher, assegni di cura e buoni socio-sanitari**, Parma è allineata alla regione per quota di utenti, ma la diffusione sul territorio è più limitata: la percentuale di comuni coinvolti è inferiore rispetto sia alla media regionale che a quella nazionale
+  
+## Sinloc: Potenziali implicazioni
+
+> 
+ 
+# Assistenza in ER
+
+>(tutto da [@Rapportosussidiarieta7682425light, Cap 19.])
+
+Il framework legislativo in materia di disciplina sull’assistenza sanitaria è regolato dalle disposizioni di cui alla _l.r. 23 dicembre 2004, n. 29 e s.m.i._ recante “Norme generali sull’organizzazione ed il funzionamento del servizio sanitario regionale”. L’assistenza sanitaria è erogata in particolare da:
+
++ **8 AUSL (Azienda Unità Sanitaria Locale)** che sono i soggetti attuatori delle linee della regione
+  + Bologna, Ferrara, Imola, Piacenza, Parma, Reggio Emilia, Modena e della Romagna (che comprende le province di Forlì-Cesena,
+Ravenna e Rimini)
++ articolate in **38 Distretti sanitari** che assicurano l'erogazione territoriale dei servizi  
+  + I Distretti sanitari rappresentano l’articolazione territoriale fondamentale del servizio sanitario regionale, assicurando l’integrazione tra servizi sanitari, sociosanitari e sociali. Le funzioni distrettuali includono la gestione dell’assistenza primaria, l’assistenza specialistica ambulatoriale, l’assistenza domiciliare, i servizi consultoriali, la salute mentale territoriale, i servizi per le dipendenze, l’assistenza protesica e la medicina dello sport. Coordina inoltrel’integrazione sociosanitaria con i Comuni attraverso specifici accordi e protocolli operativi.
++ **3 Aziende Ospedaliero-Universitarie** e da 
++ **5 Istituti di Ricovero e Cura a Carattere Scientifico (IRCCS)**
++ **strutture residenziali e semiresidenziali**  per anziani, disabili e disagio mentale sia in età adulta che adolescenziale
++ **cure domiciliari**  
+
++ ppeculiari del modello sanitario regionale è rappresentato dalle **Case della Salute** (già nel 2020 ne risultavano **124**, il più alto a livello nazionale. La Delibera della Giunta Regionale n. 291/2010, a cui ha fatto seguito la delibera n. 2128/2016, definivano già la Casa della salute come una struttura “facilmente riconoscibile e raggiungibile dalla popolazione, dove trovare risposta alla maggior parte dei bisogni, attraverso la garanzia dell’accesso all’erogazione dell’assistenza sanitaria, sociosanitaria e socio-assistenziale in integrazione con i professionisti dell’ambito sociale”: un centro, quindi, il cui valore aggiunto è costituito dall’integrazione e dal coordinamento tra servizi sanitari (ospedale-territorio) e sociali,  improntato alla concretizzazione della medicina d’iniziativa, attraverso la par tecipazione della comunità.)
+
+SOSTENIBILITA? FINANZIARIA: per l’assistenza sanitaria la Regione Emilia-Romagna sostiene un **costo pro-capite pari a circa 2.325 euro** in aumento di circa 300 euro rispetto a quanto era stato registrato nel 2015 (2.021 euro); di questi, circa il 51% finanzia l’assistenza territoriale, il 44% l’assistenza ospedaliera, mentre il restante 5% è destinato alla prevenzione.
+
+# Lula's 
+
++ _Il dato più significativo dal punto di vista delle implicazioni e della programmazione sotto il profilo squisitamente sanitario è rappresentato dall’accelerato processo di invecchiamento della popolazione._ [@Rapportosussidiarieta7682425light]
+  + --> il sistema sanitario regionale deve confrontarsi con un carico di malattia caratterizzato dalla prevalenza delle patologie croniche e degenerative, tipiche delle popolazioni anziane.
+
+
+
+
+
++ Gli indicatori percentuali sugli utenti (PERUSTPOP) relativi a SAD e ADI appaiono molto bassi perché _il dataset Istat, DCIS, rileva esclusivamente la componente sociale dei servizi domiciliari gestita dai Comuni_. La parte sanitaria dell’ADI – che rappresenta la quota ampiamente maggioritaria delle prese in carico domiciliari – non è inclusa nella rilevazione.
+
+
+## LTC 
++ LTC in realta' si applica  _a tutte le persone che siano considerate non
+autosufficienti sulla base di comprovate problematiche cliniche e limitazioni funzionali e che, per questo motivo, necessitino di un’assistenza continuativa sotto forma di prestazioni sanitarie (mediche, infermieristiche, riabilitative, etc) e/o di assistenza tutelare nello svolgimento delle attività della vita quotidiana per un lungo tempo_.... quindi, n**on rientrano solo gli anziani bensì anche i disabili, gli alcolisti e i tossicodipendenti, i malati psichiatrici.**
+
++ SOGGETTI:
+  - **STATO** indirizzi e politiche 
+  - **REGIONI** recepire direttive e organizzare risposta erogando attraverso strutture gestite o accreditate 
+  - [EROGATORI] **Comuni** (componente socio-assistenziale), alle **ASL** (componente sociosanitaria) e all’**INPS** 
+
+SERVIZI 
+
+- L’assistenza _sanitaria_ a domicilio, nota come **ADI (Assistenza Domiciliare Integrata)**, consiste nella presa in carico multidisciplinare e multi-professionale del paziente conseguente alla definizione di un **Piano Assistenziale Individuale (PAI)** mediante l’erogazione delle prestazioni sanitarie adeguate alle specifiche condizioni di salute dell’assistito, con l’obiettivo di promuovere l’autonomia dell’individuo, prevenendo o ritardando la necessità di ricorrere ai servizi residenziali. 
+
+- Le prestazioni erogate al domicilio dai Comuni che, invece, hanno finalità di tipo _sociale_ prendono il nome di **SAD (Servizio di Assistenza Domiciliare)**.
+
+- I **servizi residenziali e semiresidenziali afferenti (centro diurno)**, secondo la definizione fornita dal Ministero della Salute, al “complesso integrato di interventi, procedure e attività sanitarie e socio-sanitarie erogate a soggetti non  autosufficienti, non assistibili a domicilio all’interno di idonei “nuclei” accreditati per la specifica funzione”, rappresentano poi la risposta necessaria per tutti coloro che non hanno più la possibilità di essere assistiti in modo efficace e sicuro al proprio domicilio. 
+
+- Tra le prestazioni di tipo economico, la più diffusa è senza dubbio l**’indennità di accompagnamento**, erogata direttamente all’individuo definito non autosufficiente a prescindere dall’età e dal reddito personale di quest’ultimo, purché sussistano accertate condizioni psico-fisiche da cui derivino esigenze di assistenza continua.
+
+
++ Vedere report [@fondazioneperlasussidiarietaVersoQualeModello2025; @fostiSettoreLongTerm2025; Legge 23 marzo 2023, n. 33 del 2023 “Deleghe al Governo in materia di politiche in favore delle persone anziane”, @DelegheGovernoMateria2023]
+  + prevenzione e invecchiamento attivo
+  + comunita' e lotta a isolamento 
+  + una **presa in carico reale che sia sostenuta da una rete integrata** che coinvolga tutte le dimensioni rilevanti: sociali, sanitarie e assistenziali. 
+  + continuum assistenziale attraverso una rete territoriale di servizi che favorisca la domiciliarità delle cure
+  + introduzione di una Prestazione Universale (PU) sperimentale
+  + supporto caregiver familiari
